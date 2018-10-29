@@ -35,9 +35,9 @@ spring:
         serialization.indent_output: true
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:mariadb://localhost:3306/carcare
+        url: jdbc:mariadb://192.168.99.100:3306/carcare
         username: root
-        password:
+        password: pass
         hikari:
             auto-commit: false
             data-source-properties:
