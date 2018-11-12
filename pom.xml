@@ -675,6 +675,7 @@
 						<version>${maven-war-plugin.version}</version>
 						<configuration>
 							<failOnMissingWebXml>false</failOnMissingWebXml>
+							<warSourceDirectory>target/www/</warSourceDirectory>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -711,6 +712,7 @@
 						<version>${maven-war-plugin.version}</version>
 						<configuration>
 							<failOnMissingWebXml>false</failOnMissingWebXml>
+							<warSourceDirectory>target/www/</warSourceDirectory>
 						</configuration>
 					</plugin>
 					<plugin>
