@@ -1,151 +1,93 @@
 package com.kasztelanic.carcare.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.springframework.data.annotation.PersistenceConstructor;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.io.Serializable;
-import java.util.Objects;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-/**
- * A Vehicle.
- */
 @Entity
 @Table(name = "vehicle")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EqualsAndHashCode(of = { "id" })
+@ToString(of = { "id", "make", "model", "licensePlate" }, includeFieldNames = false)
 public class Vehicle implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Getter
+    private final Long id;
 
     @NotNull
     @Column(name = "make", nullable = false)
-    private String make;
+    @Getter
+    private final String make;
 
     @NotNull
     @Column(name = "model", nullable = false)
-    private String model;
+    @Getter
+    private final String model;
 
     @NotNull
     @Column(name = "license_plate", nullable = false)
-    private String licensePlate;
+    @Getter
+    private final String licensePlate;
 
-    @OneToOne    @JoinColumn(unique = true)
-    private VehicleDetails vehicleDetails;
+    @OneToOne
+    @JoinColumn(unique = true)
+    @Getter
+    @Cascade(CascadeType.ALL)
+    private final VehicleDetails vehicleDetails;
 
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties("")
-    private User owner;
+    @Getter
+    @JsonIgnore
+    private final User owner;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public Long getId() {
-        return id;
+    @PersistenceConstructor
+    @SuppressWarnings("all")
+    private Vehicle() {
+        this.make = null;
+        this.model = null;
+        this.licensePlate = null;
+        this.vehicleDetails = null;
+        this.owner = null;
+        this.id = null;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getMake() {
-        return make;
-    }
-
-    public Vehicle make(String make) {
+    @Builder
+    private Vehicle(@NotNull String make, @NotNull String model, @NotNull String licensePlate,
+            VehicleDetails vehicleDetails, @NotNull User owner) {
         this.make = make;
-        return this;
-    }
-
-    public void setMake(String make) {
-        this.make = make;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public Vehicle model(String model) {
         this.model = model;
-        return this;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    public String getLicensePlate() {
-        return licensePlate;
-    }
-
-    public Vehicle licensePlate(String licensePlate) {
         this.licensePlate = licensePlate;
-        return this;
-    }
-
-    public void setLicensePlate(String licensePlate) {
-        this.licensePlate = licensePlate;
-    }
-
-    public VehicleDetails getVehicleDetails() {
-        return vehicleDetails;
-    }
-
-    public Vehicle vehicleDetails(VehicleDetails vehicleDetails) {
         this.vehicleDetails = vehicleDetails;
-        return this;
-    }
-
-    public void setVehicleDetails(VehicleDetails vehicleDetails) {
-        this.vehicleDetails = vehicleDetails;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public Vehicle owner(User user) {
-        this.owner = user;
-        return this;
-    }
-
-    public void setOwner(User user) {
-        this.owner = user;
-    }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Vehicle vehicle = (Vehicle) o;
-        if (vehicle.getId() == null || getId() == null) {
-            return false;
-        }
-        return Objects.equals(getId(), vehicle.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
-    }
-
-    @Override
-    public String toString() {
-        return "Vehicle{" +
-            "id=" + getId() +
-            ", make='" + getMake() + "'" +
-            ", model='" + getModel() + "'" +
-            ", licensePlate='" + getLicensePlate() + "'" +
-            "}";
+        this.owner = owner;
+        this.id = null;
     }
 }

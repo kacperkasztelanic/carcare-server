@@ -1,21 +1,22 @@
 package com.kasztelanic.carcare.web.rest;
 
-import com.kasztelanic.carcare.CarcareApp;
-import com.kasztelanic.carcare.config.Constants;
-import com.kasztelanic.carcare.domain.Authority;
-import com.kasztelanic.carcare.domain.User;
-import com.kasztelanic.carcare.repository.AuthorityRepository;
-import com.kasztelanic.carcare.repository.UserRepository;
-import com.kasztelanic.carcare.security.AuthoritiesConstants;
-import com.kasztelanic.carcare.service.MailService;
-import com.kasztelanic.carcare.service.UserService;
-import com.kasztelanic.carcare.service.dto.PasswordChangeDTO;
-import com.kasztelanic.carcare.service.dto.UserDTO;
-import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
-import com.kasztelanic.carcare.web.rest.vm.KeyAndPasswordVM;
-import com.kasztelanic.carcare.web.rest.vm.ManagedUserVM;
-import org.apache.commons.lang3.RandomStringUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,15 +33,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.kasztelanic.carcare.CarcareApp;
+import com.kasztelanic.carcare.config.Constants;
+import com.kasztelanic.carcare.domain.Authority;
+import com.kasztelanic.carcare.domain.User;
+import com.kasztelanic.carcare.repository.AuthorityRepository;
+import com.kasztelanic.carcare.repository.UserRepository;
+import com.kasztelanic.carcare.security.AuthoritiesConstants;
+import com.kasztelanic.carcare.service.MailService;
+import com.kasztelanic.carcare.service.UserService;
+import com.kasztelanic.carcare.service.dto.PasswordChangeDTO;
+import com.kasztelanic.carcare.service.dto.UserDTO;
+import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
+import com.kasztelanic.carcare.web.rest.vm.KeyAndPasswordVM;
+import com.kasztelanic.carcare.web.rest.vm.ManagedUserVM;
 
 /**
  * Test class for the AccountResource REST controller.

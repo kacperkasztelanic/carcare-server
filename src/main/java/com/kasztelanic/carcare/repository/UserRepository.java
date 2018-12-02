@@ -18,9 +18,9 @@ import java.time.Instant;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    String USERS_BY_LOGIN_CACHE = "usersByLogin";
+    static final String USERS_BY_LOGIN_CACHE = "usersByLogin";
 
-    String USERS_BY_EMAIL_CACHE = "usersByEmail";
+    static final String USERS_BY_EMAIL_CACHE = "usersByEmail";
 
     Optional<User> findOneByActivationKey(String activationKey);
 
