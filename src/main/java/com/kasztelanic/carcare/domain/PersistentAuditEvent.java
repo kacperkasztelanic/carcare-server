@@ -1,11 +1,24 @@
 package com.kasztelanic.carcare.domain;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Persist AuditEvent managed by the Spring Boot actuator.
@@ -21,61 +34,31 @@ public class PersistentAuditEvent implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id")
+    @Getter
+    @Setter
     private Long id;
 
     @NotNull
     @Column(nullable = false)
+    @Getter
+    @Setter
     private String principal;
 
     @Column(name = "event_date")
+    @Getter
+    @Setter
     private Instant auditEventDate;
 
     @Column(name = "event_type")
+    @Getter
+    @Setter
     private String auditEventType;
 
     @ElementCollection
     @MapKeyColumn(name = "name")
     @Column(name = "value")
     @CollectionTable(name = "jhi_persistent_audit_evt_data", joinColumns = @JoinColumn(name = "event_id"))
+    @Getter
+    @Setter
     private Map<String, String> data = new HashMap<>();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPrincipal() {
-        return principal;
-    }
-
-    public void setPrincipal(String principal) {
-        this.principal = principal;
-    }
-
-    public Instant getAuditEventDate() {
-        return auditEventDate;
-    }
-
-    public void setAuditEventDate(Instant auditEventDate) {
-        this.auditEventDate = auditEventDate;
-    }
-
-    public String getAuditEventType() {
-        return auditEventType;
-    }
-
-    public void setAuditEventType(String auditEventType) {
-        this.auditEventType = auditEventType;
-    }
-
-    public Map<String, String> getData() {
-        return data;
-    }
-
-    public void setData(Map<String, String> data) {
-        this.data = data;
-    }
 }
