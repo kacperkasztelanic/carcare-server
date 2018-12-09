@@ -2,6 +2,7 @@
 # Project Specific
 ######################
 TempClr.java
+/src/main/resources/config/application.properties
 /src/main/webapp/content/css/main.css
 /target/www/**
 /src/test/javascript/coverage/

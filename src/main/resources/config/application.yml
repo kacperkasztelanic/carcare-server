@@ -1,17 +1,9 @@
 # ===================================================================
 # Spring Boot configuration.
-#
-# This configuration will be overridden by the Spring profile you use,
-# for example application-dev.yml if you use the "dev" profile.
-#
-# More information on profiles: https://www.jhipster.tech/profiles/
-# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
 # ===================================================================
 # Standard Spring Boot properties.
-# Full reference is available at:
-# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
 management:
@@ -47,6 +39,16 @@ spring:
             naming:
                 physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
                 implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: carcare.noreply@gmail.com
+        protocol: smtp
+        tls: true
+        properties.mail.smtp:
+           auth: true
+           starttls.enable: true
+           ssl.trust: smtp.gmail.com
     messages:
         basename: i18n/messages
     mvc:
@@ -68,8 +70,6 @@ info:
 
 # ===================================================================
 # JHipster specific properties
-#
-# Full reference is available at: https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
 jhipster:
@@ -86,7 +86,7 @@ jhipster:
         #allow-credentials: true
         #max-age: 1800
     mail:
-        from: carcare@localhost
+        from: carcare.noreply@gmail.com
     swagger:
         default-include-pattern: /api/.*
         title: carcare API
@@ -101,11 +101,6 @@ jhipster:
 
 # ===================================================================
 # Application specific properties
-# Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
-#
-# More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
 # application:
