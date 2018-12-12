@@ -8,9 +8,14 @@ services:
             - SPRING_DATASOURCE_URL=jdbc:mariadb://carcare-mariadb:3306/carcare
             - MAIL_BASE_URL=46.101.121.29
             - JHIPSTER_SLEEP=5
-        ports:
-            - 8080:8080
+        expose:
+            - "8080"
     carcare-mariadb:
         extends:
             file: mariadb.yml
             service: carcare-mariadb
+    reverseproxy:
+        image: reverseproxy
+        ports:
+            - 80:80
+            - 3306:3306
