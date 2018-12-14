@@ -1,30 +1,31 @@
 package com.kasztelanic.carcare.domain;
 
-import java.io.Serializable;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.springframework.data.annotation.PersistenceConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kasztelanic.carcare.util.UuidProvider;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
@@ -32,62 +33,78 @@ import lombok.ToString;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EqualsAndHashCode(of = { "id" })
 @ToString(of = { "id", "make", "model", "licensePlate" }, includeFieldNames = false)
-public class Vehicle implements Serializable {
+public class Vehicle {
 
-    private static final long serialVersionUID = 1L;
-
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     private final Long id;
 
+    @Getter
+    @NotNull
+    @Column(nullable = false, unique = true, updatable = false, length = 36)
+    private final String uuid;
+
+    @Getter
+    @Setter
     @NotNull
     @Column(name = "make", nullable = false)
-    @Getter
-    private final String make;
+    private String make;
 
+    @Getter
+    @Setter
     @NotNull
     @Column(name = "model", nullable = false)
-    @Getter
-    private final String model;
+    private String model;
 
+    @Getter
+    @Setter
     @NotNull
     @Column(name = "license_plate", nullable = false)
-    @Getter
-    private final String licensePlate;
+    private String licensePlate;
 
-    @OneToOne
-    @JoinColumn(unique = true)
     @Getter
-    @Cascade(CascadeType.ALL)
-    private final VehicleDetails vehicleDetails;
-
-    @ManyToOne(optional = false)
+    @Setter
     @NotNull
-    @JsonIgnoreProperties("")
+    @Embedded
+    private VehicleDetails vehicleDetails;
+
     @Getter
+    @Setter
+    @NotNull
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Insurance> insurance;
+
+    @Getter
+    @Setter
     @JsonIgnore
-    private final User owner;
+    @JsonIgnoreProperties("")
+    @NotNull
+    @ManyToOne(optional = false)
+    private User owner;
 
     @PersistenceConstructor
     @SuppressWarnings("all")
     private Vehicle() {
-        this.make = null;
-        this.model = null;
-        this.licensePlate = null;
-        this.vehicleDetails = null;
-        this.owner = null;
         this.id = null;
+        this.uuid = null;
     }
 
     @Builder
-    private Vehicle(@NotNull String make, @NotNull String model, @NotNull String licensePlate,
-            VehicleDetails vehicleDetails, @NotNull User owner) {
+    private Vehicle(String make, String model, String licensePlate, VehicleDetails vehicleDetails, User owner,
+            Set<Insurance> insurance) {
         this.make = make;
         this.model = model;
         this.licensePlate = licensePlate;
         this.vehicleDetails = vehicleDetails;
         this.owner = owner;
+        this.insurance = insurance;
         this.id = null;
+        this.uuid = UuidProvider.newUuid();
+    }
+
+    public void addInsurance(Insurance insurance) {
+        insurance.setVehicle(this);
+        this.insurance.add(insurance);
     }
 }

@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
-    @Query("select vehicle from Vehicle vehicle where vehicle.owner.login = ?#{principal.username}")
+    @Query("select vehicle from Vehicle vehicle left join fetch vehicle.insurance where vehicle.owner.login = ?#{principal.username}")
     List<Vehicle> findByOwnerIsCurrentUser();
 }
