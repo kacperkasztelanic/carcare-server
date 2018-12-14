@@ -1,11 +1,8 @@
 package com.kasztelanic.carcare.service;
 
-import com.kasztelanic.carcare.domain.User;
-
-import io.github.jhipster.config.JHipsterProperties;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+
 import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
@@ -17,6 +14,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.domain.User;
+import com.kasztelanic.carcare.domain.Vehicle;
+
+import io.github.jhipster.config.JHipsterProperties;
 
 /**
  * Service for sending emails.
@@ -83,6 +86,24 @@ public class MailService {
         String subject = messageSource.getMessage(titleKey, null, locale);
         sendEmail(user.getEmail(), subject, content, false, true);
 
+    }
+
+    @Async
+    public void sendEmailFromTemplate(String templateName, String titleKey, User user, Context context) {
+        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        String content = templateEngine.process(templateName, context);
+        String subject = messageSource.getMessage(titleKey, null, locale);
+        sendEmail(user.getEmail(), subject, content, false, true);
+    }
+
+    @Async
+    public void sendInsuranceReminderEmail(User user, Vehicle vehicle, Insurance insurance, int diff) {
+        Context context = new Context();
+        context.setVariable("user", user);
+        context.setVariable("vehicle", vehicle);
+        context.setVariable("insurance", insurance);
+        context.setVariable("diff", diff);
+        sendEmailFromTemplate("mail/insuranceReminderEmail", "email.insurance.title", user, context);
     }
 
     @Async

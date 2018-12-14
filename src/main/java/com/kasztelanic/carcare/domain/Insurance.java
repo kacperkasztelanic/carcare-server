@@ -28,7 +28,7 @@ import lombok.ToString;
 @Entity
 @EqualsAndHashCode(of = { "uuid" })
 @ToString(of = { "validFrom" })
-public class Insurance implements Remindable {
+public class Insurance {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
