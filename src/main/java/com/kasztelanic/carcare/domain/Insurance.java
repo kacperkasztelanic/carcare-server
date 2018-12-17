@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.domain;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import javax.persistence.Column;
@@ -10,9 +11,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.PersistenceConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,9 +31,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
+@Table(name = "insurances")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EqualsAndHashCode(of = { "uuid" })
-@ToString(of = { "validFrom" })
-public class Insurance {
+@ToString(of = { "validThru", "vehicleEvent", "vehicle" })
+public class Insurance implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +53,15 @@ public class Insurance {
     @NotNull
     @Embedded
     private VehicleEvent vehicleEvent;
+
+    @Getter
+    @Setter
+    @NotNull
+    @JsonIgnore
+    @JsonIgnoreProperties("")
+    @ManyToOne(optional = false)
+    @JoinColumn
+    private Vehicle vehicle;
 
     @Getter
     @Setter
@@ -66,18 +84,27 @@ public class Insurance {
 
     @Getter
     @Setter
+    @Length(max = 20)
+    @Column(name = "number", length = 20)
+    private String number;
+
+    @Getter
+    @Setter
+    @Length(max = 20)
+    @Column(name = "insurer", length = 20)
+    private String insurer;
+
+    @Getter
+    @Setter
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "details")
     private String details;
 
     @Getter
     @Setter
     @NotNull
-    @JsonIgnore
-    @JsonIgnoreProperties("")
     @ManyToOne(optional = false)
-    @JoinColumn
-    private Vehicle vehicle;
+    private InsuranceType insuranceType;
 
     @PersistenceConstructor
     @SuppressWarnings("all")
@@ -87,13 +114,17 @@ public class Insurance {
     }
 
     @Builder
+    @SuppressWarnings("all")
     private Insurance(VehicleEvent vehicleEvent, LocalDate validFrom, LocalDate validThru, Integer costInCents,
-            String details, Vehicle vehicle) {
+            String number, String insurer, String details, InsuranceType insuranceType, Vehicle vehicle) {
         this.vehicleEvent = vehicleEvent;
         this.validFrom = validFrom;
         this.validThru = validThru;
         this.costInCents = costInCents;
+        this.number = number;
+        this.insurer = insurer;
         this.details = details;
+        this.insuranceType = insuranceType;
         this.vehicle = vehicle;
         this.id = null;
         this.uuid = UuidProvider.newUuid();

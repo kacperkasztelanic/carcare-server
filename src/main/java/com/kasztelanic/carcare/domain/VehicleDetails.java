@@ -5,19 +5,17 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.PersistenceConstructor;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Embeddable
-@EqualsAndHashCode(of = { "vinNumber" })
 @ToString
 public class VehicleDetails implements Serializable {
 
@@ -25,8 +23,26 @@ public class VehicleDetails implements Serializable {
 
     @Getter
     @Setter
-    @Column(name = "vin_number")
+    @Column(name = "model_suffix", length = 30)
+    private String modelSuffix;
+
+    @Getter
+    @Setter
+    @Length(max = 17)
+    @Column(name = "vin_number", length = 17)
     private String vinNumber;
+
+    @Getter
+    @Setter
+    @Length(max = 10)
+    @Column(name = "vehicle_card", length = 10)
+    private String vehicleCard;
+
+    @Getter
+    @Setter
+    @Length(max = 14)
+    @Column(name = "registration_certificate", length = 14)
+    private String registrationCertificate;
 
     @Getter
     @Setter
@@ -35,25 +51,24 @@ public class VehicleDetails implements Serializable {
 
     @Getter
     @Setter
-    @DecimalMin(value = "0")
-    @Column(name = "engine_volume")
-    private Double engineVolume;
+    @Min(0)
+    @Column(name = "engine_volume_in_cm3")
+    private Integer engineVolume;
 
     @Getter
     @Setter
-    @Min(value = 0)
-    @Column(name = "engine_power")
+    @Min(0)
+    @Column(name = "engine_power_in_kw")
     private Integer enginePower;
 
     @Getter
     @Setter
-    @DecimalMin(value = "0")
-    @Column(name = "weight")
-    private Double weight;
+    @Min(0)
+    @Column(name = "weight_in_kg")
+    private Integer weight;
 
     @Getter
     @Setter
-    @Lob
     @Column(name = "notes")
     private String notes;
 
@@ -74,9 +89,13 @@ public class VehicleDetails implements Serializable {
 
     @Builder
     @SuppressWarnings("all")
-    private VehicleDetails(String vinNumber, Integer yearOfManufacture, Double engineVolume, Integer enginePower,
-            Double weight, String notes, byte[] image, String imageContentType) {
+    private VehicleDetails(String modelSuffix, String vinNumber, String vehicleCard, String registrationCertificate,
+            Integer yearOfManufacture, Integer engineVolume, Integer enginePower, Integer weight, String notes,
+            byte[] image, String imageContentType) {
+        this.modelSuffix = modelSuffix;
         this.vinNumber = vinNumber;
+        this.vehicleCard = vehicleCard;
+        this.registrationCertificate = registrationCertificate;
         this.yearOfManufacture = yearOfManufacture;
         this.engineVolume = engineVolume;
         this.enginePower = enginePower;

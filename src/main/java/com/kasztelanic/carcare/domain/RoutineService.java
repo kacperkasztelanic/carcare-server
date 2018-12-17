@@ -12,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cache;
@@ -31,14 +30,14 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "inspections")
+@Table(name = "routine_services")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EqualsAndHashCode(of = { "uuid" })
-@ToString(of = { "validThru", "vehicleEvent", "vehicle" })
-public class Inspection implements Serializable {
+@ToString(of = { "uuid" }, includeFieldNames = false)
+public class RoutineService implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
@@ -65,10 +64,13 @@ public class Inspection implements Serializable {
 
     @Getter
     @Setter
-    @NotNull
-    @Min(0)
-    @Column(name = "cost_in_cents", nullable = false)
-    private Integer costInCents;
+    @Column(name = "next_by_mileage")
+    private Integer nextByMileage;
+
+    @Getter
+    @Setter
+    @Column(name = "next_by_date")
+    private LocalDate nextByDate;
 
     @Getter
     @Setter
@@ -80,32 +82,26 @@ public class Inspection implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @Column(name = "valid_thru", nullable = false)
-    private LocalDate validThru;
-
-    @Getter
-    @Setter
-    @NotNull
     @Length(min = 1)
     @Column(name = "details", nullable = false)
     private String details;
 
     @PersistenceConstructor
     @SuppressWarnings("all")
-    private Inspection() {
+    private RoutineService() {
         this.id = null;
         this.uuid = null;
     }
 
     @Builder
-    private Inspection(VehicleEvent vehicleEvent, Integer costInCents, String station, LocalDate validThru,
-            String details, Vehicle vehicle) {
+    private RoutineService(VehicleEvent vehicleEvent, Vehicle vehicle, Integer nextByMileage, LocalDate nextByDate,
+            String station, String details) {
         this.vehicleEvent = vehicleEvent;
-        this.costInCents = costInCents;
-        this.station = station;
-        this.validThru = validThru;
-        this.details = details;
         this.vehicle = vehicle;
+        this.nextByMileage = nextByMileage;
+        this.nextByDate = nextByDate;
+        this.station = station;
+        this.details = details;
         this.id = null;
         this.uuid = UuidProvider.newUuid();
     }

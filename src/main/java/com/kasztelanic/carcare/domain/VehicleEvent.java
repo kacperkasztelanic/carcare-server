@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -20,15 +19,15 @@ public class VehicleEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Getter
     @NotNull
     @Min(0)
-    @Getter
-    @Column(nullable = false)
+    @Column(name = "mileage", nullable = false)
     private final Integer mileage;
 
-    @NotNull
     @Getter
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "date", nullable = false)
     private final LocalDate date;
 
     public static VehicleEvent of(Integer mileage, LocalDate date) {
@@ -42,7 +41,6 @@ public class VehicleEvent implements Serializable {
         this.date = null;
     }
 
-    @Builder
     private VehicleEvent(Integer mileage, LocalDate date) {
         this.mileage = mileage;
         this.date = date;

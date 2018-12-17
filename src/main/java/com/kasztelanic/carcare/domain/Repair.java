@@ -1,7 +1,6 @@
 package com.kasztelanic.carcare.domain;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -31,11 +30,11 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "inspections")
+@Table(name = "repairs")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EqualsAndHashCode(of = { "uuid" })
-@ToString(of = { "validThru", "vehicleEvent", "vehicle" })
-public class Inspection implements Serializable {
+@ToString(of = { "uuid" })
+public class Repair implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,30 +79,22 @@ public class Inspection implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @Column(name = "valid_thru", nullable = false)
-    private LocalDate validThru;
-
-    @Getter
-    @Setter
-    @NotNull
     @Length(min = 1)
     @Column(name = "details", nullable = false)
     private String details;
 
     @PersistenceConstructor
     @SuppressWarnings("all")
-    private Inspection() {
+    private Repair() {
         this.id = null;
         this.uuid = null;
     }
 
     @Builder
-    private Inspection(VehicleEvent vehicleEvent, Integer costInCents, String station, LocalDate validThru,
-            String details, Vehicle vehicle) {
+    private Repair(VehicleEvent vehicleEvent, Integer costInCents, String station, String details, Vehicle vehicle) {
         this.vehicleEvent = vehicleEvent;
         this.costInCents = costInCents;
         this.station = station;
-        this.validThru = validThru;
         this.details = details;
         this.vehicle = vehicle;
         this.id = null;

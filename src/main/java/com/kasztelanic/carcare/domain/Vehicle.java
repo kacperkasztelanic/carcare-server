@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.domain;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -16,6 +17,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.PersistenceConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,11 +31,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "vehicle")
+@Table(name = "vehicles")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @EqualsAndHashCode(of = { "id" })
-@ToString(of = { "id", "make", "model", "licensePlate" }, includeFieldNames = false)
-public class Vehicle {
+@ToString(of = { "make", "model", "licensePlate" }, includeFieldNames = false)
+public class Vehicle implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Getter
     @Id
@@ -48,20 +52,29 @@ public class Vehicle {
     @Getter
     @Setter
     @NotNull
-    @Column(name = "make", nullable = false)
+    @Length(min = 1, max = 20)
+    @Column(name = "make", nullable = false, length = 20)
     private String make;
 
     @Getter
     @Setter
     @NotNull
-    @Column(name = "model", nullable = false)
+    @Length(min = 1, max = 20)
+    @Column(name = "model", nullable = false, length = 20)
     private String model;
 
     @Getter
     @Setter
     @NotNull
-    @Column(name = "license_plate", nullable = false)
+    @Length(min = 1, max = 10)
+    @Column(name = "license_plate", nullable = false, length = 10)
     private String licensePlate;
+
+    @Getter
+    @Setter
+    @NotNull
+    @ManyToOne(optional = false)
+    private FuelType fuelType;
 
     @Getter
     @Setter
@@ -74,6 +87,30 @@ public class Vehicle {
     @NotNull
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Insurance> insurance;
+
+    @Getter
+    @Setter
+    @NotNull
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Inspection> inspection;
+
+    @Getter
+    @Setter
+    @NotNull
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RoutineService> routineService;
+
+    @Getter
+    @Setter
+    @NotNull
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Repair> repair;
+
+    @Getter
+    @Setter
+    @NotNull
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Refuel> refuel;
 
     @Getter
     @Setter
@@ -91,14 +128,21 @@ public class Vehicle {
     }
 
     @Builder
-    private Vehicle(String make, String model, String licensePlate, VehicleDetails vehicleDetails, User owner,
-            Set<Insurance> insurance) {
+    @SuppressWarnings("all")
+    private Vehicle(String make, String model, String licensePlate, FuelType fuelType, VehicleDetails vehicleDetails,
+            Set<Insurance> insurance, Set<Inspection> inspection, Set<RoutineService> routineService,
+            Set<Repair> repair, Set<Refuel> refuel, User owner) {
         this.make = make;
         this.model = model;
         this.licensePlate = licensePlate;
+        this.fuelType = fuelType;
         this.vehicleDetails = vehicleDetails;
-        this.owner = owner;
         this.insurance = insurance;
+        this.inspection = inspection;
+        this.routineService = routineService;
+        this.repair = repair;
+        this.refuel = refuel;
+        this.owner = owner;
         this.id = null;
         this.uuid = UuidProvider.newUuid();
     }

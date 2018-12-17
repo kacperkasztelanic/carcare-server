@@ -20,13 +20,13 @@ public class CacheConfiguration {
 
     public CacheConfiguration(JHipsterProperties jHipsterProperties) {
         BeanClassLoaderAwareJCacheRegionFactory.setBeanClassLoader(this.getClass().getClassLoader());
-        JHipsterProperties.Cache.Ehcache ehcache =
-            jHipsterProperties.getCache().getEhcache();
+        JHipsterProperties.Cache.Ehcache ehcache = jHipsterProperties.getCache().getEhcache();
 
-        jcacheConfiguration = Eh107Configuration.fromEhcacheCacheConfiguration(
-            CacheConfigurationBuilder.newCacheConfigurationBuilder(Object.class, Object.class,
-                ResourcePoolsBuilder.heap(ehcache.getMaxEntries()))
-                .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(ehcache.getTimeToLiveSeconds())))
+        jcacheConfiguration = Eh107Configuration.fromEhcacheCacheConfiguration(CacheConfigurationBuilder
+                .newCacheConfigurationBuilder(Object.class, Object.class,
+                        ResourcePoolsBuilder.heap(ehcache.getMaxEntries()))
+                .withExpiry(
+                        ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(ehcache.getTimeToLiveSeconds())))
                 .build());
     }
 
@@ -40,7 +40,13 @@ public class CacheConfiguration {
             cm.createCache(com.kasztelanic.carcare.domain.User.class.getName() + ".authorities", jcacheConfiguration);
             cm.createCache(com.kasztelanic.carcare.domain.Vehicle.class.getName(), jcacheConfiguration);
             cm.createCache(com.kasztelanic.carcare.domain.VehicleDetails.class.getName(), jcacheConfiguration);
-            // jhipster-needle-ehcache-add-entry
+            cm.createCache(com.kasztelanic.carcare.domain.FuelType.class.getName(), jcacheConfiguration);
+            cm.createCache(com.kasztelanic.carcare.domain.InsuranceType.class.getName(), jcacheConfiguration);
+            cm.createCache(com.kasztelanic.carcare.domain.Insurance.class.getName(), jcacheConfiguration);
+            cm.createCache(com.kasztelanic.carcare.domain.Inspection.class.getName(), jcacheConfiguration);
+            cm.createCache(com.kasztelanic.carcare.domain.Repair.class.getName(), jcacheConfiguration);
+            cm.createCache(com.kasztelanic.carcare.domain.RoutineService.class.getName(), jcacheConfiguration);
+            cm.createCache(com.kasztelanic.carcare.domain.Refuel.class.getName(), jcacheConfiguration);
         };
     }
 }
