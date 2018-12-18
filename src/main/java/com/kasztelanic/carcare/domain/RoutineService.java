@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cache;
@@ -37,7 +38,7 @@ import lombok.ToString;
 public class RoutineService implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
@@ -61,6 +62,13 @@ public class RoutineService implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn
     private Vehicle vehicle;
+
+    @Getter
+    @Setter
+    @NotNull
+    @Min(0)
+    @Column(name = "cost_in_cents", nullable = false)
+    private Integer costInCents;
 
     @Getter
     @Setter
@@ -94,10 +102,11 @@ public class RoutineService implements Serializable {
     }
 
     @Builder
-    private RoutineService(VehicleEvent vehicleEvent, Vehicle vehicle, Integer nextByMileage, LocalDate nextByDate,
-            String station, String details) {
+    private RoutineService(VehicleEvent vehicleEvent, Vehicle vehicle, Integer costInCents, Integer nextByMileage,
+            LocalDate nextByDate, String station, String details) {
         this.vehicleEvent = vehicleEvent;
         this.vehicle = vehicle;
+        this.costInCents = costInCents;
         this.nextByMileage = nextByMileage;
         this.nextByDate = nextByDate;
         this.station = station;

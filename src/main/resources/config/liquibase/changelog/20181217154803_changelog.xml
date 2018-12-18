@@ -144,6 +144,9 @@
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="routine_servicesPK"/>
             </column>
+            <column name="cost_in_cents" type="INT">
+                <constraints nullable="false"/>
+            </column>            
             <column name="details" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>

@@ -1,17 +1,19 @@
 package com.kasztelanic.carcare.repository;
 
-import com.kasztelanic.carcare.domain.Vehicle;
-import org.springframework.data.jpa.repository.*;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.kasztelanic.carcare.domain.Vehicle;
 
-/**
- * Spring Data repository for the Vehicle entity.
- */
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     @Query("select vehicle from Vehicle vehicle left join fetch vehicle.insurance where vehicle.owner.login = ?#{principal.username}")
     List<Vehicle> findByOwnerIsCurrentUser();
+
+    Optional<Vehicle> findByUuid(String uuid);
 }
