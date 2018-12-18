@@ -73,7 +73,7 @@ public class Vehicle implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade=CascadeType.ALL)
     private FuelType fuelType;
 
     @Getter
