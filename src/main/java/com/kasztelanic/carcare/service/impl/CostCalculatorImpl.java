@@ -29,9 +29,9 @@ public class CostCalculatorImpl implements CostCalculator {
         return builder.build();
     }
 
-    private static <T extends HasVehicleEvent & HasCost> double sumCostsBetweenDates(Collection<T> collection,
+    private static <T extends HasCost & HasVehicleEvent> double sumCostsBetweenDates(Collection<T> collection,
             LocalDate dateFrom, LocalDate dateTo) {
         return collection.stream().filter(i -> !i.getVehicleEvent().getDate().isBefore(dateFrom)
-                && !i.getVehicleEvent().getDate().isAfter(dateTo)).mapToInt(T::getCostInCents).sum() / 100.0;
+                && !i.getVehicleEvent().getDate().isAfter(dateTo)).mapToInt(HasCost::getCostInCents).sum() / 100.0;
     }
 }

@@ -10,7 +10,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -31,25 +33,29 @@ import com.kasztelanic.carcare.util.DateTimeFormatters;
 public class VehicleReport {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatters.DATE_FORMATTER;
+    private static final String DECIMAL_FORMAT = "0.00";
 
     @Autowired
     private MessageSource messageSource;
 
     public byte[] generateVehicleReport(VehicleDto vehicle, Locale locale) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            createSheets(workbook, vehicle, locale);
+            DataFormat format = workbook.createDataFormat();
+            CellStyle cellStyle = workbook.createCellStyle();
+            cellStyle.setDataFormat(format.getFormat(DECIMAL_FORMAT));
+            createSheets(workbook, vehicle, locale, cellStyle);
             workbook.write(os);
             return os.toByteArray();
         }
     }
 
-    private void createSheets(Workbook workbook, VehicleDto vehicle, Locale locale) {
+    private void createSheets(Workbook workbook, VehicleDto vehicle, Locale locale, CellStyle cellStyle) {
         createMainSheet(workbook, vehicle, locale);
-        createInsuranceSheet(workbook, vehicle.getInsurance(), locale);
-        createInspectionSheet(workbook, vehicle.getInspection(), locale);
-        createRoutineServiceSheet(workbook, vehicle.getRoutineService(), locale);
-        createRepairSheet(workbook, vehicle.getRepair(), locale);
-        createRefuelSheet(workbook, vehicle.getRefuel(), locale);
+        createInsuranceSheet(workbook, vehicle.getInsurance(), locale, cellStyle);
+        createInspectionSheet(workbook, vehicle.getInspection(), locale, cellStyle);
+        createRoutineServiceSheet(workbook, vehicle.getRoutineService(), locale, cellStyle);
+        createRepairSheet(workbook, vehicle.getRepair(), locale, cellStyle);
+        createRefuelSheet(workbook, vehicle.getRefuel(), locale, cellStyle);
     }
 
     private void createMainSheet(Workbook workbook, VehicleDto vehicle, Locale locale) {
@@ -102,7 +108,8 @@ public class VehicleReport {
         cell.setCellType(CellType.NUMERIC);
     }
 
-    private void createInsuranceSheet(Workbook workbook, Collection<InsuranceDto> insurances, Locale locale) {
+    private void createInsuranceSheet(Workbook workbook, Collection<InsuranceDto> insurances, Locale locale,
+            CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.insurance", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
@@ -128,6 +135,7 @@ public class VehicleReport {
             cell = row.createCell(2);
             cell.setCellValue(String.format("%.2f", insurance.getCostInCents() / 100.0));
             cell.setCellType(CellType.NUMERIC);
+            cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(insurance.getInsuranceType());
             cell = row.createCell(4);
@@ -146,7 +154,8 @@ public class VehicleReport {
         }
     }
 
-    private void createInspectionSheet(Workbook workbook, Collection<InspectionDto> inspections, Locale locale) {
+    private void createInspectionSheet(Workbook workbook, Collection<InspectionDto> inspections, Locale locale,
+            CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.inspection", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
@@ -171,6 +180,7 @@ public class VehicleReport {
             cell = row.createCell(2);
             cell.setCellValue(String.format("%.2f", inspection.getCostInCents() / 100.0));
             cell.setCellType(CellType.NUMERIC);
+            cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(inspection.getStation());
             cell = row.createCell(4);
@@ -183,7 +193,8 @@ public class VehicleReport {
         }
     }
 
-    private void createRoutineServiceSheet(Workbook workbook, Set<RoutineServiceDto> routineServices, Locale locale) {
+    private void createRoutineServiceSheet(Workbook workbook, Set<RoutineServiceDto> routineServices, Locale locale,
+            CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.service", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
@@ -209,6 +220,7 @@ public class VehicleReport {
             cell = row.createCell(2);
             cell.setCellValue(String.format("%.2f", routineService.getCostInCents() / 100.0));
             cell.setCellType(CellType.NUMERIC);
+            cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(routineService.getNextByMileage());
             cell.setCellType(CellType.NUMERIC);
@@ -224,7 +236,7 @@ public class VehicleReport {
         }
     }
 
-    private void createRepairSheet(Workbook workbook, Set<RepairDto> repairs, Locale locale) {
+    private void createRepairSheet(Workbook workbook, Set<RepairDto> repairs, Locale locale, CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.repair", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
@@ -248,6 +260,7 @@ public class VehicleReport {
             cell = row.createCell(2);
             cell.setCellValue(String.format("%.2f", repairDto.getCostInCents() / 100.0));
             cell.setCellType(CellType.NUMERIC);
+            cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(repairDto.getStation());
             cell = row.createCell(4);
@@ -258,7 +271,7 @@ public class VehicleReport {
         }
     }
 
-    private void createRefuelSheet(Workbook workbook, Set<RefuelDto> refuels, Locale locale) {
+    private void createRefuelSheet(Workbook workbook, Set<RefuelDto> refuels, Locale locale, CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.refuel", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
@@ -282,8 +295,10 @@ public class VehicleReport {
             cell = row.createCell(2);
             cell.setCellValue(String.format("%.2f", refuelDto.getCostInCents() / 100.0));
             cell.setCellType(CellType.NUMERIC);
+            cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(String.format("%.2f", refuelDto.getVolume() / 1000.0));
+            cell.setCellStyle(cellStyle);
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(4);
             cell.setCellValue(refuelDto.getStation());
