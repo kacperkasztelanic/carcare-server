@@ -8,9 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.domain.Vehicle;
 
 @Repository
 public interface InsuranceRepository extends JpaRepository<Insurance, Long> {
 
     List<Insurance> findByValidThruIn(Collection<LocalDate> dates);
+
+    List<Insurance> findByVehicle(Vehicle vehicle);
 }

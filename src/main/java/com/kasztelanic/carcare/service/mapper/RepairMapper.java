@@ -16,6 +16,7 @@ public class RepairMapper {
 
     public RepairDto repairToRepairDto(Repair repair) {
         RepairDtoBuilder builder = RepairDto.builder();
+        builder.id(repair.getId());
         builder.uuid(repair.getUuid());
         builder.costInCents(repair.getCostInCents());
         builder.details(repair.getDetails());

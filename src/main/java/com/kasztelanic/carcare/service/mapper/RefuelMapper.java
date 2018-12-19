@@ -16,6 +16,7 @@ public class RefuelMapper {
 
     public RefuelDto refuelToRefuelDto(Refuel refuel) {
         RefuelDtoBuilder builder = RefuelDto.builder();
+        builder.id(refuel.getId());
         builder.uuid(refuel.getUuid());
         builder.costInCents(refuel.getCostInCents());
         builder.station(refuel.getStation());
@@ -24,12 +25,12 @@ public class RefuelMapper {
         return builder.build();
     }
 
-    public Refuel refuelDtoToRefuel(RefuelDto refuel) {
+    public Refuel refuelDtoToRefuel(RefuelDto refuelDto) {
         RefuelBuilder builder = Refuel.builder();
-        builder.costInCents(refuel.getCostInCents());
-        builder.station(refuel.getStation());
-        builder.volume(refuel.getVolume());
-        builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(refuel.getVehicleEvent()));
+        builder.costInCents(refuelDto.getCostInCents());
+        builder.station(refuelDto.getStation());
+        builder.volume(refuelDto.getVolume());
+        builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(refuelDto.getVehicleEvent()));
         return builder.build();
     }
 }

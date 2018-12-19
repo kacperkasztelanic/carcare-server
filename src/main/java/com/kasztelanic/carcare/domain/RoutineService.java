@@ -39,6 +39,7 @@ public class RoutineService implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;

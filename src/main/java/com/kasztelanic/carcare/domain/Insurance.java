@@ -38,10 +38,12 @@ import lombok.ToString;
 public class Insurance implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    
+    @Getter
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private final Long id;
+    private Long id;
 
     @Getter
     @NotNull
