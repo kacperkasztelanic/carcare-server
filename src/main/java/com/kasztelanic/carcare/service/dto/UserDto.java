@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * A DTO representing a user, with his authorities.
  */
-public class UserDTO {
+public class UserDto {
 
     private Long id;
 
@@ -53,11 +53,11 @@ public class UserDTO {
 
     private Set<String> authorities;
 
-    public UserDTO() {
+    public UserDto() {
         // Empty constructor needed for Jackson.
     }
 
-    public UserDTO(User user) {
+    public UserDto(User user) {
         this.id = user.getId();
         this.login = user.getLogin();
         this.firstName = user.getFirstName();
@@ -181,7 +181,7 @@ public class UserDTO {
 
     @Override
     public String toString() {
-        return "UserDTO{" +
+        return "UserDto{" +
             "login='" + login + '\'' +
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +

@@ -42,8 +42,8 @@ import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.service.MailService;
 import com.kasztelanic.carcare.service.UserService;
-import com.kasztelanic.carcare.service.dto.PasswordChangeDTO;
-import com.kasztelanic.carcare.service.dto.UserDTO;
+import com.kasztelanic.carcare.service.dto.PasswordChangeDto;
+import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
 import com.kasztelanic.carcare.web.rest.vm.KeyAndPasswordVM;
 import com.kasztelanic.carcare.web.rest.vm.ManagedUserVM;
@@ -409,7 +409,7 @@ public class AccountResourceIntTest {
         assertThat(testUser4.get().getEmail()).isEqualTo("test-register-duplicate-email@example.com");
 
         testUser4.get().setActivated(true);
-        userService.updateUser((new UserDTO(testUser4.get())));
+        userService.updateUser((new UserDto(testUser4.get())));
 
         // Register 4th (already activated) user
         restMvc.perform(
@@ -484,29 +484,29 @@ public class AccountResourceIntTest {
 
         userRepository.saveAndFlush(user);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setLogin("not-used");
-        userDTO.setFirstName("firstname");
-        userDTO.setLastName("lastname");
-        userDTO.setEmail("save-account@example.com");
-        userDTO.setActivated(false);
-        userDTO.setImageUrl("http://placehold.it/50x50");
-        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
-        userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
+        UserDto userDto = new UserDto();
+        userDto.setLogin("not-used");
+        userDto.setFirstName("firstname");
+        userDto.setLastName("lastname");
+        userDto.setEmail("save-account@example.com");
+        userDto.setActivated(false);
+        userDto.setImageUrl("http://placehold.it/50x50");
+        userDto.setLangKey(Constants.DEFAULT_LANGUAGE);
+        userDto.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
         restMvc.perform(
             post("/api/account")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
+                .content(TestUtil.convertObjectToJsonBytes(userDto)))
             .andExpect(status().isOk());
 
         User updatedUser = userRepository.findOneByLogin(user.getLogin()).orElse(null);
-        assertThat(updatedUser.getFirstName()).isEqualTo(userDTO.getFirstName());
-        assertThat(updatedUser.getLastName()).isEqualTo(userDTO.getLastName());
-        assertThat(updatedUser.getEmail()).isEqualTo(userDTO.getEmail());
-        assertThat(updatedUser.getLangKey()).isEqualTo(userDTO.getLangKey());
+        assertThat(updatedUser.getFirstName()).isEqualTo(userDto.getFirstName());
+        assertThat(updatedUser.getLastName()).isEqualTo(userDto.getLastName());
+        assertThat(updatedUser.getEmail()).isEqualTo(userDto.getEmail());
+        assertThat(updatedUser.getLangKey()).isEqualTo(userDto.getLangKey());
         assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
-        assertThat(updatedUser.getImageUrl()).isEqualTo(userDTO.getImageUrl());
+        assertThat(updatedUser.getImageUrl()).isEqualTo(userDto.getImageUrl());
         assertThat(updatedUser.isActivated()).isEqualTo(true);
         assertThat(updatedUser.getAuthorities()).isEmpty();
     }
@@ -523,20 +523,20 @@ public class AccountResourceIntTest {
 
         userRepository.saveAndFlush(user);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setLogin("not-used");
-        userDTO.setFirstName("firstname");
-        userDTO.setLastName("lastname");
-        userDTO.setEmail("invalid email");
-        userDTO.setActivated(false);
-        userDTO.setImageUrl("http://placehold.it/50x50");
-        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
-        userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
+        UserDto userDto = new UserDto();
+        userDto.setLogin("not-used");
+        userDto.setFirstName("firstname");
+        userDto.setLastName("lastname");
+        userDto.setEmail("invalid email");
+        userDto.setActivated(false);
+        userDto.setImageUrl("http://placehold.it/50x50");
+        userDto.setLangKey(Constants.DEFAULT_LANGUAGE);
+        userDto.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
         restMvc.perform(
             post("/api/account")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
+                .content(TestUtil.convertObjectToJsonBytes(userDto)))
             .andExpect(status().isBadRequest());
 
         assertThat(userRepository.findOneByEmailIgnoreCase("invalid email")).isNotPresent();
@@ -562,20 +562,20 @@ public class AccountResourceIntTest {
 
         userRepository.saveAndFlush(anotherUser);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setLogin("not-used");
-        userDTO.setFirstName("firstname");
-        userDTO.setLastName("lastname");
-        userDTO.setEmail("save-existing-email2@example.com");
-        userDTO.setActivated(false);
-        userDTO.setImageUrl("http://placehold.it/50x50");
-        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
-        userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
+        UserDto userDto = new UserDto();
+        userDto.setLogin("not-used");
+        userDto.setFirstName("firstname");
+        userDto.setLastName("lastname");
+        userDto.setEmail("save-existing-email2@example.com");
+        userDto.setActivated(false);
+        userDto.setImageUrl("http://placehold.it/50x50");
+        userDto.setLangKey(Constants.DEFAULT_LANGUAGE);
+        userDto.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
         restMvc.perform(
             post("/api/account")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
+                .content(TestUtil.convertObjectToJsonBytes(userDto)))
             .andExpect(status().isBadRequest());
 
         User updatedUser = userRepository.findOneByLogin("save-existing-email").orElse(null);
@@ -594,20 +594,20 @@ public class AccountResourceIntTest {
 
         userRepository.saveAndFlush(user);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setLogin("not-used");
-        userDTO.setFirstName("firstname");
-        userDTO.setLastName("lastname");
-        userDTO.setEmail("save-existing-email-and-login@example.com");
-        userDTO.setActivated(false);
-        userDTO.setImageUrl("http://placehold.it/50x50");
-        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
-        userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
+        UserDto userDto = new UserDto();
+        userDto.setLogin("not-used");
+        userDto.setFirstName("firstname");
+        userDto.setLastName("lastname");
+        userDto.setEmail("save-existing-email-and-login@example.com");
+        userDto.setActivated(false);
+        userDto.setImageUrl("http://placehold.it/50x50");
+        userDto.setLangKey(Constants.DEFAULT_LANGUAGE);
+        userDto.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
         restMvc.perform(
             post("/api/account")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
+                .content(TestUtil.convertObjectToJsonBytes(userDto)))
             .andExpect(status().isOk());
 
         User updatedUser = userRepository.findOneByLogin("save-existing-email-and-login").orElse(null);
@@ -627,7 +627,7 @@ public class AccountResourceIntTest {
 
         restMvc.perform(post("/api/account/change-password")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO("1"+currentPassword, "new password"))))
+            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDto("1"+currentPassword, "new password"))))
             .andExpect(status().isBadRequest());
 
         User updatedUser = userRepository.findOneByLogin("change-password-wrong-existing-password").orElse(null);
@@ -648,7 +648,7 @@ public class AccountResourceIntTest {
 
         restMvc.perform(post("/api/account/change-password")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, "new password"))))
+            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDto(currentPassword, "new password"))))
             .andExpect(status().isOk());
 
         User updatedUser = userRepository.findOneByLogin("change-password").orElse(null);
@@ -668,7 +668,7 @@ public class AccountResourceIntTest {
 
         restMvc.perform(post("/api/account/change-password")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, "new"))))
+            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDto(currentPassword, "new"))))
             .andExpect(status().isBadRequest());
 
         User updatedUser = userRepository.findOneByLogin("change-password-too-small").orElse(null);
@@ -688,7 +688,7 @@ public class AccountResourceIntTest {
 
         restMvc.perform(post("/api/account/change-password")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, RandomStringUtils.random(101)))))
+            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDto(currentPassword, RandomStringUtils.random(101)))))
             .andExpect(status().isBadRequest());
 
         User updatedUser = userRepository.findOneByLogin("change-password-too-long").orElse(null);

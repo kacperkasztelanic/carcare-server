@@ -27,7 +27,7 @@ import com.kasztelanic.carcare.CarcareApp;
 import com.kasztelanic.carcare.config.Constants;
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.repository.UserRepository;
-import com.kasztelanic.carcare.service.dto.UserDTO;
+import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.service.util.RandomUtil;
 
 /**
@@ -168,7 +168,7 @@ public class UserServiceIntTest {
             userRepository.saveAndFlush(user);
         }
         final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
-        final Page<UserDTO> allManagedUsers = userService.getAllManagedUsers(pageable);
+        final Page<UserDto> allManagedUsers = userService.getAllManagedUsers(pageable);
         assertThat(allManagedUsers.getContent().stream()
             .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
             .isTrue();

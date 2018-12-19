@@ -7,8 +7,8 @@ import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.security.SecurityUtils;
 import com.kasztelanic.carcare.service.MailService;
 import com.kasztelanic.carcare.service.UserService;
-import com.kasztelanic.carcare.service.dto.PasswordChangeDTO;
-import com.kasztelanic.carcare.service.dto.UserDTO;
+import com.kasztelanic.carcare.service.dto.PasswordChangeDto;
+import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.web.rest.errors.*;
 import com.kasztelanic.carcare.web.rest.vm.KeyAndPasswordVM;
 import com.kasztelanic.carcare.web.rest.vm.ManagedUserVM;
@@ -101,24 +101,24 @@ public class AccountResource {
      */
     @GetMapping("/account")
     @Timed
-    public UserDTO getAccount() {
+    public UserDto getAccount() {
         return userService.getUserWithAuthorities()
-            .map(UserDTO::new)
+            .map(UserDto::new)
             .orElseThrow(() -> new InternalServerErrorException("User could not be found"));
     }
 
     /**
      * POST  /account : update the current user information.
      *
-     * @param userDTO the current user information
+     * @param userDto the current user information
      * @throws EmailAlreadyUsedException 400 (Bad Request) if the email is already used
      * @throws RuntimeException 500 (Internal Server Error) if the user login wasn't found
      */
     @PostMapping("/account")
     @Timed
-    public void saveAccount(@Valid @RequestBody UserDTO userDTO) {
+    public void saveAccount(@Valid @RequestBody UserDto userDto) {
         final String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new InternalServerErrorException("Current user login not found"));
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
+        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDto.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
             throw new EmailAlreadyUsedException();
         }
@@ -126,8 +126,8 @@ public class AccountResource {
         if (!user.isPresent()) {
             throw new InternalServerErrorException("User could not be found");
         }
-        userService.updateUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(),
-            userDTO.getLangKey(), userDTO.getImageUrl());
+        userService.updateUser(userDto.getFirstName(), userDto.getLastName(), userDto.getEmail(),
+            userDto.getLangKey(), userDto.getImageUrl());
     }
 
     /**
@@ -138,7 +138,7 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/change-password")
     @Timed
-    public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
+    public void changePassword(@RequestBody PasswordChangeDto passwordChangeDto) {
         if (!checkPasswordLength(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
         }

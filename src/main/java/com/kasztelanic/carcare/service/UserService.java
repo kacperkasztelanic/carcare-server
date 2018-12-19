@@ -7,7 +7,7 @@ import com.kasztelanic.carcare.repository.AuthorityRepository;
 import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.security.SecurityUtils;
-import com.kasztelanic.carcare.service.dto.UserDTO;
+import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.service.util.RandomUtil;
 import com.kasztelanic.carcare.web.rest.errors.*;
 
@@ -87,14 +87,14 @@ public class UserService {
             });
     }
 
-    public User registerUser(UserDTO userDTO, String password) {
-        userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).ifPresent(existingUser -> {
+    public User registerUser(UserDto userDto, String password) {
+        userRepository.findOneByLogin(userDto.getLogin().toLowerCase()).ifPresent(existingUser -> {
             boolean removed = removeNonActivatedUser(existingUser);
             if (!removed) {
                 throw new LoginAlreadyUsedException();
             }
         });
-        userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).ifPresent(existingUser -> {
+        userRepository.findOneByEmailIgnoreCase(userDto.getEmail()).ifPresent(existingUser -> {
             boolean removed = removeNonActivatedUser(existingUser);
             if (!removed) {
                 throw new EmailAlreadyUsedException();
@@ -102,14 +102,14 @@ public class UserService {
         });
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
-        newUser.setLogin(userDTO.getLogin().toLowerCase());
+        newUser.setLogin(userDto.getLogin().toLowerCase());
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(userDTO.getFirstName());
-        newUser.setLastName(userDTO.getLastName());
-        newUser.setEmail(userDTO.getEmail().toLowerCase());
-        newUser.setImageUrl(userDTO.getImageUrl());
-        newUser.setLangKey(userDTO.getLangKey());
+        newUser.setFirstName(userDto.getFirstName());
+        newUser.setLastName(userDto.getLastName());
+        newUser.setEmail(userDto.getEmail().toLowerCase());
+        newUser.setImageUrl(userDto.getImageUrl());
+        newUser.setLangKey(userDto.getLangKey());
         // new user is not active
         newUser.setActivated(false);
         // new user gets registration key
@@ -132,25 +132,25 @@ public class UserService {
         return true;
     }
 
-    public User createUser(UserDTO userDTO) {
+    public User createUser(UserDto userDto) {
         User user = new User();
-        user.setLogin(userDTO.getLogin().toLowerCase());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setEmail(userDTO.getEmail().toLowerCase());
-        user.setImageUrl(userDTO.getImageUrl());
-        if (userDTO.getLangKey() == null) {
+        user.setLogin(userDto.getLogin().toLowerCase());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail().toLowerCase());
+        user.setImageUrl(userDto.getImageUrl());
+        if (userDto.getLangKey() == null) {
             user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
         } else {
-            user.setLangKey(userDTO.getLangKey());
+            user.setLangKey(userDto.getLangKey());
         }
         String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(Instant.now());
         user.setActivated(true);
-        if (userDTO.getAuthorities() != null) {
-            Set<Authority> authorities = userDTO.getAuthorities().stream()
+        if (userDto.getAuthorities() != null) {
+            Set<Authority> authorities = userDto.getAuthorities().stream()
                 .map(authorityRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -189,26 +189,26 @@ public class UserService {
     /**
      * Update all information for a specific user, and return the modified user.
      *
-     * @param userDTO user to update
+     * @param userDto user to update
      * @return updated user
      */
-    public Optional<UserDTO> updateUser(UserDTO userDTO) {
+    public Optional<UserDto> updateUser(UserDto userDto) {
         return Optional.of(userRepository
-            .findById(userDTO.getId()))
+            .findById(userDto.getId()))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(user -> {
                 this.clearUserCaches(user);
-                user.setLogin(userDTO.getLogin().toLowerCase());
-                user.setFirstName(userDTO.getFirstName());
-                user.setLastName(userDTO.getLastName());
-                user.setEmail(userDTO.getEmail().toLowerCase());
-                user.setImageUrl(userDTO.getImageUrl());
-                user.setActivated(userDTO.isActivated());
-                user.setLangKey(userDTO.getLangKey());
+                user.setLogin(userDto.getLogin().toLowerCase());
+                user.setFirstName(userDto.getFirstName());
+                user.setLastName(userDto.getLastName());
+                user.setEmail(userDto.getEmail().toLowerCase());
+                user.setImageUrl(userDto.getImageUrl());
+                user.setActivated(userDto.isActivated());
+                user.setLangKey(userDto.getLangKey());
                 Set<Authority> managedAuthorities = user.getAuthorities();
                 managedAuthorities.clear();
-                userDTO.getAuthorities().stream()
+                userDto.getAuthorities().stream()
                     .map(authorityRepository::findById)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
@@ -217,7 +217,7 @@ public class UserService {
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
-            .map(UserDTO::new);
+            .map(UserDto::new);
     }
 
     public void deleteUser(String login) {
@@ -244,8 +244,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDTO::new);
+    public Page<UserDto> getAllManagedUsers(Pageable pageable) {
+        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDto::new);
     }
 
     @Transactional(readOnly = true)
