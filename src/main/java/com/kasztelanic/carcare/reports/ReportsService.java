@@ -54,17 +54,32 @@ public class ReportsService {
 
     private void createMainSheet(Workbook workbook, VehicleDto vehicle, Locale locale) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.main", null, locale));
-        createTitleRow(locale, "reports.vehicle.main.title", sheet);
+        createMainSheetTitleRow(locale, "reports.vehicle.main.title", sheet);
         createMainSheetRow(1, vehicle.getMake(), locale, "reports.vehicle.main.make", sheet);
         createMainSheetRow(2, vehicle.getModel(), locale, "reports.vehicle.main.model", sheet);
-        createMainSheetRow(3, vehicle.getFuelType(), locale, "reports.vehicle.main.fuelType", sheet);
+        createMainSheetRow(3, vehicle.getVehicleDetails().getModelSuffix(), locale, "reports.vehicle.main.suffix",
+                sheet);
         createMainSheetRow(4, vehicle.getLicensePlate(), locale, "reports.vehicle.main.licensePlate", sheet);
+        createMainSheetNumericRow(5, vehicle.getVehicleDetails().getYearOfManufacture(), locale,
+                "reports.vehicle.main.year", sheet);
+        createMainSheetRow(6, vehicle.getFuelType(), locale, "reports.vehicle.main.fuelType", sheet);
+        createMainSheetNumericRow(7, vehicle.getVehicleDetails().getEngineVolume(), locale,
+                "reports.vehicle.main.volume", sheet);
+        createMainSheetNumericRow(8, vehicle.getVehicleDetails().getEnginePower(), locale, "reports.vehicle.main.power",
+                sheet);
+        createMainSheetNumericRow(9, vehicle.getVehicleDetails().getWeight(), locale, "reports.vehicle.main.weight",
+                sheet);
+        createMainSheetRow(10, vehicle.getVehicleDetails().getVinNumber(), locale, "reports.vehicle.main.vin", sheet);
+        createMainSheetRow(11, vehicle.getVehicleDetails().getVehicleCard(), locale, "reports.vehicle.main.card",
+                sheet);
+        createMainSheetRow(12, vehicle.getVehicleDetails().getRegistrationCertificate(), locale,
+                "reports.vehicle.main.certificate", sheet);
         for (int i = 0; i < 2; i++) {
             sheet.autoSizeColumn(i);
         }
     }
 
-    private void createTitleRow(Locale locale, String title, Sheet sheet) {
+    private void createMainSheetTitleRow(Locale locale, String title, Sheet sheet) {
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
         cell.setCellValue(messageSource.getMessage(title, null, locale));
@@ -76,6 +91,15 @@ public class ReportsService {
         cell.setCellValue(messageSource.getMessage(title, null, locale));
         cell = row.createCell(1);
         cell.setCellValue(value);
+    }
+
+    private void createMainSheetNumericRow(int rowNum, Number value, Locale locale, String title, Sheet sheet) {
+        Row row = sheet.createRow(rowNum);
+        Cell cell = row.createCell(0);
+        cell.setCellValue(messageSource.getMessage(title, null, locale));
+        cell = row.createCell(1);
+        cell.setCellValue(value.doubleValue());
+        cell.setCellType(CellType.NUMERIC);
     }
 
     private void createInsuranceSheet(Workbook workbook, Collection<InsuranceDto> insurances, Locale locale) {
@@ -247,8 +271,8 @@ public class ReportsService {
         titleRow.createCell(0).setCellValue(messageSource.getMessage("reports.vehicle.refuel.date", null, locale));
         titleRow.createCell(1).setCellValue(messageSource.getMessage("reports.vehicle.refuel.mileage", null, locale));
         titleRow.createCell(2).setCellValue(messageSource.getMessage("reports.vehicle.refuel.cost", null, locale));
-        titleRow.createCell(3).setCellValue(messageSource.getMessage("reports.vehicle.refuel.station", null, locale));
-        titleRow.createCell(4).setCellValue(messageSource.getMessage("reports.vehicle.refuel.details", null, locale));
+        titleRow.createCell(3).setCellValue(messageSource.getMessage("reports.vehicle.refuel.volume", null, locale));
+        titleRow.createCell(4).setCellValue(messageSource.getMessage("reports.vehicle.refuel.station", null, locale));
 
         int rownNum = 1;
         List<RefuelDto> sortedRefuels = refuels.stream()
