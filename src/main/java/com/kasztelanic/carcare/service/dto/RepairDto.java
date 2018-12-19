@@ -8,7 +8,7 @@ import lombok.ToString;
 @Builder
 @EqualsAndHashCode(of = { "uuid" })
 @ToString(of = { "uuid" })
-public class RepairDto {
+public class RepairDto implements HasVehicleEvent, HasCost {
 
     @Getter
     private final Long id;

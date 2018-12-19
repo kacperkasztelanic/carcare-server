@@ -10,7 +10,7 @@ import lombok.ToString;
 @Builder
 @EqualsAndHashCode(of = { "uuid" })
 @ToString(of = { "uuid" }, includeFieldNames = false)
-public class RoutineServiceDto {
+public class RoutineServiceDto implements HasVehicleEvent, HasCost {
 
     @Getter
     private final Long id;
