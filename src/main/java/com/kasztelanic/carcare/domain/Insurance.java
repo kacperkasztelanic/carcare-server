@@ -29,16 +29,18 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 
 @Entity
 @Table(name = "insurances")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Accessors(chain = true)
 @EqualsAndHashCode(of = { "uuid" })
 @ToString(of = { "validThru", "vehicleEvent", "vehicle" })
 public class Insurance implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Getter
     @Setter
     @Id
