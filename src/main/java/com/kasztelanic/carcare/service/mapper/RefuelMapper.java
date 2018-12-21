@@ -17,7 +17,6 @@ public class RefuelMapper {
     public RefuelDto refuelToRefuelDto(Refuel refuel) {
         RefuelDtoBuilder builder = RefuelDto.builder();
         builder.id(refuel.getId());
-        builder.uuid(refuel.getUuid());
         builder.costInCents(refuel.getCostInCents());
         builder.station(refuel.getStation());
         builder.volume(refuel.getVolume());

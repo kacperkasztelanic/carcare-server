@@ -21,7 +21,6 @@ public class InsuranceMapper {
     public InsuranceDto insuranceToInsuranceDto(Insurance insurance) {
         InsuranceDtoBuilder builder = InsuranceDto.builder();
         builder.id(insurance.getId());
-        builder.uuid(insurance.getUuid());
         builder.costInCents(insurance.getCostInCents());
         builder.details(insurance.getDetails());
         builder.insuranceType(insurance.getInsuranceType().toString());

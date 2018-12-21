@@ -1,0 +1,66 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="Kacper (generated)" id="1545416098210-1">
+        <dropUniqueConstraint constraintName="UC_INSPECTIONSUUID_COL" tableName="inspections"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-2">
+        <dropUniqueConstraint constraintName="UC_INSURANCESUUID_COL" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-3">
+        <dropUniqueConstraint constraintName="UC_REFUELSUUID_COL" tableName="refuels"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-4">
+        <dropUniqueConstraint constraintName="UC_REPAIRSUUID_COL" tableName="repairs"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-5">
+        <dropUniqueConstraint constraintName="UC_ROUTINE_SERVICESUUID_COL" tableName="routine_services"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-6">
+        <dropUniqueConstraint constraintName="UC_VEHICLESUUID_COL" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-7">
+        <dropColumn columnName="uuid" tableName="inspections"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-8">
+        <dropColumn columnName="uuid" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-9">
+        <dropColumn columnName="uuid" tableName="refuels"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-10">
+        <dropColumn columnName="uuid" tableName="repairs"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-11">
+        <dropColumn columnName="uuid" tableName="routine_services"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-12">
+        <dropColumn columnName="uuid" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-13">
+        <dropDefaultValue columnDataType="varchar(255)" columnName="details" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-14">
+        <dropDefaultValue columnDataType="varchar(255)" columnName="image_content_type" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-15">
+        <dropDefaultValue columnDataType="varchar(20)" columnName="insurer" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-16">
+        <dropDefaultValue columnDataType="varchar(30)" columnName="model_suffix" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-17">
+        <dropDefaultValue columnDataType="varchar(255)" columnName="notes" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-18">
+        <dropDefaultValue columnDataType="varchar(20)" columnName="number" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-19">
+        <dropDefaultValue columnDataType="varchar(14)" columnName="registration_certificate" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-20">
+        <dropDefaultValue columnDataType="varchar(10)" columnName="vehicle_card" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1545416098210-21">
+        <dropDefaultValue columnDataType="varchar(17)" columnName="vin_number" tableName="vehicles"/>
+    </changeSet>
+</databaseChangeLog>

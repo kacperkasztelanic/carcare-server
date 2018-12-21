@@ -22,7 +22,6 @@ import org.springframework.data.annotation.PersistenceConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kasztelanic.carcare.util.UuidProvider;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -43,11 +42,6 @@ public class Vehicle implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
-
-    @Getter
-    @NotNull
-    @Column(nullable = false, unique = true, updatable = false, length = 36)
-    private final String uuid;
 
     @Getter
     @Setter
@@ -73,7 +67,7 @@ public class Vehicle implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @ManyToOne(optional = false, cascade=CascadeType.ALL)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     private FuelType fuelType;
 
     @Getter
@@ -124,7 +118,6 @@ public class Vehicle implements Serializable {
     @SuppressWarnings("all")
     private Vehicle() {
         this.id = null;
-        this.uuid = null;
     }
 
     @Builder
@@ -144,11 +137,5 @@ public class Vehicle implements Serializable {
         this.refuel = refuel;
         this.owner = owner;
         this.id = null;
-        this.uuid = UuidProvider.newUuid();
-    }
-
-    public void addInsurance(Insurance insurance) {
-        insurance.setVehicle(this);
-        this.insurance.add(insurance);
     }
 }

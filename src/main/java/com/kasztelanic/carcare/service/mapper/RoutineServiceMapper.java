@@ -17,7 +17,6 @@ public class RoutineServiceMapper {
     public RoutineServiceDto routineServiceToRoutineServiceDto(RoutineService routineService) {
         RoutineServiceDtoBuilder builder = RoutineServiceDto.builder();
         builder.id(routineService.getId());
-        builder.uuid(routineService.getUuid());
         builder.costInCents(routineService.getCostInCents());
         builder.details(routineService.getDetails());
         builder.nextByDate(routineService.getNextByDate());

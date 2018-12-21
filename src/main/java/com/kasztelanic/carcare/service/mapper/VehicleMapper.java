@@ -38,7 +38,6 @@ public class VehicleMapper {
     public VehicleDto vehicleToVehicleDto(Vehicle vehicle) {
         VehicleDtoBuilder builder = VehicleDto.builder();
         builder.id(vehicle.getId());
-        builder.uuid(vehicle.getUuid());
         builder.make(vehicle.getMake());
         builder.model(vehicle.getModel());
         builder.licensePlate(vehicle.getLicensePlate());

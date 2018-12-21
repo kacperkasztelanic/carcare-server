@@ -21,7 +21,6 @@ import org.springframework.data.annotation.PersistenceConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kasztelanic.carcare.util.UuidProvider;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -34,8 +33,8 @@ import lombok.experimental.Accessors;
 @Table(name = "repairs")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Accessors(chain = true)
-@EqualsAndHashCode(of = { "uuid" })
-@ToString(of = { "uuid" })
+@EqualsAndHashCode(of = { "id" })
+@ToString(of = { "id" })
 public class Repair implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -44,11 +43,6 @@ public class Repair implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
-
-    @Getter
-    @NotNull
-    @Column(nullable = false, unique = true, updatable = false, length = 36)
-    private final String uuid;
 
     @Getter
     @Setter
@@ -90,7 +84,6 @@ public class Repair implements Serializable {
     @SuppressWarnings("all")
     private Repair() {
         this.id = null;
-        this.uuid = null;
     }
 
     @Builder
@@ -101,6 +94,5 @@ public class Repair implements Serializable {
         this.details = details;
         this.vehicle = vehicle;
         this.id = null;
-        this.uuid = UuidProvider.newUuid();
     }
 }

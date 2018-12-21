@@ -22,7 +22,6 @@ import org.springframework.data.annotation.PersistenceConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kasztelanic.carcare.util.UuidProvider;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -35,8 +34,8 @@ import lombok.experimental.Accessors;
 @Table(name = "routine_services")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Accessors(chain = true)
-@EqualsAndHashCode(of = { "uuid" })
-@ToString(of = { "uuid" }, includeFieldNames = false)
+@EqualsAndHashCode(of = { "id" })
+@ToString(of = { "id" }, includeFieldNames = false)
 public class RoutineService implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -45,11 +44,6 @@ public class RoutineService implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
-
-    @Getter
-    @NotNull
-    @Column(nullable = false, unique = true, updatable = false, length = 36)
-    private final String uuid;
 
     @Getter
     @Setter
@@ -101,7 +95,6 @@ public class RoutineService implements Serializable {
     @SuppressWarnings("all")
     private RoutineService() {
         this.id = null;
-        this.uuid = null;
     }
 
     @Builder
@@ -115,6 +108,5 @@ public class RoutineService implements Serializable {
         this.station = station;
         this.details = details;
         this.id = null;
-        this.uuid = UuidProvider.newUuid();
     }
 }

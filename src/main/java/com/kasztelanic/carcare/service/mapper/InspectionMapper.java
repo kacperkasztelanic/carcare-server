@@ -17,7 +17,6 @@ public class InspectionMapper {
     public InspectionDto inspectionToInspectionDto(Inspection inspection) {
         InspectionDtoBuilder builder = InspectionDto.builder();
         builder.id(inspection.getId());
-        builder.uuid(inspection.getUuid());
         builder.costInCents(inspection.getCostInCents());
         builder.details(inspection.getDetails());
         builder.station(inspection.getStation());

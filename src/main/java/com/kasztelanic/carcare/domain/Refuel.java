@@ -21,7 +21,6 @@ import org.springframework.data.annotation.PersistenceConstructor;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kasztelanic.carcare.util.UuidProvider;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -34,7 +33,7 @@ import lombok.experimental.Accessors;
 @Table(name = "refuels")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Accessors(chain = true)
-@EqualsAndHashCode(of = { "uuid" })
+@EqualsAndHashCode(of = { "id" })
 @ToString(of = { "costInCents", "volume" }, includeFieldNames = false)
 public class Refuel implements Serializable {
 
@@ -44,11 +43,6 @@ public class Refuel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private final Long id;
-
-    @Getter
-    @NotNull
-    @Column(nullable = false, unique = true, updatable = false, length = 36)
-    private final String uuid;
 
     @Getter
     @Setter
@@ -89,7 +83,6 @@ public class Refuel implements Serializable {
     @SuppressWarnings("all")
     private Refuel() {
         this.id = null;
-        this.uuid = null;
     }
 
     @Builder
@@ -100,6 +93,5 @@ public class Refuel implements Serializable {
         this.volume = volume;
         this.station = station;
         this.id = null;
-        this.uuid = UuidProvider.newUuid();
     }
 }
