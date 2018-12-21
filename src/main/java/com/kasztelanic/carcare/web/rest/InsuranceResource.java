@@ -1,7 +1,5 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,8 +22,8 @@ import com.kasztelanic.carcare.repository.InsuranceRepository;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.dto.InsuranceDto;
 import com.kasztelanic.carcare.service.mapper.InsuranceMapper;
-import com.kasztelanic.carcare.web.rest.errors.UnparseableURIException;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
 @RequestMapping("/api/insurance")
@@ -49,7 +47,9 @@ public class InsuranceResource {
         Insurance insurance = insuranceMapper.insuranceDtoToInsurance(insuranceDto);
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(insurance::setVehicle)
                 .map(insuranceRepository::save).map(insuranceMapper::insuranceToInsuranceDto)
-                .map(i -> ResponseEntity.created(buildURI(vehicleId, i.getId()))
+                .map(i -> ResponseEntity
+                        .created(URIUtil.buildURI(
+                                String.format("/api/insurance/%s/%s", vehicleId.toString(), i.getId().toString())))
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -103,13 +103,5 @@ public class InsuranceResource {
         insurance.setValidThru(updatedInsurance.getValidThru());
         insurance.setVehicleEvent(updatedInsurance.getVehicleEvent());
         return insurance;
-    }
-
-    private static URI buildURI(Long vehicleId, Long insuranceId) {
-        try {
-            return new URI(String.format("/api/insurance/%s/%s", vehicleId.toString(), insuranceId.toString()));
-        } catch (URISyntaxException e) {
-            throw new UnparseableURIException(e);
-        }
     }
 }

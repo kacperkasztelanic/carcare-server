@@ -28,16 +28,18 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 
 @Entity
 @Table(name = "refuels")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Accessors(chain = true)
 @EqualsAndHashCode(of = { "uuid" })
 @ToString(of = { "costInCents", "volume" }, includeFieldNames = false)
 public class Refuel implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

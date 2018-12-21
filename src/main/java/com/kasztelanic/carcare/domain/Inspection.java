@@ -29,10 +29,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 
 @Entity
 @Table(name = "inspections")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Accessors(chain = true)
 @EqualsAndHashCode(of = { "uuid" })
 @ToString(of = { "validThru", "vehicleEvent", "vehicle" })
 public class Inspection implements Serializable {
