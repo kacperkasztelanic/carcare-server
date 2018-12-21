@@ -37,7 +37,7 @@ public class VehicleResource {
     private VehicleMapper vehicleMapper;
 
     @Transactional
-    @PutMapping("")
+    @PostMapping("")
     public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
         VehicleDto result = vehicleMapper
                 .vehicleToVehicleDto(vehicleRepository.save(vehicleMapper.vehicleDtoToVehicle(vehicleDto)));
@@ -46,7 +46,7 @@ public class VehicleResource {
     }
 
     @Transactional
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleDto) {
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(id)
                 .map(i -> updateVehicle(i, vehicleMapper.vehicleDtoToVehicle(vehicleDto))).map(vehicleRepository::save)

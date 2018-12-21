@@ -41,7 +41,7 @@ public class InsuranceResource {
     private InsuranceMapper insuranceMapper;
 
     @Transactional
-    @PutMapping("/{vehicleId}")
+    @PostMapping("/{vehicleId}")
     public ResponseEntity<InsuranceDto> addInsurance(@PathVariable Long vehicleId,
             @RequestBody InsuranceDto insuranceDto) {
         Insurance insurance = insuranceMapper.insuranceDtoToInsurance(insuranceDto);
@@ -55,7 +55,7 @@ public class InsuranceResource {
     }
 
     @Transactional
-    @PostMapping("/{insuranceId}")
+    @PutMapping("/{insuranceId}")
     public ResponseEntity<InsuranceDto> editInsurance(@PathVariable Long insuranceId,
             @RequestBody InsuranceDto insuranceDto) {
         return insuranceRepository.findByIdAndOwnerIsCurrentUser(insuranceId)

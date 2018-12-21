@@ -41,7 +41,7 @@ public class RefuelResource {
     private RefuelMapper refuelMapper;
 
     @Transactional
-    @PutMapping("/{vehicleId}")
+    @PostMapping("/{vehicleId}")
     public ResponseEntity<RefuelDto> addRefuel(@PathVariable Long vehicleId, @RequestBody RefuelDto refuelDto) {
         Refuel refuel = refuelMapper.refuelDtoToRefuel(refuelDto);
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(refuel::setVehicle)
@@ -54,7 +54,7 @@ public class RefuelResource {
     }
 
     @Transactional
-    @PostMapping("/{refuelId}")
+    @PutMapping("/{refuelId}")
     public ResponseEntity<RefuelDto> editRefuel(@PathVariable Long refuelId, @RequestBody RefuelDto refuelDto) {
         return refuelRepository.findByIdAndOwnerIsCurrentUser(refuelId)
                 .map(i -> updateRefuel(i, refuelMapper.refuelDtoToRefuel(refuelDto))).map(refuelRepository::save)

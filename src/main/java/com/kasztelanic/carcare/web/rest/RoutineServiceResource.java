@@ -41,7 +41,7 @@ public class RoutineServiceResource {
     private RoutineServiceMapper routineServiceMapper;
 
     @Transactional
-    @PutMapping("/{vehicleId}")
+    @PostMapping("/{vehicleId}")
     public ResponseEntity<RoutineServiceDto> addRoutineService(@PathVariable Long vehicleId,
             @RequestBody RoutineServiceDto routineServiceDto) {
         RoutineService routineService = routineServiceMapper.routineServiceDtoToRoutineService(routineServiceDto);
@@ -55,7 +55,7 @@ public class RoutineServiceResource {
     }
 
     @Transactional
-    @PostMapping("/{routineServiceId}")
+    @PutMapping("/{routineServiceId}")
     public ResponseEntity<RoutineServiceDto> editRoutineService(@PathVariable Long routineServiceId,
             @RequestBody RoutineServiceDto routineServiceDto) {
         return routineServiceRepository.findByIdAndOwnerIsCurrentUser(routineServiceId)

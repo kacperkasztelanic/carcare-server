@@ -68,7 +68,6 @@ public class ReportsResource {
     @Transactional
     @PostMapping("/costs")
     public ResponseEntity<byte[]> costReport(@RequestBody CostReportRequest costReportRequest) throws IOException {
-        System.out.println(costReportRequest);
         User user = userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new);
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         List<CostResultDto> costs = vehicleRepository.findAllById(costReportRequest.getVehicleIds()).stream()

@@ -41,7 +41,7 @@ public class RepairResource {
     private RepairMapper repairMapper;
 
     @Transactional
-    @PutMapping("/{vehicleId}")
+    @PostMapping("/{vehicleId}")
     public ResponseEntity<RepairDto> addRepair(@PathVariable Long vehicleId, @RequestBody RepairDto repairDto) {
         Repair repair = repairMapper.repairDtoToRepair(repairDto);
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(repair::setVehicle)
@@ -54,7 +54,7 @@ public class RepairResource {
     }
 
     @Transactional
-    @PostMapping("/{repairId}")
+    @PutMapping("/{repairId}")
     public ResponseEntity<RepairDto> editRepair(@PathVariable Long repairId, @RequestBody RepairDto repairDto) {
         return repairRepository.findByIdAndOwnerIsCurrentUser(repairId)
                 .map(i -> updateRepair(i, repairMapper.repairDtoToRepair(repairDto))).map(repairRepository::save)

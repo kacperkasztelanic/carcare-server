@@ -41,7 +41,7 @@ public class InspectionResource {
     private InspectionMapper inspectionMapper;
 
     @Transactional
-    @PutMapping("/{vehicleId}")
+    @PostMapping("/{vehicleId}")
     public ResponseEntity<InspectionDto> addInspection(@PathVariable Long vehicleId,
             @RequestBody InspectionDto inspectionDto) {
         Inspection inspection = inspectionMapper.inspectionDtoToInspection(inspectionDto);
@@ -55,7 +55,7 @@ public class InspectionResource {
     }
 
     @Transactional
-    @PostMapping("/{inspectionId}")
+    @PutMapping("/{inspectionId}")
     public ResponseEntity<InspectionDto> editInspection(@PathVariable Long inspectionId,
             @RequestBody InspectionDto inspectionDto) {
         return inspectionRepository.findByIdAndOwnerIsCurrentUser(inspectionId)
