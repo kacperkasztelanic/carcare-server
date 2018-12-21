@@ -18,6 +18,4 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     @Query("select vehicle from Vehicle vehicle where vehicle.id = :id and vehicle.owner.login = ?#{principal.username}")
     Optional<Vehicle> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);
-
-    Optional<Vehicle> findByUuid(String uuid);
 }
