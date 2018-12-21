@@ -48,7 +48,7 @@ public class RefuelResource {
                 .map(refuelRepository::save).map(refuelMapper::refuelToRefuelDto)
                 .map(i -> ResponseEntity
                         .created(URIUtil.buildURI(
-                                String.format("/api/insurance/%s/%s", vehicleId.toString(), i.getId().toString())))
+                                String.format("/api/refuel/%s/%s", vehicleId.toString(), i.getId().toString())))
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
                 .orElse(ResponseEntity.notFound().build());
     }

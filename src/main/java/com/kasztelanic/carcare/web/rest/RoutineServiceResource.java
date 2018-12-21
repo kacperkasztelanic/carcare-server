@@ -26,7 +26,7 @@ import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
-@RequestMapping("/api/routineService")
+@RequestMapping("/api/routine-service")
 public class RoutineServiceResource {
 
     private static final String ENTITY_NAME = "routineService";
@@ -49,7 +49,7 @@ public class RoutineServiceResource {
                 .map(routineServiceRepository::save).map(routineServiceMapper::routineServiceToRoutineServiceDto)
                 .map(i -> ResponseEntity
                         .created(URIUtil.buildURI(
-                                String.format("/api/routineService/%s/%s", vehicleId.toString(), i.getId().toString())))
+                                String.format("/api/routine-service/%s/%s", vehicleId.toString(), i.getId().toString())))
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
                 .orElse(ResponseEntity.notFound().build());
     }
