@@ -17,4 +17,5 @@ cp $SERVER/target/carcare-*.war $ARTIFACTS/.
 
 docker build -t carcare:latest $ARTIFACTS
 docker-compose -f $ARTIFACTS/app.yml down
+docker rmi $(docker images --filter "dangling=true" -q --no-trunc)
 docker-compose -f $ARTIFACTS/app.yml up -d
