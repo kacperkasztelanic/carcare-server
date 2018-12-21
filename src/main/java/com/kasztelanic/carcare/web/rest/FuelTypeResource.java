@@ -24,7 +24,6 @@ import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
 @RequestMapping("/api/fuel-type")
-@PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class FuelTypeResource {
 
     private static final String ENTITY_NAME = "fuel-type";
@@ -34,6 +33,7 @@ public class FuelTypeResource {
 
     @Transactional
     @PostMapping("/{type}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<String> addFuelType(@PathVariable String type) {
         FuelType fuelType = fuelTypeRepository.save(FuelType.of(type.toUpperCase()));
         return ResponseEntity.created(URIUtil.buildURI(String.format("/api/fuelType/%s", fuelType.getType())))
@@ -43,6 +43,7 @@ public class FuelTypeResource {
 
     @Transactional
     @DeleteMapping("/{type}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteRoutineService(@PathVariable String type) {
         Optional<FuelType> fuelType = fuelTypeRepository.findByType(type);
         if (fuelType.isPresent()) {

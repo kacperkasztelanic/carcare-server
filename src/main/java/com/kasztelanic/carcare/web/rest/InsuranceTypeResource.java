@@ -24,7 +24,6 @@ import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
 @RequestMapping("/api/insurance-type")
-@PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class InsuranceTypeResource {
 
     private static final String ENTITY_NAME = "insurance-type";
@@ -34,6 +33,7 @@ public class InsuranceTypeResource {
 
     @Transactional
     @PostMapping("/{type}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<String> addInsuranceType(@PathVariable String type) {
         InsuranceType insuranceType = insuranceTypeRepository.save(InsuranceType.of(type.toUpperCase()));
         return ResponseEntity.created(URIUtil.buildURI(String.format("/api/insuranceType/%s", insuranceType.getType())))
@@ -43,6 +43,7 @@ public class InsuranceTypeResource {
 
     @Transactional
     @DeleteMapping("/{type}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteRoutineService(@PathVariable String type) {
         Optional<InsuranceType> insuranceType = insuranceTypeRepository.findByType(type);
         if (insuranceType.isPresent()) {
