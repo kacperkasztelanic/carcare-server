@@ -55,7 +55,7 @@ public class InsuranceTypeResource {
 
     @Transactional
     @GetMapping("")
-    public List<String> getInsuranceTypes(@PathVariable String type) {
+    public List<String> getInsuranceTypes() {
         return insuranceTypeRepository.findAll().stream().map(InsuranceType::getType).collect(Collectors.toList());
     }
 }

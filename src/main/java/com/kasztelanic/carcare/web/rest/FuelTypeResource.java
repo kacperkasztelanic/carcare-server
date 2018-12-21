@@ -55,7 +55,7 @@ public class FuelTypeResource {
 
     @Transactional
     @GetMapping("")
-    public List<String> getFuelTypes(@PathVariable String type) {
+    public List<String> getFuelTypes() {
         return fuelTypeRepository.findAll().stream().map(FuelType::getType).collect(Collectors.toList());
     }
 }
