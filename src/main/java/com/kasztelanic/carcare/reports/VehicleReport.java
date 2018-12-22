@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -123,8 +124,7 @@ public class VehicleReport {
         }
 
         List<InsuranceDto> sortedInsurances = insurances.stream()
-                .sorted((a, b) -> a.getVehicleEvent().getDate().compareTo(b.getVehicleEvent().getDate()))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (InsuranceDto insurance : sortedInsurances) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -133,7 +133,7 @@ public class VehicleReport {
             cell.setCellValue(insurance.getVehicleEvent().getMileage());
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
-            cell.setCellValue(String.format("%.2f", insurance.getCostInCents() / 100.0));
+            cell.setCellValue(insurance.getCostInCents() / 100.0);
             cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
@@ -168,8 +168,7 @@ public class VehicleReport {
         }
 
         List<InspectionDto> sortedInspections = inspections.stream()
-                .sorted((a, b) -> a.getVehicleEvent().getDate().compareTo(b.getVehicleEvent().getDate()))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (InspectionDto inspection : sortedInspections) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -178,7 +177,7 @@ public class VehicleReport {
             cell.setCellValue(inspection.getVehicleEvent().getMileage());
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
-            cell.setCellValue(String.format("%.2f", inspection.getCostInCents() / 100.0));
+            cell.setCellValue(inspection.getCostInCents() / 100.0);
             cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
@@ -208,8 +207,7 @@ public class VehicleReport {
         }
 
         List<RoutineServiceDto> sortedRoutineServices = routineServices.stream()
-                .sorted((a, b) -> a.getVehicleEvent().getDate().compareTo(b.getVehicleEvent().getDate()))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (RoutineServiceDto routineService : sortedRoutineServices) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -218,7 +216,7 @@ public class VehicleReport {
             cell.setCellValue(routineService.getVehicleEvent().getMileage());
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
-            cell.setCellValue(String.format("%.2f", routineService.getCostInCents() / 100.0));
+            cell.setCellValue(routineService.getCostInCents() / 100.0);
             cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
@@ -248,8 +246,7 @@ public class VehicleReport {
         }
 
         List<RepairDto> sortedRepairs = repairs.stream()
-                .sorted((a, b) -> a.getVehicleEvent().getDate().compareTo(b.getVehicleEvent().getDate()))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (RepairDto repairDto : sortedRepairs) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -258,7 +255,7 @@ public class VehicleReport {
             cell.setCellValue(repairDto.getVehicleEvent().getMileage());
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
-            cell.setCellValue(String.format("%.2f", repairDto.getCostInCents() / 100.0));
+            cell.setCellValue(repairDto.getCostInCents() / 100.0);
             cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
@@ -276,15 +273,15 @@ public class VehicleReport {
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
         String[] titles = { "reports.vehicle.refuel.date", "reports.vehicle.refuel.mileage",
-                "reports.vehicle.refuel.cost", "reports.vehicle.refuel.volume", "reports.vehicle.refuel.station" };
+                "reports.vehicle.refuel.cost", "reports.vehicle.refuel.volume", "reports.vehicle.refuel.price",
+                "reports.vehicle.refuel.station" };
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
 
         List<RefuelDto> sortedRefuels = refuels.stream()
-                .sorted((a, b) -> a.getVehicleEvent().getDate().compareTo(b.getVehicleEvent().getDate()))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (RefuelDto refuelDto : sortedRefuels) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -293,14 +290,18 @@ public class VehicleReport {
             cell.setCellValue(refuelDto.getVehicleEvent().getMileage());
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
-            cell.setCellValue(String.format("%.2f", refuelDto.getCostInCents() / 100.0));
+            cell.setCellValue(refuelDto.getCostInCents() / 100.0);
             cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
-            cell.setCellValue(String.format("%.2f", refuelDto.getVolume() / 1000.0));
+            cell.setCellValue(refuelDto.getVolume() / 1000.0);
             cell.setCellStyle(cellStyle);
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(4);
+            cell.setCellValue(refuelDto.getCostInCents() * 10.0 / refuelDto.getVolume());
+            cell.setCellStyle(cellStyle);
+            cell.setCellType(CellType.NUMERIC);
+            cell = row.createCell(5);
             cell.setCellValue(refuelDto.getStation());
         }
         for (int i = 0; i < titles.length; i++) {
