@@ -15,9 +15,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Profile(JHipsterConstants.SPRING_PROFILE_CLOUD)
 public class CloudDatabaseConfiguration extends AbstractCloudConfig {
 
+    private static final String CLOUD_CONFIGURATION_HIKARI_PREFIX = "spring.datasource.hikari";
+
     private final Logger log = LoggerFactory.getLogger(CloudDatabaseConfiguration.class);
-    
-    private final String CLOUD_CONFIGURATION_HIKARI_PREFIX = "spring.datasource.hikari";
 
     @Bean
     @ConfigurationProperties(CLOUD_CONFIGURATION_HIKARI_PREFIX)

@@ -54,6 +54,7 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements Se
 
     // The cacheManager is injected here to force its initialization, so the JCacheGaugeSet
     // will be correctly created below.
+    @SuppressWarnings("all")
     public MetricsConfiguration(JHipsterProperties jHipsterProperties, CacheManager cacheManager) {
         this.jHipsterProperties = jHipsterProperties;
     }
@@ -82,12 +83,14 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements Se
         metricRegistry.register(PROP_METRIC_REG_JVM_GARBAGE, new GarbageCollectorMetricSet());
         metricRegistry.register(PROP_METRIC_REG_JVM_THREADS, new ThreadStatesGaugeSet());
         metricRegistry.register(PROP_METRIC_REG_JVM_FILES, new FileDescriptorRatioGauge());
-        metricRegistry.register(PROP_METRIC_REG_JVM_BUFFERS, new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()));
+        metricRegistry.register(PROP_METRIC_REG_JVM_BUFFERS,
+                new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()));
         metricRegistry.register(PROP_METRIC_REG_JVM_ATTRIBUTE_SET, new JvmAttributeGaugeSet());
         metricRegistry.register(PROP_METRIC_REG_JCACHE_STATISTICS, new JCacheGaugeSet());
         if (hikariDataSource != null) {
             log.debug("Monitoring the datasource");
-            // remove the factory created by HikariDataSourceMetricsPostProcessor until JHipster migrate to Micrometer
+            // remove the factory created by HikariDataSourceMetricsPostProcessor until
+            // JHipster migrate to Micrometer
             hikariDataSource.setMetricsTrackerFactory(null);
             hikariDataSource.setMetricRegistry(metricRegistry);
         }
@@ -100,11 +103,8 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements Se
             log.info("Initializing Metrics Log reporting");
             Marker metricsMarker = MarkerFactory.getMarker("metrics");
             final Slf4jReporter reporter = Slf4jReporter.forRegistry(metricRegistry)
-                .outputTo(LoggerFactory.getLogger("metrics"))
-                .markWith(metricsMarker)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
+                    .outputTo(LoggerFactory.getLogger("metrics")).markWith(metricsMarker)
+                    .convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
             reporter.start(jHipsterProperties.getMetrics().getLogs().getReportFrequency(), TimeUnit.SECONDS);
         }
     }
@@ -118,9 +118,8 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements Se
             log.debug("Initializing prometheus metrics exporting via {}", endpoint);
 
             CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry));
-            servletContext
-                .addServlet("prometheusMetrics", new MetricsServlet(CollectorRegistry.defaultRegistry))
-                .addMapping(endpoint);
+            servletContext.addServlet("prometheusMetrics", new MetricsServlet(CollectorRegistry.defaultRegistry))
+                    .addMapping(endpoint);
         }
     }
 }
