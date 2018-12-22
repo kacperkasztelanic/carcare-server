@@ -13,7 +13,7 @@ public class AverageConsumptionResult {
     @Getter
     private final PeriodVehicle periodVehicle;
     @Getter
-    private final int volume;
+    private final double volume;
     @Getter
     private final int mileage;
 

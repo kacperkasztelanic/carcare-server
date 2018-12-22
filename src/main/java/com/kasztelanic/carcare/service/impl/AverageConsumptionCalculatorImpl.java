@@ -1,6 +1,7 @@
 package com.kasztelanic.carcare.service.impl;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,13 +20,12 @@ public class AverageConsumptionCalculatorImpl implements AverageConsumptionCalcu
         List<RefuelDto> filteredRefuels = refuels.stream()
                 .filter(i -> !i.getVehicleEvent().getDate().isBefore(periodVehicle.getDateFrom())
                         && !i.getVehicleEvent().getDate().isAfter(periodVehicle.getDateTo()))
+                .sorted(Comparator.comparing((RefuelDto r) -> r.getVehicleEvent().getDate()).reversed())
                 .collect(Collectors.toList());
-        int volume = 0;
-        int mileage = 0;
-        for (RefuelDto refuel : filteredRefuels) {
-            volume += refuel.getVolume();
-            volume += refuel.getVehicleEvent().getMileage();
-        }
-        return AverageConsumptionResult.builder().periodVehicle(periodVehicle).mileage(mileage).volume(volume).build();
+        int maxMileage = filteredRefuels.stream().mapToInt(r -> r.getVehicleEvent().getMileage()).max().orElse(0);
+        int minMileage = filteredRefuels.stream().mapToInt(r -> r.getVehicleEvent().getMileage()).min().orElse(0);
+        int volume = filteredRefuels.stream().skip(1).mapToInt(RefuelDto::getVolume).sum();
+        return AverageConsumptionResult.builder().periodVehicle(periodVehicle).mileage(maxMileage - minMileage)
+                .volume(volume / 1000.0).build();
     }
 }
