@@ -4,7 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -19,6 +22,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import com.kasztelanic.carcare.service.dto.CostResult;
+import com.kasztelanic.carcare.service.dto.VehicleDto;
 
 @Service
 public class CostReport {
@@ -28,18 +32,20 @@ public class CostReport {
     @Autowired
     private MessageSource messageSource;
 
-    public byte[] generateCostReport(Collection<CostResult> costs, Locale locale) throws IOException {
+    public byte[] generateCostReport(Collection<CostResult> costs, Collection<VehicleDto> vehicles, Locale locale)
+            throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             DataFormat format = workbook.createDataFormat();
             CellStyle cellStyle = workbook.createCellStyle();
             cellStyle.setDataFormat(format.getFormat(DECIMAL_FORMAT));
-            createSheet(workbook, costs, locale, cellStyle);
+            createSheet(workbook, costs, vehicles, locale, cellStyle);
             workbook.write(os);
             return os.toByteArray();
         }
     }
 
-    private void createSheet(Workbook workbook, Collection<CostResult> costs, Locale locale, CellStyle cellStyle) {
+    private void createSheet(Workbook workbook, Collection<CostResult> costs, Collection<VehicleDto> vehicles,
+            Locale locale, CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.costs", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
@@ -49,10 +55,13 @@ public class CostReport {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
+        Map<Long, VehicleDto> vehicleById = vehicles.stream()
+                .collect(Collectors.toMap(VehicleDto::getId, Function.identity()));
         for (CostResult cost : costs) {
             Row row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(String.format("%s %s - %s", cost.getVehicle().getMake(),
-                    cost.getVehicle().getModel(), cost.getVehicle().getLicensePlate()));
+            VehicleDto vehicle = vehicleById.get(cost.getPeriodVehicle().getVehicleId());
+            row.createCell(0).setCellValue(
+                    String.format("%s %s - %s", vehicle.getMake(), vehicle.getModel(), vehicle.getLicensePlate()));
             createCostCell(1, cost.getInsuranceCosts(), row, cellStyle);
             createCostCell(2, cost.getInspectionCosts(), row, cellStyle);
             createCostCell(3, cost.getRoutineServiceCosts(), row, cellStyle);

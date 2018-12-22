@@ -2,19 +2,18 @@ package com.kasztelanic.carcare.service.dto;
 
 import java.time.LocalDate;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @EqualsAndHashCode
 @ToString(includeFieldNames = false)
-public abstract class PeriodVehicleResult {
+public class PeriodVehicleRequest {
 
     @Getter
-    protected final VehicleDto vehicle;
+    protected final Long vehicleId;
     @Getter
     protected final LocalDate dateFrom;
     @Getter

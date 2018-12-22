@@ -1,22 +1,21 @@
 package com.kasztelanic.carcare.service.dto;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-@Builder
+@AllArgsConstructor(staticName = "of")
 @EqualsAndHashCode
 @ToString(includeFieldNames = false)
-public class CostReportRequest {
+public class PeriodVehicle {
 
     @Getter
-    private final List<Long> vehicleIds;
+    protected final Long vehicleId;
     @Getter
-    private final LocalDate dateFrom;
+    protected final LocalDate dateFrom;
     @Getter
-    private final LocalDate dateTo;
+    protected final LocalDate dateTo;
 }

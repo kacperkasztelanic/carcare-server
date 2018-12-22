@@ -15,15 +15,16 @@ public class ReportsService {
 
     @Autowired
     private VehicleReport vehicleReport;
-    
+
     @Autowired
     private CostReport costReport;
 
     public byte[] generateVehicleReport(VehicleDto vehicle, Locale locale) throws IOException {
         return vehicleReport.generateVehicleReport(vehicle, locale);
     }
-    
-    public byte[] generateCostReport(Collection<CostResult> costs, Locale locale) throws IOException {
-        return costReport.generateCostReport(costs, locale);
+
+    public byte[] generateCostReport(Collection<CostResult> costs, Collection<VehicleDto> vehicles, Locale locale)
+            throws IOException {
+        return costReport.generateCostReport(costs, vehicles, locale);
     }
 }

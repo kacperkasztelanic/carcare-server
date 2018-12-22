@@ -10,17 +10,18 @@ import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.CostResult.CostResultBuilder;
 import com.kasztelanic.carcare.service.dto.HasCost;
 import com.kasztelanic.carcare.service.dto.HasVehicleEvent;
+import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 
 @Service
 public class CostCalculatorImpl implements CostCalculator {
 
     @Override
-    public CostResult calculate(VehicleDto vehicle, LocalDate dateFrom, LocalDate dateTo) {
+    public CostResult calculate(PeriodVehicle periodVehicle, VehicleDto vehicle) {
+        LocalDate dateFrom = periodVehicle.getDateFrom();
+        LocalDate dateTo = periodVehicle.getDateTo();
         CostResultBuilder builder = CostResult.builder();
-        builder.vehicle(vehicle);
-        builder.dateFrom(dateFrom);
-        builder.dateTo(dateTo);
+        builder.periodVehicle(periodVehicle);
         builder.insuranceCosts(sumCostsBetweenDates(vehicle.getInsurance(), dateFrom, dateTo));
         builder.inspectionCosts(sumCostsBetweenDates(vehicle.getInspection(), dateFrom, dateTo));
         builder.routineServiceCosts(sumCostsBetweenDates(vehicle.getRoutineService(), dateFrom, dateTo));

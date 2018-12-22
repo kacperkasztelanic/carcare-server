@@ -24,8 +24,9 @@ import com.kasztelanic.carcare.reports.ReportsService;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.CostCalculator;
 import com.kasztelanic.carcare.service.UserService;
-import com.kasztelanic.carcare.service.dto.CostReportRequest;
+import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.CostResult;
+import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.mapper.VehicleMapper;
 
@@ -53,7 +54,8 @@ public class ReportsResource {
     @Transactional
     @GetMapping("/vehicle/{id}")
     public ResponseEntity<byte[]> reportForVehicle(@PathVariable long id) throws IOException {
-        Optional<VehicleDto> vehicleOptional = vehicleRepository.findById(id).map(vehicleMapper::vehicleToVehicleDto);
+        Optional<VehicleDto> vehicleOptional = vehicleRepository.findByIdAndOwnerIsCurrentUser(id)
+                .map(vehicleMapper::vehicleToVehicleDto);
         if (vehicleOptional.isPresent()) {
             VehicleDto vehicle = vehicleOptional.get();
             User user = userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new);
@@ -67,14 +69,16 @@ public class ReportsResource {
 
     @Transactional
     @PostMapping("/costs")
-    public ResponseEntity<byte[]> costReport(@RequestBody CostReportRequest costReportRequest) throws IOException {
+    public ResponseEntity<byte[]> costReport(@RequestBody CostRequest costRequest) throws IOException {
         User user = userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new);
         Locale locale = Locale.forLanguageTag(user.getLangKey());
-        List<CostResult> costs = vehicleRepository.findAllById(costReportRequest.getVehicleIds()).stream()
-                .map(vehicleMapper::vehicleToVehicleDto)
-                .map(v -> costCalculator.calculate(v, costReportRequest.getDateFrom(), costReportRequest.getDateTo()))
+        List<VehicleDto> vehicles = vehicleRepository.findAllByIdAndOwnerIsCurrentUser(costRequest.getVehicleIds())
+                .stream().map(vehicleMapper::vehicleToVehicleDto).collect(Collectors.toList());
+        List<CostResult> costs = vehicles.stream()
+                .map(v -> costCalculator
+                        .calculate(PeriodVehicle.of(v.getId(), costRequest.getDateFrom(), costRequest.getDateTo()), v))
                 .collect(Collectors.toList());
-        byte[] bytes = reportsService.generateCostReport(costs, locale);
+        byte[] bytes = reportsService.generateCostReport(costs, vehicles, locale);
         String filename = "costs" + EXTENSION;
         return prepareResponse(bytes, filename);
     }
