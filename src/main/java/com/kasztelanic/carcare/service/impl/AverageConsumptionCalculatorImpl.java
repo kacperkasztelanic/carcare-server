@@ -4,11 +4,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 import com.kasztelanic.carcare.service.AverageConsumptionCalculator;
 import com.kasztelanic.carcare.service.dto.AverageConsumptionResult;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.service.dto.RefuelDto;
 
+@Service
 public class AverageConsumptionCalculatorImpl implements AverageConsumptionCalculator {
 
     @Override
