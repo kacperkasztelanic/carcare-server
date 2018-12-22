@@ -6,8 +6,8 @@ import java.util.Collection;
 import org.springframework.stereotype.Service;
 
 import com.kasztelanic.carcare.service.CostCalculator;
-import com.kasztelanic.carcare.service.dto.CostResultDto;
-import com.kasztelanic.carcare.service.dto.CostResultDto.CostResultDtoBuilder;
+import com.kasztelanic.carcare.service.dto.CostResult;
+import com.kasztelanic.carcare.service.dto.CostResult.CostResultBuilder;
 import com.kasztelanic.carcare.service.dto.HasCost;
 import com.kasztelanic.carcare.service.dto.HasVehicleEvent;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
@@ -16,8 +16,8 @@ import com.kasztelanic.carcare.service.dto.VehicleDto;
 public class CostCalculatorImpl implements CostCalculator {
 
     @Override
-    public CostResultDto calculate(VehicleDto vehicle, LocalDate dateFrom, LocalDate dateTo) {
-        CostResultDtoBuilder builder = CostResultDto.builder();
+    public CostResult calculate(VehicleDto vehicle, LocalDate dateFrom, LocalDate dateTo) {
+        CostResultBuilder builder = CostResult.builder();
         builder.vehicle(vehicle);
         builder.dateFrom(dateFrom);
         builder.dateTo(dateTo);
@@ -31,7 +31,9 @@ public class CostCalculatorImpl implements CostCalculator {
 
     private static <T extends HasCost & HasVehicleEvent> double sumCostsBetweenDates(Collection<T> collection,
             LocalDate dateFrom, LocalDate dateTo) {
-        return collection.stream().filter(i -> !i.getVehicleEvent().getDate().isBefore(dateFrom)
-                && !i.getVehicleEvent().getDate().isAfter(dateTo)).mapToInt(HasCost::getCostInCents).sum() / 100.0;
+        return collection.stream()
+                .filter(i -> !i.getVehicleEvent().getDate().isBefore(dateFrom)
+                        && !i.getVehicleEvent().getDate().isAfter(dateTo))
+                .mapToInt(HasCost::getCostInCents).sum() / 100.0;
     }
 }

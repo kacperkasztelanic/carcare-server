@@ -25,7 +25,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.CostCalculator;
 import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.CostReportRequest;
-import com.kasztelanic.carcare.service.dto.CostResultDto;
+import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.mapper.VehicleMapper;
 
@@ -70,7 +70,7 @@ public class ReportsResource {
     public ResponseEntity<byte[]> costReport(@RequestBody CostReportRequest costReportRequest) throws IOException {
         User user = userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new);
         Locale locale = Locale.forLanguageTag(user.getLangKey());
-        List<CostResultDto> costs = vehicleRepository.findAllById(costReportRequest.getVehicleIds()).stream()
+        List<CostResult> costs = vehicleRepository.findAllById(costReportRequest.getVehicleIds()).stream()
                 .map(vehicleMapper::vehicleToVehicleDto)
                 .map(v -> costCalculator.calculate(v, costReportRequest.getDateFrom(), costReportRequest.getDateTo()))
                 .collect(Collectors.toList());

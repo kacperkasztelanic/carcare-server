@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import com.kasztelanic.carcare.service.dto.CostResultDto;
+import com.kasztelanic.carcare.service.dto.CostResult;
 
 @Service
 public class CostReport {
@@ -28,7 +28,7 @@ public class CostReport {
     @Autowired
     private MessageSource messageSource;
 
-    public byte[] generateCostReport(Collection<CostResultDto> costs, Locale locale) throws IOException {
+    public byte[] generateCostReport(Collection<CostResult> costs, Locale locale) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             DataFormat format = workbook.createDataFormat();
             CellStyle cellStyle = workbook.createCellStyle();
@@ -39,7 +39,7 @@ public class CostReport {
         }
     }
 
-    private void createSheet(Workbook workbook, Collection<CostResultDto> costs, Locale locale, CellStyle cellStyle) {
+    private void createSheet(Workbook workbook, Collection<CostResult> costs, Locale locale, CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.costs", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
@@ -49,7 +49,7 @@ public class CostReport {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
-        for (CostResultDto cost : costs) {
+        for (CostResult cost : costs) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(String.format("%s %s - %s", cost.getVehicle().getMake(),
                     cost.getVehicle().getModel(), cost.getVehicle().getLicensePlate()));
@@ -62,12 +62,12 @@ public class CostReport {
         }
         Row sumRow = sheet.createRow(rowNum);
         sumRow.createCell(0).setCellValue(messageSource.getMessage("reports.costs.sum", null, locale));
-        createCostCell(1, sumCosts(costs, CostResultDto::getInsuranceCosts), sumRow, cellStyle);
-        createCostCell(2, sumCosts(costs, CostResultDto::getInspectionCosts), sumRow, cellStyle);
-        createCostCell(3, sumCosts(costs, CostResultDto::getRoutineServiceCosts), sumRow, cellStyle);
-        createCostCell(4, sumCosts(costs, CostResultDto::getRepairCosts), sumRow, cellStyle);
-        createCostCell(5, sumCosts(costs, CostResultDto::getRefuelCosts), sumRow, cellStyle);
-        createCostCell(6, sumCosts(costs, CostResultDto::getSum), sumRow, cellStyle);
+        createCostCell(1, sumCosts(costs, CostResult::getInsuranceCosts), sumRow, cellStyle);
+        createCostCell(2, sumCosts(costs, CostResult::getInspectionCosts), sumRow, cellStyle);
+        createCostCell(3, sumCosts(costs, CostResult::getRoutineServiceCosts), sumRow, cellStyle);
+        createCostCell(4, sumCosts(costs, CostResult::getRepairCosts), sumRow, cellStyle);
+        createCostCell(5, sumCosts(costs, CostResult::getRefuelCosts), sumRow, cellStyle);
+        createCostCell(6, sumCosts(costs, CostResult::getSum), sumRow, cellStyle);
         for (int i = 0; i < titles.length; i++) {
             sheet.autoSizeColumn(i);
         }
@@ -80,7 +80,7 @@ public class CostReport {
         cell.setCellStyle(cellStyle);
     }
 
-    private static double sumCosts(Collection<CostResultDto> costs, ToDoubleFunction<CostResultDto> extractor) {
+    private static double sumCosts(Collection<CostResult> costs, ToDoubleFunction<CostResult> extractor) {
         return costs.stream().mapToDouble(extractor::applyAsDouble).sum();
     }
 }
