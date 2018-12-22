@@ -6,14 +6,12 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Builder
-@EqualsAndHashCode(of = { "uuid" })
+@EqualsAndHashCode(of = { "id" })
 @ToString(of = { "costInCents", "volume" }, includeFieldNames = false)
 public class RefuelDto implements HasVehicleEvent, HasCost {
 
     @Getter
     private final Long id;
-    @Getter
-    private final String uuid;
     @Getter
     private final VehicleEventDto vehicleEvent;
     @Getter

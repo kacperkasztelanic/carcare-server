@@ -8,14 +8,12 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Builder
-@EqualsAndHashCode(of = { "uuid" })
+@EqualsAndHashCode(of = { "id" })
 @ToString(of = { "validThru", "vehicleEvent" })
 public class InspectionDto implements HasVehicleEvent, HasCost {
 
     @Getter
     private final Long id;
-    @Getter
-    private final String uuid;
     @Getter
     private final VehicleEventDto vehicleEvent;
     @Getter

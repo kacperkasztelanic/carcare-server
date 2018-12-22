@@ -6,14 +6,12 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Builder
-@EqualsAndHashCode(of = { "uuid" })
-@ToString(of = { "uuid" })
+@EqualsAndHashCode(of = { "id" })
+@ToString(of = { "id" })
 public class RepairDto implements HasVehicleEvent, HasCost {
 
     @Getter
     private final Long id;
-    @Getter
-    private final String uuid;
     @Getter
     private final VehicleEventDto vehicleEvent;
     @Getter

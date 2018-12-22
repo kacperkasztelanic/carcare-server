@@ -8,14 +8,12 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Builder
-@EqualsAndHashCode(of = { "uuid" })
+@EqualsAndHashCode(of = { "id" })
 @ToString(of = { "make", "model", "licensePlate" }, includeFieldNames = false)
 public class VehicleDto {
 
     @Getter
     private final Long id;
-    @Getter
-    private final String uuid;
     @Getter
     private final String make;
     @Getter
