@@ -23,7 +23,7 @@ public class InsuranceMapper {
         builder.id(insurance.getId());
         builder.costInCents(insurance.getCostInCents());
         builder.details(insurance.getDetails());
-        builder.insuranceType(insurance.getInsuranceType().toString());
+        builder.insuranceType(insurance.getInsuranceType().getType());
         builder.insurer(insurance.getInsurer());
         builder.number(insurance.getNumber());
         builder.validFrom(insurance.getValidFrom());
