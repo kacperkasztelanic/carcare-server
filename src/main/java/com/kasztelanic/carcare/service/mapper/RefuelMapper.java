@@ -21,6 +21,7 @@ public class RefuelMapper {
         builder.station(refuel.getStation());
         builder.volume(refuel.getVolume());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(refuel.getVehicleEvent()));
+        builder.vehicleId(refuel.getVehicle().getId());
         return builder.build();
     }
 
