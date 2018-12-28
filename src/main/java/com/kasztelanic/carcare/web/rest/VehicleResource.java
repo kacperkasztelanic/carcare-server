@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.mapper.VehicleMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
@@ -36,11 +37,15 @@ public class VehicleResource {
     @Autowired
     private VehicleMapper vehicleMapper;
 
+    @Autowired
+    private UserService userService;
+
     @Transactional
     @PostMapping("")
     public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
-        VehicleDto result = vehicleMapper
-                .vehicleToVehicleDto(vehicleRepository.save(vehicleMapper.vehicleDtoToVehicle(vehicleDto)));
+        Vehicle vehicle = vehicleMapper.vehicleDtoToVehicle(vehicleDto);
+        vehicle.setOwner(userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new));
+        VehicleDto result = vehicleMapper.vehicleToVehicleDto(vehicleRepository.save(vehicle));
         return ResponseEntity.created(URIUtil.buildURI(String.format("/api/vehicle/%s", result.getId().toString())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
     }
