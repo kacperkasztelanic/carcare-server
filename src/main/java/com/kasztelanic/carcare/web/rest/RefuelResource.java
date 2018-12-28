@@ -43,6 +43,7 @@ public class RefuelResource {
     @Transactional
     @PostMapping("/{vehicleId}")
     public ResponseEntity<RefuelDto> addRefuel(@PathVariable Long vehicleId, @RequestBody RefuelDto refuelDto) {
+        System.err.println(refuelDto.getStation());
         Refuel refuel = refuelMapper.refuelDtoToRefuel(refuelDto);
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(refuel::setVehicle)
                 .map(refuelRepository::save).map(refuelMapper::refuelToRefuelDto)
@@ -78,14 +79,15 @@ public class RefuelResource {
 
     @Transactional
     @GetMapping("/all/{vehicleId}")
-    public List<RefuelDto> getAllRefuels(@PathVariable Long vehicleId) {
-        return refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
+    public ResponseEntity<List<RefuelDto>> getAllRefuels(@PathVariable Long vehicleId) {
+        List<RefuelDto> list = refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
                 .map(refuelMapper::refuelToRefuelDto).collect(Collectors.toList());
+        return ResponseEntity.ok().header("X-Total-Count", String.valueOf(list.size())).body(list);
     }
 
     @Transactional
     @GetMapping("/{refuelId}")
-    public ResponseEntity<RefuelDto> getInsurance(@PathVariable Long refuelId) {
+    public ResponseEntity<RefuelDto> getRefuel(@PathVariable Long refuelId) {
         return refuelRepository.findByIdAndOwnerIsCurrentUser(refuelId).map(refuelMapper::refuelToRefuelDto)
                 .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
