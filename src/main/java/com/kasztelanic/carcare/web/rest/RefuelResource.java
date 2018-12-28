@@ -23,6 +23,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.dto.RefuelDto;
 import com.kasztelanic.carcare.service.mapper.RefuelMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -43,7 +44,6 @@ public class RefuelResource {
     @Transactional
     @PostMapping("/{vehicleId}")
     public ResponseEntity<RefuelDto> addRefuel(@PathVariable Long vehicleId, @RequestBody RefuelDto refuelDto) {
-        System.err.println(refuelDto.getStation());
         Refuel refuel = refuelMapper.refuelDtoToRefuel(refuelDto);
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(refuel::setVehicle)
                 .map(refuelRepository::save).map(refuelMapper::refuelToRefuelDto)
@@ -82,7 +82,7 @@ public class RefuelResource {
     public ResponseEntity<List<RefuelDto>> getAllRefuels(@PathVariable Long vehicleId) {
         List<RefuelDto> list = refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
                 .map(refuelMapper::refuelToRefuelDto).collect(Collectors.toList());
-        return ResponseEntity.ok().header("X-Total-Count", String.valueOf(list.size())).body(list);
+        return ResponseUtil.createListOkResponse(list);
     }
 
     @Transactional

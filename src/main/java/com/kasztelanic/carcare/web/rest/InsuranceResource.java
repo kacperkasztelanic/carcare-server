@@ -23,6 +23,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.dto.InsuranceDto;
 import com.kasztelanic.carcare.service.mapper.InsuranceMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -80,9 +81,10 @@ public class InsuranceResource {
 
     @Transactional
     @GetMapping("/all/{vehicleId}")
-    public List<InsuranceDto> getAllInsurances(@PathVariable Long vehicleId) {
-        return insuranceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
+    public ResponseEntity<List<InsuranceDto>> getAllInsurances(@PathVariable Long vehicleId) {
+        List<InsuranceDto> list = insuranceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
                 .map(insuranceMapper::insuranceToInsuranceDto).collect(Collectors.toList());
+        return ResponseUtil.createListOkResponse(list);
     }
 
     @Transactional

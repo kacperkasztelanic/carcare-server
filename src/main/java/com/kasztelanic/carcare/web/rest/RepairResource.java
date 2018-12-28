@@ -23,6 +23,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.dto.RepairDto;
 import com.kasztelanic.carcare.service.mapper.RepairMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -78,9 +79,10 @@ public class RepairResource {
 
     @Transactional
     @GetMapping("/all/{vehicleId}")
-    public List<RepairDto> getAllRepairs(@PathVariable Long vehicleId) {
-        return repairRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
+    public ResponseEntity<List<RepairDto>> getAllRepairs(@PathVariable Long vehicleId) {
+        List<RepairDto> list = repairRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
                 .map(repairMapper::repairToRepairDto).collect(Collectors.toList());
+        return ResponseUtil.createListOkResponse(list);
     }
 
     @Transactional

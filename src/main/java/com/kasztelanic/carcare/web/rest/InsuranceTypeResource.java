@@ -20,6 +20,7 @@ import com.kasztelanic.carcare.domain.InsuranceType;
 import com.kasztelanic.carcare.repository.InsuranceTypeRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -56,7 +57,9 @@ public class InsuranceTypeResource {
 
     @Transactional
     @GetMapping("")
-    public List<String> getInsuranceTypes() {
-        return insuranceTypeRepository.findAll().stream().map(InsuranceType::getType).collect(Collectors.toList());
+    public ResponseEntity<List<String>> getInsuranceTypes() {
+        List<String> list = insuranceTypeRepository.findAll().stream().map(InsuranceType::getType)
+                .collect(Collectors.toList());
+        return ResponseUtil.createListOkResponse(list);
     }
 }

@@ -20,6 +20,7 @@ import com.kasztelanic.carcare.domain.FuelType;
 import com.kasztelanic.carcare.repository.FuelTypeRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -56,7 +57,8 @@ public class FuelTypeResource {
 
     @Transactional
     @GetMapping("")
-    public List<String> getFuelTypes() {
-        return fuelTypeRepository.findAll().stream().map(FuelType::getType).collect(Collectors.toList());
+    public ResponseEntity<List<String>> getFuelTypes() {
+        List<String> list = fuelTypeRepository.findAll().stream().map(FuelType::getType).collect(Collectors.toList());
+        return ResponseUtil.createListOkResponse(list);
     }
 }

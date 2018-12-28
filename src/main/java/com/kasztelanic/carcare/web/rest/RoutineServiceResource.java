@@ -23,6 +23,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
 import com.kasztelanic.carcare.service.mapper.RoutineServiceMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -48,8 +49,8 @@ public class RoutineServiceResource {
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(routineService::setVehicle)
                 .map(routineServiceRepository::save).map(routineServiceMapper::routineServiceToRoutineServiceDto)
                 .map(i -> ResponseEntity
-                        .created(URIUtil.buildURI(
-                                String.format("/api/routine-service/%s/%s", vehicleId.toString(), i.getId().toString())))
+                        .created(URIUtil.buildURI(String.format("/api/routine-service/%s/%s", vehicleId.toString(),
+                                i.getId().toString())))
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -82,9 +83,10 @@ public class RoutineServiceResource {
 
     @Transactional
     @GetMapping("/all/{vehicleId}")
-    public List<RoutineServiceDto> getAllRoutineServices(@PathVariable Long vehicleId) {
-        return routineServiceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
+    public ResponseEntity<List<RoutineServiceDto>> getAllRoutineServices(@PathVariable Long vehicleId) {
+        List<RoutineServiceDto> list = routineServiceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
                 .map(routineServiceMapper::routineServiceToRoutineServiceDto).collect(Collectors.toList());
+        return ResponseUtil.createListOkResponse(list);
     }
 
     @Transactional

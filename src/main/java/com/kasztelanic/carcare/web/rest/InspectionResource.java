@@ -23,6 +23,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.dto.InspectionDto;
 import com.kasztelanic.carcare.service.mapper.InspectionMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -80,9 +81,10 @@ public class InspectionResource {
 
     @Transactional
     @GetMapping("/all/{vehicleId}")
-    public List<InspectionDto> getAllInspections(@PathVariable Long vehicleId) {
-        return inspectionRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
+    public ResponseEntity<List<InspectionDto>> getAllInspections(@PathVariable Long vehicleId) {
+        List<InspectionDto> list = inspectionRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
                 .map(inspectionMapper::inspectionToInspectionDto).collect(Collectors.toList());
+        return ResponseUtil.createListOkResponse(list);
     }
 
     @Transactional
