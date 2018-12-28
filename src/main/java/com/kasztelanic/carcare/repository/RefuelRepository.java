@@ -14,6 +14,6 @@ public interface RefuelRepository extends JpaRepository<Refuel, Long> {
     @Query("select refuel from Refuel refuel join refuel.vehicle where refuel.id = :id and refuel.vehicle.owner.login = ?#{principal.username}")
     Optional<Refuel> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);
 
-    @Query("select refuel from Refuel refuel join refuel.vehicle where refuel.vehicle.id = :vehicleId and refuel.vehicle.owner.login = ?#{principal.username}")
+    @Query("select refuel from Refuel refuel join refuel.vehicle where refuel.vehicle.id = :vehicleId and refuel.vehicle.owner.login = ?#{principal.username} order by refuel.vehicleEvent.date desc")
     List<Refuel> findByVehicleIdAndOwnerIsCurrentUser(@Param("vehicleId") Long vehicleId);
 }
