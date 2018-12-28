@@ -24,4 +24,6 @@ public class InspectionDto implements HasVehicleEvent, HasCost {
     private final LocalDate validThru;
     @Getter
     private final String details;
+    @Getter
+    private final Long vehicleId;
 }

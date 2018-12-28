@@ -20,4 +20,6 @@ public class RepairDto implements HasVehicleEvent, HasCost {
     private final String station;
     @Getter
     private final String details;
+    @Getter
+    private final Long vehicleId;
 }

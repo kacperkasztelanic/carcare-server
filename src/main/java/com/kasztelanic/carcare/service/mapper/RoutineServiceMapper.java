@@ -23,6 +23,7 @@ public class RoutineServiceMapper {
         builder.nextByMileage(routineService.getNextByMileage());
         builder.station(routineService.getStation());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(routineService.getVehicleEvent()));
+        builder.vehicleId(routineService.getVehicle().getId());
         return builder.build();
     }
 

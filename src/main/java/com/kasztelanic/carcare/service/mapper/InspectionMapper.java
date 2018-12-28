@@ -22,6 +22,7 @@ public class InspectionMapper {
         builder.station(inspection.getStation());
         builder.validThru(inspection.getValidThru());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(inspection.getVehicleEvent()));
+        builder.vehicleId(inspection.getVehicle().getId());
         return builder.build();
     }
 

@@ -30,4 +30,6 @@ public class InsuranceDto implements HasVehicleEvent, HasCost {
     private final String details;
     @Getter
     private final String insuranceType;
+    @Getter
+    private final Long vehicleId;
 }

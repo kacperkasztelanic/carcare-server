@@ -21,6 +21,7 @@ public class RepairMapper {
         builder.details(repair.getDetails());
         builder.station(repair.getStation());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(repair.getVehicleEvent()));
+        builder.vehicleId(repair.getVehicle().getId());
         return builder.build();
     }
 

@@ -29,6 +29,7 @@ public class InsuranceMapper {
         builder.validFrom(insurance.getValidFrom());
         builder.validThru(insurance.getValidThru());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(insurance.getVehicleEvent()));
+        builder.vehicleId(insurance.getVehicle().getId());
         return builder.build();
     }
 
