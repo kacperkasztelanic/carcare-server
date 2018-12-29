@@ -2,6 +2,7 @@ package com.kasztelanic.carcare.service.mapper;
 
 import org.springframework.stereotype.Service;
 
+import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.domain.VehicleDetails;
 import com.kasztelanic.carcare.domain.VehicleDetails.VehicleDetailsBuilder;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
@@ -10,7 +11,8 @@ import com.kasztelanic.carcare.service.dto.VehicleDetailsDto.VehicleDetailsDtoBu
 @Service
 public class VehicleDetailsMapper {
 
-    public VehicleDetailsDto vehicleDetailsToVehicleDetailsDto(VehicleDetails vehicleDetails) {
+    public VehicleDetailsDto vehicleDetailsToVehicleDetailsDto(Vehicle vehicle) {
+        VehicleDetails vehicleDetails = vehicle.getVehicleDetails();
         VehicleDetailsDtoBuilder builder = VehicleDetailsDto.builder();
         builder.modelSuffix(vehicleDetails.getModelSuffix());
         builder.vinNumber(vehicleDetails.getVinNumber());
@@ -23,6 +25,7 @@ public class VehicleDetailsMapper {
         builder.yearOfManufacture(vehicleDetails.getYearOfManufacture());
         builder.image(vehicleDetails.getImage());
         builder.imageContentType(vehicleDetails.getImageContentType());
+        builder.vehicleId(vehicle.getId());
         return builder.build();
     }
 

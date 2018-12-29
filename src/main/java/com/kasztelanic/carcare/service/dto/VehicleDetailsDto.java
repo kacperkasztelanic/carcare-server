@@ -30,4 +30,6 @@ public class VehicleDetailsDto {
     private final byte[] image;
     @Getter
     private final String imageContentType;
+    @Getter
+    private final Long vehicleId;
 }

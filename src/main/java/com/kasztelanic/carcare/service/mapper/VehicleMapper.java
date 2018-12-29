@@ -42,7 +42,7 @@ public class VehicleMapper {
         builder.model(vehicle.getModel());
         builder.licensePlate(vehicle.getLicensePlate());
         builder.fuelType(vehicle.getFuelType().getType());
-        builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle.getVehicleDetails()));
+        builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle));
         builder.insurance(vehicle.getInsurance().stream().map(insuranceMapper::insuranceToInsuranceDto)
                 .collect(Collectors.toSet()));
         builder.inspection(vehicle.getInspection().stream().map(inspectionMapper::inspectionToInspectionDto)
