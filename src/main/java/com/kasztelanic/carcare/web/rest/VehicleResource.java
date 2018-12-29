@@ -23,6 +23,7 @@ import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.mapper.VehicleMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 @RestController
@@ -75,9 +76,10 @@ public class VehicleResource {
 
     @Transactional
     @GetMapping("/all")
-    public List<VehicleDto> getAllVehicles() {
-        return vehicleRepository.findByOwnerIsCurrentUser().stream().map(vehicleMapper::vehicleToVehicleDto)
-                .collect(Collectors.toList());
+    public ResponseEntity<List<VehicleDto>> getAllVehicles() {
+        List<VehicleDto> list = vehicleRepository.findByOwnerIsCurrentUser().stream()
+                .map(vehicleMapper::vehicleToVehicleDto).collect(Collectors.toList());
+        return ResponseUtil.createListOkResponse(list);
     }
 
     @Transactional
