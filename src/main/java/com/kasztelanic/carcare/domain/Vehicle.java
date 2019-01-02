@@ -1,9 +1,7 @@
 package com.kasztelanic.carcare.domain;
 
 import java.io.Serializable;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -11,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -67,7 +64,7 @@ public class Vehicle implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     private FuelType fuelType;
 
     @Getter
@@ -75,36 +72,6 @@ public class Vehicle implements Serializable {
     @NotNull
     @Embedded
     private VehicleDetails vehicleDetails;
-
-    @Getter
-    @Setter
-    @NotNull
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Insurance> insurance;
-
-    @Getter
-    @Setter
-    @NotNull
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Inspection> inspection;
-
-    @Getter
-    @Setter
-    @NotNull
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RoutineService> routineService;
-
-    @Getter
-    @Setter
-    @NotNull
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Repair> repair;
-
-    @Getter
-    @Setter
-    @NotNull
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Refuel> refuel;
 
     @Getter
     @Setter
@@ -123,18 +90,12 @@ public class Vehicle implements Serializable {
     @Builder
     @SuppressWarnings("all")
     private Vehicle(String make, String model, String licensePlate, FuelType fuelType, VehicleDetails vehicleDetails,
-            Set<Insurance> insurance, Set<Inspection> inspection, Set<RoutineService> routineService,
-            Set<Repair> repair, Set<Refuel> refuel, User owner) {
+            User owner) {
         this.make = make;
         this.model = model;
         this.licensePlate = licensePlate;
         this.fuelType = fuelType;
         this.vehicleDetails = vehicleDetails;
-        this.insurance = insurance;
-        this.inspection = inspection;
-        this.routineService = routineService;
-        this.repair = repair;
-        this.refuel = refuel;
         this.owner = owner;
         this.id = null;
     }

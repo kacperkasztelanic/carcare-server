@@ -27,8 +27,8 @@ import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
-import com.kasztelanic.carcare.service.dto.VehicleDto;
-import com.kasztelanic.carcare.service.mapper.VehicleMapper;
+import com.kasztelanic.carcare.service.dto.VehicleRichDto;
+import com.kasztelanic.carcare.service.mapper.VehicleRichMapper;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -43,7 +43,7 @@ public class ReportsResource {
     private VehicleRepository vehicleRepository;
 
     @Autowired
-    private VehicleMapper vehicleMapper;
+    private VehicleRichMapper vehicleMapper;
 
     @Autowired
     private CostCalculator costCalculator;
@@ -54,10 +54,10 @@ public class ReportsResource {
     @Transactional
     @GetMapping("/vehicle/{id}")
     public ResponseEntity<byte[]> reportForVehicle(@PathVariable long id) throws IOException {
-        Optional<VehicleDto> vehicleOptional = vehicleRepository.findByIdAndOwnerIsCurrentUser(id)
+        Optional<VehicleRichDto> vehicleOptional = vehicleRepository.findByIdAndOwnerIsCurrentUser(id)
                 .map(vehicleMapper::vehicleToVehicleDto);
         if (vehicleOptional.isPresent()) {
-            VehicleDto vehicle = vehicleOptional.get();
+            VehicleRichDto vehicle = vehicleOptional.get();
             User user = userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new);
             Locale locale = Locale.forLanguageTag(user.getLangKey());
             byte[] bytes = reportsService.generateVehicleReport(vehicleOptional.get(), locale);
@@ -72,7 +72,7 @@ public class ReportsResource {
     public ResponseEntity<byte[]> costReport(@RequestBody CostRequest costRequest) throws IOException {
         User user = userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new);
         Locale locale = Locale.forLanguageTag(user.getLangKey());
-        List<VehicleDto> vehicles = vehicleRepository.findAllByIdAndOwnerIsCurrentUser(costRequest.getVehicleIds())
+        List<VehicleRichDto> vehicles = vehicleRepository.findAllByIdAndOwnerIsCurrentUser(costRequest.getVehicleIds())
                 .stream().map(vehicleMapper::vehicleToVehicleDto).collect(Collectors.toList());
         List<CostResult> costs = vehicles.stream()
                 .map(v -> costCalculator

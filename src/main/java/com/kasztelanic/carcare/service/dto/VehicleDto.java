@@ -1,7 +1,5 @@
 package com.kasztelanic.carcare.service.dto;
 
-import java.util.Set;
-
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,14 +22,4 @@ public class VehicleDto {
     private final String fuelType;
     @Getter
     private final VehicleDetailsDto vehicleDetails;
-    @Getter
-    private final Set<InsuranceDto> insurance;
-    @Getter
-    private final Set<InspectionDto> inspection;
-    @Getter
-    private final Set<RoutineServiceDto> routineService;
-    @Getter
-    private final Set<RepairDto> repair;
-    @Getter
-    private final Set<RefuelDto> refuel;
 }

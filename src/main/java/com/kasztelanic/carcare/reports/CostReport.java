@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
+import com.kasztelanic.carcare.service.dto.VehicleRichDto;
 
 @Service
 public class CostReport {
@@ -32,7 +33,7 @@ public class CostReport {
     @Autowired
     private MessageSource messageSource;
 
-    public byte[] generateCostReport(Collection<CostResult> costs, Collection<VehicleDto> vehicles, Locale locale)
+    public byte[] generateCostReport(Collection<CostResult> costs, Collection<VehicleRichDto> vehicles, Locale locale)
             throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             DataFormat format = workbook.createDataFormat();
@@ -44,7 +45,7 @@ public class CostReport {
         }
     }
 
-    private void createSheet(Workbook workbook, Collection<CostResult> costs, Collection<VehicleDto> vehicles,
+    private void createSheet(Workbook workbook, Collection<CostResult> costs, Collection<VehicleRichDto> vehicles,
             Locale locale, CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.costs", null, locale));
         int rowNum = 0;

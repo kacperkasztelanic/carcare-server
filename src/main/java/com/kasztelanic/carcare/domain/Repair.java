@@ -2,6 +2,7 @@ package com.kasztelanic.carcare.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -55,7 +56,7 @@ public class Repair implements Serializable {
     @NotNull
     @JsonIgnore
     @JsonIgnoreProperties("")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade=CascadeType.ALL)
     @JoinColumn
     private Vehicle vehicle;
 

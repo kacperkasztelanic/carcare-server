@@ -32,4 +32,9 @@ public class VehicleDetailsDto {
     private final String imageContentType;
     @Getter
     private final Long vehicleId;
+
+    public static VehicleDetailsDtoBuilder defaultBuilder() {
+        return VehicleDetailsDto.builder().modelSuffix("").vinNumber("").vehicleCard("").registrationCertificate("")
+                .yearOfManufacture(0).enginePower(0).engineVolume(0).weight(0).notes("");
+    }
 }

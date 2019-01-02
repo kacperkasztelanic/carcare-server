@@ -16,7 +16,7 @@ import com.kasztelanic.carcare.service.CostCalculator;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
-import com.kasztelanic.carcare.service.mapper.VehicleMapper;
+import com.kasztelanic.carcare.service.mapper.VehicleRichMapper;
 
 @RestController
 @RequestMapping("/api/cost")
@@ -29,7 +29,7 @@ public class CostResource {
     private VehicleRepository vehicleRepository;
 
     @Autowired
-    private VehicleMapper vehicleMapper;
+    private VehicleRichMapper vehicleMapper;
 
     @Transactional
     @PostMapping("")

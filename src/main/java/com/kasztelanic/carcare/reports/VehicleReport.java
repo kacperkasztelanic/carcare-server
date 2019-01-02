@@ -28,6 +28,7 @@ import com.kasztelanic.carcare.service.dto.RefuelDto;
 import com.kasztelanic.carcare.service.dto.RepairDto;
 import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
+import com.kasztelanic.carcare.service.dto.VehicleRichDto;
 import com.kasztelanic.carcare.util.DateTimeFormatters;
 
 @Service
@@ -39,7 +40,7 @@ public class VehicleReport {
     @Autowired
     private MessageSource messageSource;
 
-    public byte[] generateVehicleReport(VehicleDto vehicle, Locale locale) throws IOException {
+    public byte[] generateVehicleReport(VehicleRichDto vehicle, Locale locale) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             DataFormat format = workbook.createDataFormat();
             CellStyle cellStyle = workbook.createCellStyle();
@@ -50,7 +51,7 @@ public class VehicleReport {
         }
     }
 
-    private void createSheets(Workbook workbook, VehicleDto vehicle, Locale locale, CellStyle cellStyle) {
+    private void createSheets(Workbook workbook, VehicleRichDto vehicle, Locale locale, CellStyle cellStyle) {
         createMainSheet(workbook, vehicle, locale);
         createInsuranceSheet(workbook, vehicle.getInsurance(), locale, cellStyle);
         createInspectionSheet(workbook, vehicle.getInspection(), locale, cellStyle);
