@@ -20,4 +20,7 @@ public interface InspectionRepository extends JpaRepository<Inspection, Long> {
 
     @Query("select inspection from Inspection inspection join inspection.vehicle where inspection.vehicle.id = :vehicleId and inspection.vehicle.owner.login = ?#{principal.username}")
     List<Inspection> findByVehicleIdAndOwnerIsCurrentUser(@Param("vehicleId") Long vehicleId);
+
+    @Query("select inspection from Inspection inspection join inspection.vehicle where inspection.vehicle.id = :vehicleId")
+    List<Inspection> findByVehicleId(@Param("vehicleId") Long vehicleId);
 }

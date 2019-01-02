@@ -22,4 +22,7 @@ public interface InsuranceRepository extends JpaRepository<Insurance, Long> {
 
     @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.vehicle.id = :vehicleId and insurance.vehicle.owner.login = ?#{principal.username}")
     List<Insurance> findByVehicleIdAndOwnerIsCurrentUser(@Param("vehicleId") Long vehicleId);
+
+    @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.vehicle.id = :vehicleId")
+    List<Insurance> findByVehicleId(@Param("vehicleId") Long vehicleId);
 }
