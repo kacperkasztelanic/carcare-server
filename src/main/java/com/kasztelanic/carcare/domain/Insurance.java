@@ -58,7 +58,7 @@ public class Insurance implements Serializable {
     @NotNull
     @JsonIgnore
     @JsonIgnoreProperties("")
-    @ManyToOne(optional = false, cascade=CascadeType.ALL)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn
     private Vehicle vehicle;
 
@@ -96,7 +96,7 @@ public class Insurance implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @Column(name = "details")
+    @Column(name = "details", nullable = false, length = 65535, columnDefinition = "Text")
     private String details;
 
     @Getter

@@ -69,7 +69,7 @@ public class VehicleDetails implements Serializable {
 
     @Getter
     @Setter
-    @Column(name = "notes")
+    @Column(name = "notes", length = 65535, columnDefinition = "Text")
     private String notes;
 
     @Getter

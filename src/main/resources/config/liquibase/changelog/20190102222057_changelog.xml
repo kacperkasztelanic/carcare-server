@@ -1,0 +1,21 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="Kacper (generated)" id="1546467663093-1">
+        <addNotNullConstraint columnDataType="clob" columnName="details" tableName="insurances"/>
+    </changeSet>
+	<changeSet author="Kacper" id="1546467663093-2">
+	  <modifyDataType tableName="vehicles" columnName="notes" newDataType="clob"/>
+	</changeSet>
+	<changeSet author="Kacper" id="1546467663093-3">
+	  <modifyDataType tableName="inspections" columnName="details" newDataType="clob"/>
+	</changeSet>
+	<changeSet author="Kacper" id="1546467663093-4">
+	  <modifyDataType tableName="insurances" columnName="details" newDataType="clob"/>
+	</changeSet>
+	<changeSet author="Kacper" id="1546467663093-5">
+	  <modifyDataType tableName="repairs" columnName="details" newDataType="clob"/>
+	</changeSet>
+	<changeSet author="Kacper" id="1546467663093-6">
+	  <modifyDataType tableName="routine_services" columnName="details" newDataType="clob"/>
+	</changeSet>
+</databaseChangeLog>

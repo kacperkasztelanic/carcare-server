@@ -56,7 +56,7 @@ public class Repair implements Serializable {
     @NotNull
     @JsonIgnore
     @JsonIgnoreProperties("")
-    @ManyToOne(optional = false, cascade=CascadeType.ALL)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn
     private Vehicle vehicle;
 
@@ -78,7 +78,7 @@ public class Repair implements Serializable {
     @Setter
     @NotNull
     @Length(min = 1)
-    @Column(name = "details", nullable = false)
+    @Column(name = "details", nullable = false, length = 65535, columnDefinition = "Text")
     private String details;
 
     @PersistenceConstructor
