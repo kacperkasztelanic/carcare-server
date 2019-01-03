@@ -45,21 +45,20 @@ public class ImageStorageServiceImpl implements ImageStorageService {
         } catch (MimeTypeException e) {
             log.error("Illegal content type: {}", fileType);
         } catch (IOException e) {
-            log.error("Could not save file");
+            log.error("Could not save file.");
         }
         return "";
     }
 
     @Override
     public byte[] load(String name) {
-        Path path = prepareImagePath(name);
         try {
-            if (!path.toFile().isFile()) {
+            if (name == null || name.isEmpty() || !prepareImagePath(name).toFile().isFile()) {
                 return IOUtils.resourceToByteArray(DEFAULT, getClass().getClassLoader());
             }
-            return FileUtils.readFileToByteArray(path.toFile());
+            return FileUtils.readFileToByteArray(prepareImagePath(name).toFile());
         } catch (IOException e) {
-            log.error("Could not load file {}", path);
+            log.error("Could not load file.");
             return new byte[] {};
         }
     }
