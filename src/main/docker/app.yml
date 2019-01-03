@@ -8,6 +8,8 @@ services:
             - SPRING_DATASOURCE_URL=jdbc:mariadb://carcare-mariadb:3306/carcare
             - MAIL_BASE_URL=46.101.121.29
             - JHIPSTER_SLEEP=5
+        volumes:
+            - /home/kacper/data/carcare/data:/home/jhipster/data
         expose:
             - "8080"
     carcare-mariadb:
