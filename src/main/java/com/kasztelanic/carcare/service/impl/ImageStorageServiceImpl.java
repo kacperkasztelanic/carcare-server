@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +33,21 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     @Override
     public String save(byte[] image, String fileType) {
-        String fileName = UuidProvider.newUuid() + "." + fileType;
-        Path path = prepareImagePath(fileName);
-        try {
-            FileUtils.writeByteArrayToFile(path.toFile(), image);
-        } catch (IOException e) {
-            log.error("Could not save file {}", path);
+        if (image == null) {
+            return "";
         }
-        return fileName;
+        try {
+            String extension = MimeTypes.getDefaultMimeTypes().forName(fileType).getExtension();
+            String fileName = UuidProvider.newUuid() + extension;
+            Path path = prepareImagePath(fileName);
+            FileUtils.writeByteArrayToFile(path.toFile(), image);
+            return fileName;
+        } catch (MimeTypeException e) {
+            log.error("Illegal content type: {}", fileType);
+        } catch (IOException e) {
+            log.error("Could not save file");
+        }
+        return "";
     }
 
     @Override
@@ -57,6 +66,9 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     @Override
     public boolean delete(String name) {
+        if (name == null || name.isEmpty()) {
+            return false;
+        }
         return FileUtils.deleteQuietly(prepareImagePath(name).toFile());
     }
 

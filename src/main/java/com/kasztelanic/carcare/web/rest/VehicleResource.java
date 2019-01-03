@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.codahale.metrics.annotation.Timed;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.ImageStorageService;
@@ -45,6 +46,7 @@ public class VehicleResource {
     @Autowired
     private ImageStorageService imageStorageService;
 
+    @Timed
     @Transactional
     @PostMapping("")
     public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
@@ -55,6 +57,7 @@ public class VehicleResource {
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
     }
 
+    @Timed
     @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleDto) {
@@ -66,6 +69,7 @@ public class VehicleResource {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Timed
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
@@ -78,6 +82,7 @@ public class VehicleResource {
         return ResponseEntity.notFound().build();
     }
 
+    @Timed
     @Transactional
     @GetMapping("/all")
     public ResponseEntity<List<VehicleDto>> getAllVehicles() {
