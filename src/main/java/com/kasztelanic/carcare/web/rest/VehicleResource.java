@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.mapper.VehicleMapper;
@@ -40,6 +41,9 @@ public class VehicleResource {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ImageStorageService imageStorageService;
 
     @Transactional
     @PostMapping("")
@@ -89,7 +93,8 @@ public class VehicleResource {
                 .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    private static Vehicle updateVehicle(Vehicle vehicle, Vehicle updatedVehicle) {
+    private Vehicle updateVehicle(Vehicle vehicle, Vehicle updatedVehicle) {
+        imageStorageService.delete(vehicle.getVehicleDetails().getImage());
         vehicle.setFuelType(updatedVehicle.getFuelType());
         vehicle.setLicensePlate(updatedVehicle.getLicensePlate());
         vehicle.setMake(updatedVehicle.getMake());

@@ -109,4 +109,6 @@ jhipster:
 # Application specific properties
 # ===================================================================
 
-# application:
+application:
+    data-directory:
+        location: data

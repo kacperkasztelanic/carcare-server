@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.Lob;
 import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.Length;
@@ -74,9 +73,8 @@ public class VehicleDetails implements Serializable {
 
     @Getter
     @Setter
-    @Lob
-    @Column(name = "image")
-    private byte[] image;
+    @Column(name = "image", length=45)
+    private String image;
 
     @Getter
     @Setter
@@ -91,7 +89,7 @@ public class VehicleDetails implements Serializable {
     @SuppressWarnings("all")
     private VehicleDetails(String modelSuffix, String vinNumber, String vehicleCard, String registrationCertificate,
             Integer yearOfManufacture, Integer engineVolume, Integer enginePower, Integer weight, String notes,
-            byte[] image, String imageContentType) {
+            String image, String imageContentType) {
         this.modelSuffix = modelSuffix;
         this.vinNumber = vinNumber;
         this.vehicleCard = vehicleCard;

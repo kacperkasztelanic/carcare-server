@@ -1,15 +1,20 @@
 package com.kasztelanic.carcare.service.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.domain.VehicleDetails;
 import com.kasztelanic.carcare.domain.VehicleDetails.VehicleDetailsBuilder;
+import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto.VehicleDetailsDtoBuilder;
 
 @Service
 public class VehicleDetailsMapper {
+
+    @Autowired
+    private ImageStorageService imageStorageService;
 
     public VehicleDetailsDto vehicleDetailsToVehicleDetailsDto(Vehicle vehicle) {
         VehicleDetails vehicleDetails = vehicle.getVehicleDetails();
@@ -23,7 +28,7 @@ public class VehicleDetailsMapper {
         builder.vehicleCard(vehicleDetails.getVehicleCard());
         builder.weight(vehicleDetails.getWeight());
         builder.yearOfManufacture(vehicleDetails.getYearOfManufacture());
-        builder.image(vehicleDetails.getImage());
+        builder.image(imageStorageService.load(vehicleDetails.getImage()));
         builder.imageContentType(vehicleDetails.getImageContentType());
         builder.vehicleId(vehicle.getId());
         return builder.build();
@@ -40,7 +45,7 @@ public class VehicleDetailsMapper {
         builder.vehicleCard(vehicleDetailsDto.getVehicleCard());
         builder.weight(vehicleDetailsDto.getWeight());
         builder.yearOfManufacture(vehicleDetailsDto.getYearOfManufacture());
-        builder.image(vehicleDetailsDto.getImage());
+        builder.image(imageStorageService.save(vehicleDetailsDto.getImage(), vehicleDetailsDto.getImageContentType()));
         builder.imageContentType(vehicleDetailsDto.getImageContentType());
         return builder.build();
     }

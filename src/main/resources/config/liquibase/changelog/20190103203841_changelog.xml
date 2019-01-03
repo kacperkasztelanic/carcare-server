@@ -1,0 +1,22 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="Kacper (generated)" id="1546547935872-1">
+        <addNotNullConstraint columnDataType="clob" columnName="details" tableName="inspections"/>
+        <dropDefaultValue columnDataType="clob" columnName="details" tableName="inspections"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1546547935872-2">
+        <addNotNullConstraint columnDataType="clob" columnName="details" tableName="insurances"/>
+        <dropDefaultValue columnDataType="clob" columnName="details" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1546547935872-3">
+        <addNotNullConstraint columnDataType="clob" columnName="details" tableName="repairs"/>
+        <dropDefaultValue columnDataType="clob" columnName="details" tableName="repairs"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1546547935872-4">
+        <addNotNullConstraint columnDataType="clob" columnName="details" tableName="routine_services"/>
+        <dropDefaultValue columnDataType="clob" columnName="details" tableName="routine_services"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1546547935872-5">
+        <dropDefaultValue columnDataType="clob" columnName="notes" tableName="vehicles"/>
+    </changeSet>
+</databaseChangeLog>
