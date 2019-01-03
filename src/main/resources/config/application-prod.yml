@@ -122,4 +122,4 @@ jhipster:
 
 application:
     data-directory:
-        location: data
+        location: /home/jhipster/data
