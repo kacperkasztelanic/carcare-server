@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.service.mapper;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class VehicleDetailsMapper {
         builder.weight(vehicleDetails.getWeight());
         builder.yearOfManufacture(vehicleDetails.getYearOfManufacture());
         builder.image(imageStorageService.load(vehicleDetails.getImage()));
-        builder.imageContentType(vehicleDetails.getImageContentType());
+        builder.imageContentType(FilenameUtils.getExtension(vehicleDetails.getImage()));
         builder.vehicleId(vehicle.getId());
         return builder.build();
     }
@@ -46,7 +47,6 @@ public class VehicleDetailsMapper {
         builder.weight(vehicleDetailsDto.getWeight());
         builder.yearOfManufacture(vehicleDetailsDto.getYearOfManufacture());
         builder.image(imageStorageService.save(vehicleDetailsDto.getImage(), vehicleDetailsDto.getImageContentType()));
-        builder.imageContentType(vehicleDetailsDto.getImageContentType());
         return builder.build();
     }
 }

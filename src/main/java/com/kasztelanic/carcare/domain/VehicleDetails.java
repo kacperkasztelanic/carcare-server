@@ -73,13 +73,8 @@ public class VehicleDetails implements Serializable {
 
     @Getter
     @Setter
-    @Column(name = "image", length=45)
+    @Column(name = "image", length = 45)
     private String image;
-
-    @Getter
-    @Setter
-    @Column(name = "image_content_type")
-    private String imageContentType;
 
     @PersistenceConstructor
     private VehicleDetails() {
@@ -89,7 +84,7 @@ public class VehicleDetails implements Serializable {
     @SuppressWarnings("all")
     private VehicleDetails(String modelSuffix, String vinNumber, String vehicleCard, String registrationCertificate,
             Integer yearOfManufacture, Integer engineVolume, Integer enginePower, Integer weight, String notes,
-            String image, String imageContentType) {
+            String image) {
         this.modelSuffix = modelSuffix;
         this.vinNumber = vinNumber;
         this.vehicleCard = vehicleCard;
@@ -100,6 +95,5 @@ public class VehicleDetails implements Serializable {
         this.weight = weight;
         this.notes = notes;
         this.image = image;
-        this.imageContentType = imageContentType;
     }
 }
