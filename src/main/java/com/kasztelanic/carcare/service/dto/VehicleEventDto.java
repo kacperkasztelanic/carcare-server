@@ -16,4 +16,6 @@ public class VehicleEventDto {
     private final Integer mileage;
     @Getter
     private final LocalDate date;
+
+    public static final VehicleEventDto ZERO = VehicleEventDto.of(0, LocalDate.MIN);
 }

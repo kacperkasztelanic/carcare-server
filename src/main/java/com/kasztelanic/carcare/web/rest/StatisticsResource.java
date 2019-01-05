@@ -18,10 +18,11 @@ import com.kasztelanic.carcare.service.dto.AverageConsumptionResult;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.service.dto.RefuelDto;
 import com.kasztelanic.carcare.service.mapper.RefuelMapper;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 
 @RestController
-@RequestMapping("/api/consumption")
-public class ConsumptionResource {
+@RequestMapping("/api/stats")
+public class StatisticsResource {
 
     @Autowired
     private AverageConsumptionCalculator averageConsumptionCalculator;
@@ -33,11 +34,20 @@ public class ConsumptionResource {
     private RefuelMapper refuelMapper;
 
     @Transactional
-    @PostMapping("")
+    @PostMapping("/consumption/per-period")
     public ResponseEntity<AverageConsumptionResult> calculate(@RequestBody PeriodVehicle periodVehicle) {
         List<RefuelDto> refuels = refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(periodVehicle.getVehicleId())
                 .stream().map(refuelMapper::refuelToRefuelDto).collect(Collectors.toList());
         AverageConsumptionResult result = averageConsumptionCalculator.calculate(periodVehicle, refuels);
         return ResponseEntity.ok(result);
+    }
+
+    @Transactional
+    @PostMapping("/consumption/per-refuel")
+    public ResponseEntity<List<AverageConsumptionResult>> calculatePerRefuel(@RequestBody PeriodVehicle periodVehicle) {
+        List<RefuelDto> refuels = refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(periodVehicle.getVehicleId())
+                .stream().map(refuelMapper::refuelToRefuelDto).collect(Collectors.toList());
+        List<AverageConsumptionResult> result = averageConsumptionCalculator.calculatePerRefuel(periodVehicle, refuels);
+        return ResponseUtil.createListOkResponse(result);
     }
 }
