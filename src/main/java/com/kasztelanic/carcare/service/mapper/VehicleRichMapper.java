@@ -43,6 +43,8 @@ public class VehicleRichMapper {
     public VehicleRichDto vehicleToVehicleDto(Vehicle vehicle) {
         VehicleRichDtoBuilder builder = VehicleRichDto.richBuilder();
         builder.id(vehicle.getId());
+        builder.make(vehicle.getMake());
+        builder.model(vehicle.getModel());
         builder.licensePlate(vehicle.getLicensePlate());
         builder.fuelType(vehicle.getFuelType().getType());
         builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle));
