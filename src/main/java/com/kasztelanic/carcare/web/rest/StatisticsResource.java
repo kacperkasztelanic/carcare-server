@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kasztelanic.carcare.repository.RefuelRepository;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.AverageConsumptionCalculator;
+import com.kasztelanic.carcare.service.CostCalculator;
 import com.kasztelanic.carcare.service.MileageService;
 import com.kasztelanic.carcare.service.dto.AverageConsumptionResult;
+import com.kasztelanic.carcare.service.dto.CostRequest;
+import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.MileageResult;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.service.dto.RefuelDto;
@@ -32,6 +35,8 @@ public class StatisticsResource {
     private AverageConsumptionCalculator averageConsumptionCalculator;
     @Autowired
     private MileageService mileageService;
+    @Autowired
+    private CostCalculator costCalculator;
     @Autowired
     private VehicleRepository vehicleRepository;
     @Autowired
@@ -67,5 +72,15 @@ public class StatisticsResource {
         return io.github.jhipster.web.util.ResponseUtil.wrapOrNotFound(vehicleRepository
                 .findByIdAndOwnerIsCurrentUser(periodVehicle.getVehicleId()).map(vehicleRichMapper::vehicleToVehicleDto)
                 .map(v -> mileageService.calculate(periodVehicle, v)));
+    }
+
+    @Transactional
+    @PostMapping("/cost")
+    public List<CostResult> calculate(@RequestBody CostRequest costRequest) {
+        return vehicleRepository.findAllByIdAndOwnerIsCurrentUser(costRequest.getVehicleIds()).stream()
+                .map(vehicleRichMapper::vehicleToVehicleDto)
+                .map(v -> costCalculator
+                        .calculate(PeriodVehicle.of(v.getId(), costRequest.getDateFrom(), costRequest.getDateTo()), v))
+                .collect(Collectors.toList());
     }
 }
