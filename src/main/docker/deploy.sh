@@ -4,7 +4,7 @@ ARTIFACTS=/home/kacper/artifacts
 SERVER=/home/kacper/server
 
 cd $ARTIFACTS
-rm app.yml mariadb.yml Dockerfile entrypoint.sh
+rm app.yml mariadb.yml Dockerfile entrypoint.sh *.war
 cp $SERVER/src/main/docker/{app.yml,mariadb.yml,Dockerfile,entrypoint.sh} .
 
 cd $SERVER
