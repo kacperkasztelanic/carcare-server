@@ -33,7 +33,7 @@ public class ReminderAdvanceResource {
     private ReminderAdvanceRepository reminderAdvanceRepository;
 
     @Transactional
-    @PostMapping("/{type}")
+    @PostMapping("/{days}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Integer> addReminderAdvance(@PathVariable Integer days) {
         ReminderAdvance reminderAdvance = reminderAdvanceRepository.save(ReminderAdvance.of(days));

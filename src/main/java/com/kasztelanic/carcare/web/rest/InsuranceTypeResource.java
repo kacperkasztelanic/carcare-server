@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,9 +44,9 @@ public class InsuranceTypeResource {
     private UserService userService;
 
     @Transactional
-    @PostMapping("/{type}")
+    @PostMapping("")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<String> addInsuranceType(@PathVariable InsuranceTypeRequest insuranceTypeRequest) {
+    public ResponseEntity<String> addInsuranceType(@RequestBody InsuranceTypeRequest insuranceTypeRequest) {
         InsuranceType insuranceType = insuranceTypeRepository
                 .save(InsuranceType.of(insuranceTypeRequest.getType().toUpperCase(),
                         insuranceTypeRequest.getEnglishTranslation(), insuranceTypeRequest.getPolishTranslation()));
