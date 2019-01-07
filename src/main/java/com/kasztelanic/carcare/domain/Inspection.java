@@ -70,7 +70,7 @@ public class Inspection implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @Length(min = 1, max = 30)
+    @Length(max = 30)
     @Column(name = "station", nullable = false, length = 30)
     private String station;
 
