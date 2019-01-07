@@ -3,7 +3,6 @@ package com.kasztelanic.carcare.domain;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -57,7 +56,7 @@ public class Inspection implements Serializable {
     @NotNull
     @JsonIgnore
     @JsonIgnoreProperties("")
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     @JoinColumn
     private Vehicle vehicle;
 
