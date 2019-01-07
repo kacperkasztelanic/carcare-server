@@ -104,7 +104,7 @@ public class VehicleResource {
         vehicle.setFuelType(updatedVehicle.getFuelType());
         vehicle.setLicensePlate(updatedVehicle.getLicensePlate());
         vehicle.setMake(updatedVehicle.getMake());
-        vehicle.setModel(vehicle.getModel());
+        vehicle.setModel(updatedVehicle.getModel());
         vehicle.setVehicleDetails(updatedVehicle.getVehicleDetails());
         return vehicle;
     }
