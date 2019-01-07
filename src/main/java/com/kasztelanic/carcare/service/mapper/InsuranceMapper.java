@@ -37,10 +37,10 @@ public class InsuranceMapper {
     public Insurance insuranceDtoToInsurance(InsuranceDto insuranceDto) {
         InsuranceBuilder builder = Insurance.builder();
         builder.costInCents(insuranceDto.getCostInCents());
-        builder.details(insuranceDto.getDetails());
+        builder.details(insuranceDto.getDetails().trim());
         builder.insuranceType(insuranceTypeMapper.insuranceTypeDtoToInsuranceType(insuranceDto.getInsuranceType()));
-        builder.insurer(insuranceDto.getInsurer());
-        builder.number(insuranceDto.getNumber());
+        builder.insurer(insuranceDto.getInsurer().trim());
+        builder.number(insuranceDto.getNumber().trim());
         builder.validFrom(insuranceDto.getValidFrom());
         builder.validThru(insuranceDto.getValidThru());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(insuranceDto.getVehicleEvent()));

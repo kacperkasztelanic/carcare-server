@@ -28,7 +28,7 @@ public class RefuelMapper {
     public Refuel refuelDtoToRefuel(RefuelDto refuelDto) {
         RefuelBuilder builder = Refuel.builder();
         builder.costInCents(refuelDto.getCostInCents());
-        builder.station(refuelDto.getStation());
+        builder.station(refuelDto.getStation().trim());
         builder.volume(refuelDto.getVolume());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(refuelDto.getVehicleEvent()));
         return builder.build();

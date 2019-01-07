@@ -30,10 +30,10 @@ public class RoutineServiceMapper {
     public RoutineService routineServiceDtoToRoutineService(RoutineServiceDto routineServiceDto) {
         RoutineServiceBuilder builder = RoutineService.builder();
         builder.costInCents(routineServiceDto.getCostInCents());
-        builder.details(routineServiceDto.getDetails());
+        builder.details(routineServiceDto.getDetails().trim());
         builder.nextByDate(routineServiceDto.getNextByDate());
         builder.nextByMileage(routineServiceDto.getNextByMileage());
-        builder.station(routineServiceDto.getStation());
+        builder.station(routineServiceDto.getStation().trim());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(routineServiceDto.getVehicleEvent()));
         return builder.build();
     }

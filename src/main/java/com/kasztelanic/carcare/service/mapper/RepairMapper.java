@@ -28,8 +28,8 @@ public class RepairMapper {
     public Repair repairDtoToRepair(RepairDto repairDto) {
         RepairBuilder builder = Repair.builder();
         builder.costInCents(repairDto.getCostInCents());
-        builder.details(repairDto.getDetails());
-        builder.station(repairDto.getStation());
+        builder.details(repairDto.getDetails().trim());
+        builder.station(repairDto.getStation().trim());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(repairDto.getVehicleEvent()));
         return builder.build();
     }

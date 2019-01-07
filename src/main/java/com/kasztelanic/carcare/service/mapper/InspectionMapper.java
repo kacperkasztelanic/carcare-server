@@ -29,8 +29,8 @@ public class InspectionMapper {
     public Inspection inspectionDtoToInspection(InspectionDto inspectionDto) {
         InspectionBuilder builder = Inspection.builder();
         builder.costInCents(inspectionDto.getCostInCents());
-        builder.details(inspectionDto.getDetails());
-        builder.station(inspectionDto.getStation());
+        builder.details(inspectionDto.getDetails().trim());
+        builder.station(inspectionDto.getStation().trim());
         builder.validThru(inspectionDto.getValidThru());
         builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(inspectionDto.getVehicleEvent()));
         return builder.build();

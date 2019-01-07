@@ -33,9 +33,9 @@ public class VehicleMapper {
 
     public Vehicle vehicleDtoToVehicle(VehicleDto vehicleDto) {
         VehicleBuilder builder = Vehicle.builder();
-        builder.make(vehicleDto.getMake());
-        builder.model(vehicleDto.getModel());
-        builder.licensePlate(vehicleDto.getLicensePlate());
+        builder.make(vehicleDto.getMake().trim());
+        builder.model(vehicleDto.getModel().trim());
+        builder.licensePlate(vehicleDto.getLicensePlate().trim());
         builder.fuelType(fuelTypeMapper.fuelTypeDtoToFuelType(vehicleDto.getFuelType()));
         builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsDtoToVehicleDetails(
                 vehicleDto.getVehicleDetails() != null ? vehicleDto.getVehicleDetails()

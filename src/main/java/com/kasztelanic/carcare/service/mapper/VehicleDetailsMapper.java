@@ -37,13 +37,13 @@ public class VehicleDetailsMapper {
 
     public VehicleDetails vehicleDetailsDtoToVehicleDetails(VehicleDetailsDto vehicleDetailsDto) {
         VehicleDetailsBuilder builder = VehicleDetails.builder();
-        builder.modelSuffix(vehicleDetailsDto.getModelSuffix());
-        builder.vinNumber(vehicleDetailsDto.getVinNumber());
+        builder.modelSuffix(vehicleDetailsDto.getModelSuffix().trim());
+        builder.vinNumber(vehicleDetailsDto.getVinNumber().trim());
         builder.enginePower(vehicleDetailsDto.getEnginePower());
         builder.engineVolume(vehicleDetailsDto.getEngineVolume());
-        builder.notes(vehicleDetailsDto.getNotes());
-        builder.registrationCertificate(vehicleDetailsDto.getRegistrationCertificate());
-        builder.vehicleCard(vehicleDetailsDto.getVehicleCard());
+        builder.notes(vehicleDetailsDto.getNotes().trim());
+        builder.registrationCertificate(vehicleDetailsDto.getRegistrationCertificate().trim());
+        builder.vehicleCard(vehicleDetailsDto.getVehicleCard().trim());
         builder.weight(vehicleDetailsDto.getWeight());
         builder.yearOfManufacture(vehicleDetailsDto.getYearOfManufacture());
         builder.image(imageStorageService.save(vehicleDetailsDto.getImage(), vehicleDetailsDto.getImageContentType()));
