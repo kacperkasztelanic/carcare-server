@@ -9,5 +9,5 @@ import com.kasztelanic.carcare.service.dto.VehicleRichDto;
 
 public interface EventsService {
 
-    List<ForthcomingEvent> findForthcomingEvents(PeriodVehicle periodVehicle, VehicleRichDto vehicle, User user);
+    List<ForthcomingEvent> findForthcomingEvents(PeriodVehicle periodVehicle, VehicleRichDto vehicle);
 }
