@@ -97,7 +97,7 @@ public class MailService {
 
     @Async
     public void sendInsuranceReminderEmail(User user, Vehicle vehicle, Insurance insurance, int diff) {
-        Context context = new Context();
+        Context context = new Context(Locale.forLanguageTag(user.getLangKey()));
         context.setVariable("user", user);
         context.setVariable("vehicle", vehicle);
         context.setVariable("insurance", insurance);
