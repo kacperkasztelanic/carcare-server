@@ -19,7 +19,7 @@ public class VehicleDto {
     @Getter
     private final String licensePlate;
     @Getter
-    private final String fuelType;
+    private final FuelTypeDto fuelType;
     @Getter
     private final VehicleDetailsDto vehicleDetails;
 }

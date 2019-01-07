@@ -39,8 +39,20 @@ public class InsuranceType implements Serializable {
     @Column(name = "type", nullable = false, unique = true, updatable = false, length = 10)
     private final String type;
 
-    public static InsuranceType of(String type) {
-        return new InsuranceType(type);
+    @Getter
+    @NotNull
+    @Length(min = 1, max = 30)
+    @Column(name = "english", nullable = false, unique = true, updatable = false, length = 30)
+    private final String englishTranslation;
+
+    @Getter
+    @NotNull
+    @Length(min = 1, max = 30)
+    @Column(name = "polish", nullable = false, unique = true, updatable = false, length = 30)
+    private final String polishTranslation;
+
+    public static InsuranceType of(String type, String englishTranslation, String polishTranslation) {
+        return new InsuranceType(type, englishTranslation, polishTranslation);
     }
 
     @PersistenceConstructor
@@ -48,10 +60,14 @@ public class InsuranceType implements Serializable {
     private InsuranceType() {
         this.id = null;
         this.type = null;
+        this.englishTranslation = null;
+        this.polishTranslation = null;
     }
 
-    private InsuranceType(String type) {
+    private InsuranceType(String type, String englishTranslation, String polishTranslation) {
         this.id = null;
         this.type = type;
+        this.englishTranslation = englishTranslation;
+        this.polishTranslation = polishTranslation;
     }
 }

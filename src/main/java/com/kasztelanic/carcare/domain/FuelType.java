@@ -27,7 +27,7 @@ import lombok.ToString;
 public class FuelType implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,8 +39,20 @@ public class FuelType implements Serializable {
     @Column(name = "type", nullable = false, unique = true, updatable = false, length = 30)
     private final String type;
 
-    public static FuelType of(String type) {
-        return new FuelType(type);
+    @Getter
+    @NotNull
+    @Length(min = 1, max = 30)
+    @Column(name = "english", nullable = false, unique = true, updatable = false, length = 30)
+    private final String englishTranslation;
+
+    @Getter
+    @NotNull
+    @Length(min = 1, max = 30)
+    @Column(name = "polish", nullable = false, unique = true, updatable = false, length = 30)
+    private final String polishTranslation;
+
+    public static FuelType of(String type, String englishTranslation, String polishTranslation) {
+        return new FuelType(type, englishTranslation, polishTranslation);
     }
 
     @PersistenceConstructor
@@ -48,10 +60,14 @@ public class FuelType implements Serializable {
     private FuelType() {
         this.id = null;
         this.type = null;
+        this.englishTranslation = null;
+        this.polishTranslation = null;
     }
 
-    private FuelType(String type) {
+    private FuelType(String type, String englishTranslation, String polishTranslation) {
         this.id = null;
         this.type = type;
+        this.englishTranslation = englishTranslation;
+        this.polishTranslation = polishTranslation;
     }
 }

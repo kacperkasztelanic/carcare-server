@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.service.mapper;
 
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import com.kasztelanic.carcare.service.dto.VehicleRichDto.VehicleRichDtoBuilder;
 @Service
 public class VehicleRichMapper {
 
+    @Autowired
+    private FuelTypeMapper fuelTypeMapper;
     @Autowired
     private VehicleDetailsMapper vehicleDetailsMapper;
     @Autowired
@@ -46,7 +49,8 @@ public class VehicleRichMapper {
         builder.make(vehicle.getMake());
         builder.model(vehicle.getModel());
         builder.licensePlate(vehicle.getLicensePlate());
-        builder.fuelType(vehicle.getFuelType().getType());
+        builder.fuelType(fuelTypeMapper.fuelTypeToFuelTypeDto(vehicle.getFuelType(),
+                Locale.forLanguageTag(vehicle.getOwner().getLangKey())));
         builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle));
         builder.insurance(insuranceRepository.findByVehicleId(vehicle.getId()).stream()
                 .map(insuranceMapper::insuranceToInsuranceDto).collect(Collectors.toSet()));

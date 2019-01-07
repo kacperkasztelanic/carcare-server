@@ -1,6 +1,7 @@
 package com.kasztelanic.carcare.web.rest;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -17,8 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kasztelanic.carcare.domain.InsuranceType;
+import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.repository.InsuranceTypeRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
+import com.kasztelanic.carcare.service.UserService;
+import com.kasztelanic.carcare.service.dto.InsuranceTypeDto;
+import com.kasztelanic.carcare.service.dto.InsuranceTypeRequest;
+import com.kasztelanic.carcare.service.mapper.InsuranceTypeMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
@@ -31,12 +37,18 @@ public class InsuranceTypeResource {
 
     @Autowired
     private InsuranceTypeRepository insuranceTypeRepository;
+    @Autowired
+    private InsuranceTypeMapper insuranceTypeMapper;
+    @Autowired
+    private UserService userService;
 
     @Transactional
     @PostMapping("/{type}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<String> addInsuranceType(@PathVariable String type) {
-        InsuranceType insuranceType = insuranceTypeRepository.save(InsuranceType.of(type.toUpperCase()));
+    public ResponseEntity<String> addInsuranceType(@PathVariable InsuranceTypeRequest insuranceTypeRequest) {
+        InsuranceType insuranceType = insuranceTypeRepository
+                .save(InsuranceType.of(insuranceTypeRequest.getType().toUpperCase(),
+                        insuranceTypeRequest.getEnglishTranslation(), insuranceTypeRequest.getPolishTranslation()));
         return ResponseEntity.created(URIUtil.buildURI(String.format("/api/insuranceType/%s", insuranceType.getType())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, insuranceType.getType()))
                 .body(insuranceType.getType());
@@ -45,7 +57,7 @@ public class InsuranceTypeResource {
     @Transactional
     @DeleteMapping("/{type}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<Void> deleteRoutineService(@PathVariable String type) {
+    public ResponseEntity<Void> deleteInsuranceType(@PathVariable String type) {
         Optional<InsuranceType> insuranceType = insuranceTypeRepository.findByType(type);
         if (insuranceType.isPresent()) {
             insuranceTypeRepository.delete(insuranceType.get());
@@ -57,8 +69,10 @@ public class InsuranceTypeResource {
 
     @Transactional
     @GetMapping("")
-    public ResponseEntity<List<String>> getInsuranceTypes() {
-        List<String> list = insuranceTypeRepository.findAll().stream().map(InsuranceType::getType)
+    public ResponseEntity<List<InsuranceTypeDto>> getInsuranceTypes() {
+        User user = userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new);
+        List<InsuranceTypeDto> list = insuranceTypeRepository.findAll().stream().map(
+                t -> insuranceTypeMapper.insuranceTypeToInsuranceTypeDto(t, Locale.forLanguageTag(user.getLangKey())))
                 .collect(Collectors.toList());
         return ResponseUtil.createListOkResponse(list);
     }

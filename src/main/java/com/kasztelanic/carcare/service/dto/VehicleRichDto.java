@@ -24,7 +24,7 @@ public class VehicleRichDto extends VehicleDto {
 
     @Builder(builderMethodName = "richBuilder")
     @SuppressWarnings("all")
-    private VehicleRichDto(Long id, String make, String model, String licensePlate, String fuelType,
+    private VehicleRichDto(Long id, String make, String model, String licensePlate, FuelTypeDto fuelType,
             VehicleDetailsDto vehicleDetails, Set<InsuranceDto> insurance, Set<InspectionDto> inspection,
             Set<RoutineServiceDto> routineService, Set<RepairDto> repair, Set<RefuelDto> refuel) {
         super(id, make, model, licensePlate, fuelType, vehicleDetails);

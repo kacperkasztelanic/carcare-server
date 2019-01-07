@@ -1,11 +1,12 @@
 package com.kasztelanic.carcare.service.mapper;
 
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.domain.Vehicle.VehicleBuilder;
-import com.kasztelanic.carcare.repository.FuelTypeRepository;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.dto.VehicleDto.VehicleDtoBuilder;
@@ -14,8 +15,7 @@ import com.kasztelanic.carcare.service.dto.VehicleDto.VehicleDtoBuilder;
 public class VehicleMapper {
 
     @Autowired
-    private FuelTypeRepository fuelTypeRepository;
-
+    private FuelTypeMapper fuelTypeMapper;
     @Autowired
     private VehicleDetailsMapper vehicleDetailsMapper;
 
@@ -25,7 +25,8 @@ public class VehicleMapper {
         builder.make(vehicle.getMake());
         builder.model(vehicle.getModel());
         builder.licensePlate(vehicle.getLicensePlate());
-        builder.fuelType(vehicle.getFuelType().getType());
+        builder.fuelType(fuelTypeMapper.fuelTypeToFuelTypeDto(vehicle.getFuelType(),
+                Locale.forLanguageTag(vehicle.getOwner().getLangKey())));
         builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle));
         return builder.build();
     }
@@ -35,8 +36,7 @@ public class VehicleMapper {
         builder.make(vehicleDto.getMake());
         builder.model(vehicleDto.getModel());
         builder.licensePlate(vehicleDto.getLicensePlate());
-        builder.fuelType(
-                fuelTypeRepository.findByType(vehicleDto.getFuelType()).orElseThrow(IllegalStateException::new));
+        builder.fuelType(fuelTypeMapper.fuelTypeDtoToFuelType(vehicleDto.getFuelType()));
         builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsDtoToVehicleDetails(
                 vehicleDto.getVehicleDetails() != null ? vehicleDto.getVehicleDetails()
                         : VehicleDetailsDto.defaultBuilder().vehicleId(vehicleDto.getId()).build()));

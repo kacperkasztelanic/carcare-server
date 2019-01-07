@@ -70,7 +70,7 @@ public class VehicleReport {
         createMainSheetRow(4, vehicle.getLicensePlate(), locale, "reports.vehicle.main.licensePlate", sheet);
         createMainSheetNumericRow(5, vehicle.getVehicleDetails().getYearOfManufacture(), locale,
                 "reports.vehicle.main.year", sheet);
-        createMainSheetRow(6, vehicle.getFuelType(), locale, "reports.vehicle.main.fuelType", sheet);
+        createMainSheetRow(6, vehicle.getFuelType().getTranslation(), locale, "reports.vehicle.main.fuelType", sheet);
         createMainSheetNumericRow(7, vehicle.getVehicleDetails().getEngineVolume(), locale,
                 "reports.vehicle.main.volume", sheet);
         createMainSheetNumericRow(8, vehicle.getVehicleDetails().getEnginePower(), locale, "reports.vehicle.main.power",
@@ -138,7 +138,7 @@ public class VehicleReport {
             cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
-            cell.setCellValue(insurance.getInsuranceType());
+            cell.setCellValue(insurance.getInsuranceType().getTranslation());
             cell = row.createCell(4);
             cell.setCellValue(insurance.getNumber());
             cell = row.createCell(5);
