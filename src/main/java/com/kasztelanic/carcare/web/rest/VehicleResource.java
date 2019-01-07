@@ -91,6 +91,7 @@ public class VehicleResource {
         return ResponseUtil.createListOkResponse(list);
     }
 
+    @Timed
     @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<VehicleDto> getVehicle(@PathVariable Long id) {

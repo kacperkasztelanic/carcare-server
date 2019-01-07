@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.codahale.metrics.annotation.Timed;
 import com.kasztelanic.carcare.repository.RefuelRepository;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.AverageConsumptionCalculator;
@@ -46,6 +47,7 @@ public class StatisticsResource {
     @Autowired
     private RefuelMapper refuelMapper;
 
+    @Timed
     @Transactional
     @PostMapping("/consumption/per-period")
     public ResponseEntity<AverageConsumptionResult> calculateAverageConsumptionPerPeriod(
@@ -56,6 +58,7 @@ public class StatisticsResource {
         return ResponseEntity.ok(result);
     }
 
+    @Timed
     @Transactional
     @PostMapping("/consumption/per-refuel")
     public ResponseEntity<List<AverageConsumptionResult>> calculateAverageConsumptionPerRefuel(
@@ -66,6 +69,7 @@ public class StatisticsResource {
         return ResponseUtil.createListOkResponse(result);
     }
 
+    @Timed
     @Transactional
     @PostMapping("/mileage")
     public ResponseEntity<MileageResult> calculateMileageStats(@RequestBody PeriodVehicle periodVehicle) {
@@ -74,6 +78,7 @@ public class StatisticsResource {
                 .map(v -> mileageService.calculate(periodVehicle, v)));
     }
 
+    @Timed
     @Transactional
     @PostMapping("/cost")
     public List<CostResult> calculate(@RequestBody CostRequest costRequest) {

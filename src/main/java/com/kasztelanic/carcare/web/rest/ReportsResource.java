@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.codahale.metrics.annotation.Timed;
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.reports.ReportsService;
 import com.kasztelanic.carcare.repository.VehicleRepository;
@@ -51,6 +52,7 @@ public class ReportsResource {
     @Autowired
     private UserService userService;
 
+    @Timed
     @Transactional
     @GetMapping("/vehicle/{id}")
     public ResponseEntity<byte[]> reportForVehicle(@PathVariable long id) throws IOException {
@@ -67,6 +69,7 @@ public class ReportsResource {
         return ResponseEntity.notFound().build();
     }
 
+    @Timed
     @Transactional
     @PostMapping("/costs")
     public ResponseEntity<byte[]> costReport(@RequestBody CostRequest costRequest) throws IOException {
