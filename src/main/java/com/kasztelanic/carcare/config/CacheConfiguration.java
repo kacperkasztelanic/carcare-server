@@ -2,15 +2,17 @@ package com.kasztelanic.carcare.config;
 
 import java.time.Duration;
 
-import org.ehcache.config.builders.*;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.jsr107.Eh107Configuration;
-
-import io.github.jhipster.config.jcache.BeanClassLoaderAwareJCacheRegionFactory;
-import io.github.jhipster.config.JHipsterProperties;
-
 import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import io.github.jhipster.config.JHipsterProperties;
+import io.github.jhipster.config.jcache.BeanClassLoaderAwareJCacheRegionFactory;
 
 @Configuration
 @EnableCaching
@@ -47,6 +49,7 @@ public class CacheConfiguration {
             cm.createCache(com.kasztelanic.carcare.domain.Repair.class.getName(), jcacheConfiguration);
             cm.createCache(com.kasztelanic.carcare.domain.RoutineService.class.getName(), jcacheConfiguration);
             cm.createCache(com.kasztelanic.carcare.domain.Refuel.class.getName(), jcacheConfiguration);
+            cm.createCache(com.kasztelanic.carcare.domain.ReminderAdvance.class.getName(), jcacheConfiguration);
         };
     }
 }
