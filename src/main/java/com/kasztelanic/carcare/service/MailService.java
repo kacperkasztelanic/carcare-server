@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import com.kasztelanic.carcare.domain.Inspection;
 import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.domain.RoutineService;
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.domain.Vehicle;
 
@@ -103,6 +105,26 @@ public class MailService {
         context.setVariable("insurance", insurance);
         context.setVariable("diff", diff);
         sendEmailFromTemplate("mail/insuranceReminderEmail", "email.insurance.title", user, context);
+    }
+
+    @Async
+    public void sendInspectionReminderEmail(User user, Vehicle vehicle, Inspection inspection, int diff) {
+        Context context = new Context(Locale.forLanguageTag(user.getLangKey()));
+        context.setVariable("user", user);
+        context.setVariable("vehicle", vehicle);
+        context.setVariable("inspection", inspection);
+        context.setVariable("diff", diff);
+        sendEmailFromTemplate("mail/inspectionReminderEmail", "email.inspection.title", user, context);
+    }
+
+    @Async
+    public void sendRoutineServiceReminderEmail(User user, Vehicle vehicle, RoutineService routineService, int diff) {
+        Context context = new Context(Locale.forLanguageTag(user.getLangKey()));
+        context.setVariable("user", user);
+        context.setVariable("vehicle", vehicle);
+        context.setVariable("routineService", routineService);
+        context.setVariable("diff", diff);
+        sendEmailFromTemplate("mail/serviceReminderEmail", "email.service.title", user, context);
     }
 
     @Async

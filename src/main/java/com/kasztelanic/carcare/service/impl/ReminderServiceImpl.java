@@ -10,11 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.ImmutableSet;
+import com.kasztelanic.carcare.domain.Inspection;
 import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.domain.ReminderAdvance;
+import com.kasztelanic.carcare.domain.RoutineService;
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.domain.Vehicle;
+import com.kasztelanic.carcare.repository.InspectionRepository;
 import com.kasztelanic.carcare.repository.InsuranceRepository;
+import com.kasztelanic.carcare.repository.ReminderAdvanceRepository;
+import com.kasztelanic.carcare.repository.RoutineServiceRepository;
 import com.kasztelanic.carcare.service.MailService;
 import com.kasztelanic.carcare.service.ReminderService;
 
@@ -22,23 +27,57 @@ import com.kasztelanic.carcare.service.ReminderService;
 public class ReminderServiceImpl implements ReminderService {
 
     @Autowired
+    private ReminderAdvanceRepository reminderAdvanceRepository;
+    @Autowired
     private InsuranceRepository insuranceRepository;
-
+    @Autowired
+    private InspectionRepository inspectionRepository;
+    @Autowired
+    private RoutineServiceRepository routineServiceRepository;
     @Autowired
     private MailService mailService;
 
-    private Set<Integer> daysBefore = ImmutableSet.of(3, 7, 14, 30);
-
+    @Override
     @Scheduled(cron = "0 0 8 * * *")
-    public void sendInsuranceReminders() {
+    public void sendReminders() {
         LocalDate now = LocalDate.now();
-        Set<LocalDate> dates = daysBefore.stream().map(now::plusDays).collect(Collectors.toSet());
+        Set<LocalDate> dates = reminderAdvanceRepository.findAll().stream().map(ReminderAdvance::getDays)
+                .map(now::plusDays).collect(Collectors.toSet());
+        sendInsuranceReminders(dates, now);
+        sendInspectionReminders(dates, now);
+        sendRoutineServiceReminders(dates, now);
+    }
+
+    @Override
+    public void sendInsuranceReminders(Set<LocalDate> dates, LocalDate now) {
         List<Insurance> insurances = insuranceRepository.findByValidThruIn(dates);
         for (Insurance insurance : insurances) {
             int diff = (int) ChronoUnit.DAYS.between(now, insurance.getValidThru());
             Vehicle vehicle = insurance.getVehicle();
             User owner = vehicle.getOwner();
             mailService.sendInsuranceReminderEmail(owner, vehicle, insurance, diff);
+        }
+    }
+
+    @Override
+    public void sendInspectionReminders(Set<LocalDate> dates, LocalDate now) {
+        List<Inspection> inspections = inspectionRepository.findByValidThruIn(dates);
+        for (Inspection insurance : inspections) {
+            int diff = (int) ChronoUnit.DAYS.between(now, insurance.getValidThru());
+            Vehicle vehicle = insurance.getVehicle();
+            User owner = vehicle.getOwner();
+            mailService.sendInspectionReminderEmail(owner, vehicle, insurance, diff);
+        }
+    }
+
+    @Override
+    public void sendRoutineServiceReminders(Set<LocalDate> dates, LocalDate now) {
+        List<RoutineService> services = routineServiceRepository.findByNextByDateIn(dates);
+        for (RoutineService service : services) {
+            int diff = (int) ChronoUnit.DAYS.between(now, service.getNextByDate());
+            Vehicle vehicle = service.getVehicle();
+            User owner = vehicle.getOwner();
+            mailService.sendRoutineServiceReminderEmail(owner, vehicle, service, diff);
         }
     }
 }

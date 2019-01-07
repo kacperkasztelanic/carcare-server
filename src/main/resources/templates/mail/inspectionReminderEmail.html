@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
-		<title th:text="#{email.insurance.title}">CarCare insurance reminder</title>
+		<title th:text="#{email.inspection.title}">CarCare inspection reminder</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
 	</head>
 	<body>
 		<p th:text="#{email.greeting(${user.login})}">Hello</p>
-		<p th:text="#{email.insurance.text1(${vehicle.make}, ${vehicle.model}, ${vehicle.licensePlate}, ${diff}, ${insurance.validThru})}">
-			Please bear in mind that the insurance for your vehicle will expire in days i.e.
+		<p th:text="#{email.inspection.text1(${vehicle.make}, ${vehicle.model}, ${vehicle.licensePlate}, ${diff}, ${inspection.validThru})}">
+			Please bear in mind that the technical inspection of your vehicle should be carried out in days i.e.
 		</p>
 		<p>
 			<span th:text="#{email.activation.text2}">Regards, </span><br /> 
