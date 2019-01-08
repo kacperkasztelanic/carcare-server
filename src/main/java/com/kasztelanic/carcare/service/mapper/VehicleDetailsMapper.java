@@ -1,6 +1,6 @@
 package com.kasztelanic.carcare.service.mapper;
 
-import org.apache.commons.io.FilenameUtils;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,7 @@ public class VehicleDetailsMapper {
 
     @Autowired
     private ImageStorageService imageStorageService;
+    private Tika tika = new Tika();
 
     public VehicleDetailsDto vehicleDetailsToVehicleDetailsDto(Vehicle vehicle) {
         VehicleDetails vehicleDetails = vehicle.getVehicleDetails();
@@ -30,7 +31,7 @@ public class VehicleDetailsMapper {
         builder.weight(vehicleDetails.getWeight());
         builder.yearOfManufacture(vehicleDetails.getYearOfManufacture());
         builder.image(imageStorageService.load(vehicleDetails.getImage()));
-        builder.imageContentType(FilenameUtils.getExtension(vehicleDetails.getImage()));
+        builder.imageContentType(tika.detect(vehicleDetails.getImage()));
         builder.vehicleId(vehicle.getId());
         return builder.build();
     }
