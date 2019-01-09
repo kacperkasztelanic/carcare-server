@@ -78,9 +78,6 @@ public class CostReport {
         createCostCell(4, sumCosts(costs, CostResult::getRepairCosts), sumRow, cellStyle);
         createCostCell(5, sumCosts(costs, CostResult::getRefuelCosts), sumRow, cellStyle);
         createCostCell(6, sumCosts(costs, CostResult::getSum), sumRow, cellStyle);
-        for (int i = 0; i < titles.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
     }
 
     private void createCostCell(int cellNum, double value, Row row, CellStyle cellStyle) {

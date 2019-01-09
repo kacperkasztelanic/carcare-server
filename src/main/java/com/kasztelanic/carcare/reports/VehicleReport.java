@@ -82,9 +82,6 @@ public class VehicleReport {
                 sheet);
         createMainSheetRow(12, vehicle.getVehicleDetails().getRegistrationCertificate(), locale,
                 "reports.vehicle.main.certificate", sheet);
-        for (int i = 0; i < 2; i++) {
-            sheet.autoSizeColumn(i);
-        }
     }
 
     private void createMainSheetTitleRow(Locale locale, String title, Sheet sheet) {
@@ -150,9 +147,6 @@ public class VehicleReport {
             cell = row.createCell(8);
             cell.setCellValue(insurance.getDetails());
         }
-        for (int i = 0; i < titles.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
     }
 
     private void createInspectionSheet(Workbook workbook, Collection<InspectionDto> inspections, Locale locale,
@@ -187,9 +181,6 @@ public class VehicleReport {
             cell.setCellValue(FORMATTER.format(inspection.getValidThru()));
             cell = row.createCell(5);
             cell.setCellValue(inspection.getDetails());
-        }
-        for (int i = 0; i < titles.length; i++) {
-            sheet.autoSizeColumn(i);
         }
     }
 
@@ -234,9 +225,6 @@ public class VehicleReport {
             cell = row.createCell(6);
             cell.setCellValue(routineService.getDetails());
         }
-        for (int i = 0; i < titles.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
     }
 
     private void createRepairSheet(Workbook workbook, Set<RepairDto> repairs, Locale locale, CellStyle cellStyle) {
@@ -267,9 +255,6 @@ public class VehicleReport {
             cell.setCellValue(repairDto.getStation());
             cell = row.createCell(4);
             cell.setCellValue(repairDto.getDetails());
-        }
-        for (int i = 0; i < titles.length; i++) {
-            sheet.autoSizeColumn(i);
         }
     }
 
@@ -308,9 +293,6 @@ public class VehicleReport {
             cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(5);
             cell.setCellValue(refuelDto.getStation());
-        }
-        for (int i = 0; i < titles.length; i++) {
-            sheet.autoSizeColumn(i);
         }
     }
 }
