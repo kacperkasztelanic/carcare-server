@@ -14,9 +14,9 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
     @Query("select repair from Repair repair join repair.vehicle where repair.id = :id and repair.vehicle.owner.login = ?#{principal.username}")
     Optional<Repair> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);
 
-    @Query("select repair from Repair repair join repair.vehicle where repair.vehicle.id = :vehicleId and repair.vehicle.owner.login = ?#{principal.username}")
+    @Query("select repair from Repair repair join repair.vehicle where repair.vehicle.id = :vehicleId and repair.vehicle.owner.login = ?#{principal.username} order by repair.vehicleEvent.date desc")
     List<Repair> findByVehicleIdAndOwnerIsCurrentUser(@Param("vehicleId") Long vehicleId);
 
-    @Query("select repair from Repair repair join repair.vehicle where repair.vehicle.id = :vehicleId")
+    @Query("select repair from Repair repair join repair.vehicle where repair.vehicle.id = :vehicleId order by repair.vehicleEvent.date desc")
     List<Repair> findByVehicleId(@Param("vehicleId") Long vehicleId);
 }

@@ -20,9 +20,9 @@ public interface InsuranceRepository extends JpaRepository<Insurance, Long> {
     @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.id = :id and insurance.vehicle.owner.login = ?#{principal.username}")
     Optional<Insurance> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);
 
-    @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.vehicle.id = :vehicleId and insurance.vehicle.owner.login = ?#{principal.username}")
+    @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.vehicle.id = :vehicleId and insurance.vehicle.owner.login = ?#{principal.username} order by insurance.vehicleEvent.date desc")
     List<Insurance> findByVehicleIdAndOwnerIsCurrentUser(@Param("vehicleId") Long vehicleId);
 
-    @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.vehicle.id = :vehicleId")
+    @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.vehicle.id = :vehicleId order by insurance.vehicleEvent.date desc")
     List<Insurance> findByVehicleId(@Param("vehicleId") Long vehicleId);
 }

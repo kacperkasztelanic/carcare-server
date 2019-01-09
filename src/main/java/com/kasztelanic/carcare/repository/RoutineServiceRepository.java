@@ -18,9 +18,9 @@ public interface RoutineServiceRepository extends JpaRepository<RoutineService, 
     @Query("select routineService from RoutineService routineService join routineService.vehicle where routineService.id = :id and routineService.vehicle.owner.login = ?#{principal.username}")
     Optional<RoutineService> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);
 
-    @Query("select routineService from RoutineService routineService join routineService.vehicle where routineService.vehicle.id = :vehicleId and routineService.vehicle.owner.login = ?#{principal.username}")
+    @Query("select routineService from RoutineService routineService join routineService.vehicle where routineService.vehicle.id = :vehicleId and routineService.vehicle.owner.login = ?#{principal.username} order by routineService.vehicleEvent.date desc")
     List<RoutineService> findByVehicleIdAndOwnerIsCurrentUser(@Param("vehicleId") Long vehicleId);
 
-    @Query("select routineService from RoutineService routineService join routineService.vehicle where routineService.vehicle.id = :vehicleId")
+    @Query("select routineService from RoutineService routineService join routineService.vehicle where routineService.vehicle.id = :vehicleId order by routineService.vehicleEvent.date desc")
     List<RoutineService> findByVehicleId(@Param("vehicleId") Long vehicleId);
 }
