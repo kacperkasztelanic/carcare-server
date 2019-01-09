@@ -26,7 +26,7 @@ public class ForthcomingEvent implements Comparable<ForthcomingEvent> {
     @Getter
     private final LocalDate dateThru;
     @Getter
-    private final int mileageThru;
+    private final Integer mileageThru;
 
     @Override
     public int compareTo(ForthcomingEvent o) {

@@ -221,10 +221,14 @@ public class VehicleReport {
             cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
-            cell.setCellValue(routineService.getNextByMileage());
-            cell.setCellType(CellType.NUMERIC);
-            cell = row.createCell(4);
-            cell.setCellValue(FORMATTER.format(routineService.getNextByDate()));
+            if (routineService.getNextByMileage() != null) {
+                cell.setCellValue(routineService.getNextByMileage());
+                cell.setCellType(CellType.NUMERIC);
+            }
+            if (routineService.getNextByDate() != null) {
+                cell = row.createCell(4);
+                cell.setCellValue(FORMATTER.format(routineService.getNextByDate()));
+            }
             cell = row.createCell(5);
             cell.setCellValue(routineService.getStation());
             cell = row.createCell(6);
