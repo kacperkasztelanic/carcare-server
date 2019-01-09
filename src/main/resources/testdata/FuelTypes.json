@@ -1,0 +1,38 @@
+[ 
+	{
+		"type" : "DIESEL",
+		"englishTranslation" : "DIESEL",
+		"polishTranslation" : "DIESEL"
+	},
+	{
+		"type" : "PETROL",
+		"englishTranslation" : "PETROL",
+		"polishTranslation" : "BENZYNA"
+	},
+	{
+		"type" : "LPG",
+		"englishTranslation" : "LPG",
+		"polishTranslation" : "LPG"
+	},
+	{
+		"type" : "CNG",
+		"englishTranslation" : "CNG",
+		"polishTranslation" : "CNG"
+	},
+	{
+		"type" : "HYBRID",
+		"englishTranslation" : "HYBRID",
+		"polishTranslation" : "HYBRYDOWY"
+	},
+	{
+		"type" : "ELECTRIC",
+		"englishTranslation" : "ELECTRIC",
+		"polishTranslation" : "ELEKTRYCZNY"
+	},
+	{
+		"type" : "OTHER",
+		"englishTranslation" : "Other",
+		"polishTranslation" : "Inny"
+	} 
+]
+	

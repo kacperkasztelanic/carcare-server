@@ -1,0 +1,17 @@
+[ 
+	{
+		"type" : "LI",
+		"englishTranslation" : "LIABILITY INSURANCE",
+		"polishTranslation" : "OC"
+	},
+	{
+		"type" : "CC",
+		"englishTranslation" : "COMPREHENSIVE COVER",
+		"polishTranslation" : "AC"
+	},
+	{
+		"type" : "OTHER",
+		"englishTranslation" : "Other",
+		"polishTranslation" : "Inne"
+	}
+]
