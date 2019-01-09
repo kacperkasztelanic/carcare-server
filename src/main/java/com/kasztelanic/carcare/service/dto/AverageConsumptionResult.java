@@ -1,5 +1,8 @@
 package com.kasztelanic.carcare.service.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,6 +21,8 @@ public class AverageConsumptionResult {
     private final int mileage;
 
     public double getAverageConsumption() {
-        return volume * 100.0 / mileage;
+        return BigDecimal.valueOf(volume * 100.0 / mileage)
+                .setScale(1, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }
