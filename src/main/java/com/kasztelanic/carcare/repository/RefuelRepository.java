@@ -6,9 +6,11 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.kasztelanic.carcare.domain.Refuel;
 
+@Repository
 public interface RefuelRepository extends JpaRepository<Refuel, Long> {
 
     @Query("select refuel from Refuel refuel join refuel.vehicle where refuel.id = :id and refuel.vehicle.owner.login = ?#{principal.username}")

@@ -6,9 +6,11 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.kasztelanic.carcare.domain.Repair;
 
+@Repository
 public interface RepairRepository extends JpaRepository<Repair, Long> {
 
     @Query("select repair from Repair repair join repair.vehicle where repair.id = :id and repair.vehicle.owner.login = ?#{principal.username}")
