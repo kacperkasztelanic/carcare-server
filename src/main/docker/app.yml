@@ -6,6 +6,8 @@ services:
             #- _JAVA_OPTIONS=-Xmx512m -Xms256m
             - SPRING_PROFILES_ACTIVE=prod,swagger
             - SPRING_DATASOURCE_URL=jdbc:mariadb://carcare-mariadb:3306/carcare
+            - SPRING_DATASOURCE_PASSWORD=${MARIADB_PASSWORD_ENV}
+            - MAIL_PASSWORD=${MAIL_PASSWORD_ENV}
             - MAIL_BASE_URL=46.101.121.29
             - JHIPSTER_SLEEP=5
         volumes:

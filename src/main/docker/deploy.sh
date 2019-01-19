@@ -2,10 +2,15 @@
 
 ARTIFACTS=/home/kacper/artifacts
 SERVER=/home/kacper/server
+MISC=/home/kacper/misc
 
 cd $ARTIFACTS
 rm app.yml mariadb.yml Dockerfile entrypoint.sh *.war
 cp $SERVER/src/main/docker/{app.yml,mariadb.yml,Dockerfile,entrypoint.sh} .
+ln -sf $MISC/env $ARTIFACTS/env
+sed -i 's/${MARIADB_PASSWORD_ENV}/'$(grep MARIADB_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/app.yml
+sed -i 's/${MARIADB_PASSWORD_ENV}/'$(grep MARIADB_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/mariadb.yml
+sed -i 's/${MAIL_PASSWORD_ENV}/'$(grep MAIL_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/app.yml
 
 cd $SERVER
 git fetch
