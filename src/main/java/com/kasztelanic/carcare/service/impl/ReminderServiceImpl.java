@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ import com.kasztelanic.carcare.service.ReminderService;
 @Service
 public class ReminderServiceImpl implements ReminderService {
 
+    private final Logger log = LoggerFactory.getLogger(ReminderServiceImpl.class);
+
     @Autowired
     private ReminderAdvanceRepository reminderAdvanceRepository;
     @Autowired
@@ -40,12 +44,14 @@ public class ReminderServiceImpl implements ReminderService {
     @Override
     @Scheduled(cron = "0 0 8 * * *")
     public void sendReminders() {
+        log.info("Email notification dispatch invoked");
         LocalDate now = LocalDate.now();
         Set<LocalDate> dates = reminderAdvanceRepository.findAll().stream().map(ReminderAdvance::getDays)
                 .map(now::plusDays).collect(Collectors.toSet());
         sendInsuranceReminders(dates, now);
         sendInspectionReminders(dates, now);
         sendRoutineServiceReminders(dates, now);
+        log.info("Email notifications dispatched");
     }
 
     @Override
