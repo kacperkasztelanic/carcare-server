@@ -41,7 +41,7 @@ public class AverageConsumptionCalculatorImpl implements AverageConsumptionCalcu
                 .collect(Collectors.toList());
         List<AverageConsumptionResult> result = new ArrayList<>();
         for (int i = 0; i < filteredRefuels.size() - 1; i++) {
-            int volume = filteredRefuels.get(i).getVolume();
+            int volume = filteredRefuels.get(i + 1).getVolume();
             int mileage = filteredRefuels.get(i + 1).getVehicleEvent().getMileage()
                     - filteredRefuels.get(i).getVehicleEvent().getMileage();
             LocalDate dateFrom = filteredRefuels.get(i).getVehicleEvent().getDate();
