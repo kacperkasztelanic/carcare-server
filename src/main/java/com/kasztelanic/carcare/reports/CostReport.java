@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -83,7 +82,6 @@ public class CostReport {
     private void createCostCell(int cellNum, double value, Row row, CellStyle cellStyle) {
         Cell cell = row.createCell(cellNum);
         cell.setCellValue(value);
-        cell.setCellType(CellType.NUMERIC);
         cell.setCellStyle(cellStyle);
     }
 

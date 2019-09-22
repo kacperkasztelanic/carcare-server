@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -104,7 +103,6 @@ public class VehicleReport {
         cell.setCellValue(messageSource.getMessage(title, null, locale));
         cell = row.createCell(1);
         cell.setCellValue(value.doubleValue());
-        cell.setCellType(CellType.NUMERIC);
     }
 
     private void createInsuranceSheet(Workbook workbook, Collection<InsuranceDto> insurances, Locale locale,
@@ -129,10 +127,8 @@ public class VehicleReport {
             cell.setCellValue(FORMATTER.format(insurance.getVehicleEvent().getDate()));
             cell = row.createCell(1);
             cell.setCellValue(insurance.getVehicleEvent().getMileage());
-            cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
             cell.setCellValue(insurance.getCostInCents() / 100.0);
-            cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(insurance.getInsuranceType().getTranslation());
@@ -170,10 +166,8 @@ public class VehicleReport {
             cell.setCellValue(FORMATTER.format(inspection.getVehicleEvent().getDate()));
             cell = row.createCell(1);
             cell.setCellValue(inspection.getVehicleEvent().getMileage());
-            cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
             cell.setCellValue(inspection.getCostInCents() / 100.0);
-            cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(inspection.getStation());
@@ -206,15 +200,12 @@ public class VehicleReport {
             cell.setCellValue(FORMATTER.format(routineService.getVehicleEvent().getDate()));
             cell = row.createCell(1);
             cell.setCellValue(routineService.getVehicleEvent().getMileage());
-            cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
             cell.setCellValue(routineService.getCostInCents() / 100.0);
-            cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             if (routineService.getNextByMileage() != null) {
                 cell.setCellValue(routineService.getNextByMileage());
-                cell.setCellType(CellType.NUMERIC);
             }
             if (routineService.getNextByDate() != null) {
                 cell = row.createCell(4);
@@ -246,10 +237,8 @@ public class VehicleReport {
             cell.setCellValue(FORMATTER.format(repairDto.getVehicleEvent().getDate()));
             cell = row.createCell(1);
             cell.setCellValue(repairDto.getVehicleEvent().getMileage());
-            cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
             cell.setCellValue(repairDto.getCostInCents() / 100.0);
-            cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(repairDto.getStation());
@@ -278,19 +267,15 @@ public class VehicleReport {
             cell.setCellValue(FORMATTER.format(refuelDto.getVehicleEvent().getDate()));
             cell = row.createCell(1);
             cell.setCellValue(refuelDto.getVehicleEvent().getMileage());
-            cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(2);
             cell.setCellValue(refuelDto.getCostInCents() / 100.0);
-            cell.setCellType(CellType.NUMERIC);
             cell.setCellStyle(cellStyle);
             cell = row.createCell(3);
             cell.setCellValue(refuelDto.getVolume() / 1000.0);
             cell.setCellStyle(cellStyle);
-            cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(4);
             cell.setCellValue(refuelDto.getCostInCents() * 10.0 / refuelDto.getVolume());
             cell.setCellStyle(cellStyle);
-            cell.setCellType(CellType.NUMERIC);
             cell = row.createCell(5);
             cell.setCellValue(refuelDto.getStation());
         }

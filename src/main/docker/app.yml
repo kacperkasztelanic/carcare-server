@@ -6,13 +6,14 @@ services:
         environment:
             #- _JAVA_OPTIONS=-Xmx512m -Xms256m
             - SPRING_PROFILES_ACTIVE=prod,swagger
+            - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
             - SPRING_DATASOURCE_URL=jdbc:mariadb://carcare-mariadb:3306/carcare
             - SPRING_DATASOURCE_PASSWORD=${MARIADB_PASSWORD_ENV}
             - MAIL_PASSWORD=${MAIL_PASSWORD_ENV}
-            - MAIL_BASE_URL=46.101.121.29
+            - MAIL_BASE_URL=193.33.111.50
             - JHIPSTER_SLEEP=5
         volumes:
-            - /home/kacper/data/carcare/data:/home/jhipster/data
+            - /home/kacper/carcare/data/data:/home/jhipster/data
         expose:
             - "8080"
         depends_on:

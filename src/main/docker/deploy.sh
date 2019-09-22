@@ -1,8 +1,8 @@
 #!/bin/bash
 
-ARTIFACTS=/home/kacper/artifacts
-SERVER=/home/kacper/server
-MISC=/home/kacper/misc
+ARTIFACTS=/home/kacper/carcare/artifacts
+SERVER=/home/kacper/carcare/server
+MISC=/home/kacper/carcare/misc
 
 cd $ARTIFACTS
 rm app.yml mariadb.yml Dockerfile entrypoint.sh *.war

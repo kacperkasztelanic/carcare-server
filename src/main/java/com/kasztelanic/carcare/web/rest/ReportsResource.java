@@ -1,12 +1,15 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
+import com.kasztelanic.carcare.domain.User;
+import com.kasztelanic.carcare.reports.ReportsService;
+import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.service.CostCalculator;
+import com.kasztelanic.carcare.service.UserService;
+import com.kasztelanic.carcare.service.dto.CostRequest;
+import com.kasztelanic.carcare.service.dto.CostResult;
+import com.kasztelanic.carcare.service.dto.PeriodVehicle;
+import com.kasztelanic.carcare.service.dto.VehicleRichDto;
+import com.kasztelanic.carcare.service.mapper.VehicleRichMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -19,17 +22,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codahale.metrics.annotation.Timed;
-import com.kasztelanic.carcare.domain.User;
-import com.kasztelanic.carcare.reports.ReportsService;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.CostCalculator;
-import com.kasztelanic.carcare.service.UserService;
-import com.kasztelanic.carcare.service.dto.CostRequest;
-import com.kasztelanic.carcare.service.dto.CostResult;
-import com.kasztelanic.carcare.service.dto.PeriodVehicle;
-import com.kasztelanic.carcare.service.dto.VehicleRichDto;
-import com.kasztelanic.carcare.service.mapper.VehicleRichMapper;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -52,7 +51,6 @@ public class ReportsResource {
     @Autowired
     private UserService userService;
 
-    @Timed
     @Transactional
     @GetMapping("/vehicle/{id}")
     public ResponseEntity<byte[]> reportForVehicle(@PathVariable long id) throws IOException {
@@ -69,7 +67,6 @@ public class ReportsResource {
         return ResponseEntity.notFound().build();
     }
 
-    @Timed
     @Transactional
     @PostMapping("/costs")
     public ResponseEntity<byte[]> costReport(@RequestBody CostRequest costRequest) throws IOException {

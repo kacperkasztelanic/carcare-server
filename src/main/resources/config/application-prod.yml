@@ -14,6 +14,12 @@ logging:
         com.kasztelanic.carcare: INFO
         io.github.jhipster: INFO
 
+management:
+    metrics:
+        export:
+            prometheus:
+                enabled: false
+
 spring:
     devtools:
         restart:
@@ -26,6 +32,7 @@ spring:
         password: ${SPRING_DATASOURCE_PASSWORD:}
         url: ${SPRING_DATASOURCE_URL:}
         hikari:
+            poolName: Hikari
             auto-commit: false
             max-lifetime: 600000
             data-source-properties:
@@ -43,7 +50,6 @@ spring:
             hibernate.cache.use_second_level_cache: true
             hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: false
-            hibernate.cache.region.factory_class: io.github.jhipster.config.jcache.BeanClassLoaderAwareJCacheRegionFactory
     liquibase:
         contexts: prod
     mail:
@@ -83,7 +89,6 @@ server:
 
 jhipster:
     http:
-        version: V_1_1 # To use HTTP/2 you will need SSL support (see above the "server.ssl" configuration)
         cache: # Used by the CachingHttpHeadersFilter
             timeToLiveInDays: 1461
     cache: # Cache configuration
@@ -104,20 +109,19 @@ jhipster:
                 token-validity-in-seconds-for-remember-me: 2592000
     mail: # specific JHipster mail property, for standard properties see MailProperties
         base-url: ${MAIL_BASE_URL:} # Modify according to your server's URL
-    metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
-        jmx:
-            enabled: true
-        prometheus: 
-            enabled: false #expose metrics via prometheus 
-        logs: # Reports Dropwizard metrics in the logs
+    metrics:
+        logs: # Reports metrics in the logs
             enabled: false
             report-frequency: 60 # in seconds
     logging:
+        use-json-format: false # By default, logs are not in Json format
         logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
             enabled: false
             host: localhost
             port: 5000
             queue-size: 512
+    audit-events:
+        retention-period: 30 # Number of days before audit events are deleted.
 
 # ===================================================================
 # Application specific properties

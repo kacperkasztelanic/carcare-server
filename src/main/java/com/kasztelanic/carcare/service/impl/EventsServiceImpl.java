@@ -50,12 +50,17 @@ public class EventsServiceImpl implements EventsService {
     }
 
     private Stream<ForthcomingEvent> findForthcomingRoutineServices(PeriodVehicle periodVehicle,
-            Collection<RoutineServiceDto> routineServices) {
-        return routineServices.stream()
-                .filter(x -> x.getNextByDate() != null ? !x.getNextByDate().isBefore(periodVehicle.getDateFrom())
-                        && !x.getNextByDate().isAfter(periodVehicle.getDateTo()) : true)
-                .map(x -> ForthcomingEvent.builder().vehicleId(periodVehicle.getVehicleId())
-                        .eventType(EventType.SERVICE).details(x.getDetails()).dateThru(x.getNextByDate())
-                        .mileageThru(x.getNextByMileage()).build());
+        Collection<RoutineServiceDto> routineServices) {
+        return routineServices.stream()//
+            .filter(x -> x.getNextByDate() == null || !x.getNextByDate().isBefore(periodVehicle.getDateFrom())//
+                && !x.getNextByDate().isAfter(periodVehicle.getDateTo()))//
+            .map(x -> ForthcomingEvent.builder()//
+                .vehicleId(periodVehicle.getVehicleId())//
+                .eventType(EventType.SERVICE)//
+                .details(x.getDetails())//
+                .dateThru(x.getNextByDate())//
+                .mileageThru(x.getNextByMileage())//
+                .build()//
+            );
     }
 }

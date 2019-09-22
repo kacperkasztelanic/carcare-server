@@ -3,7 +3,7 @@ services:
     carcare-mariadb:
         image: mariadb:10.3.7
         volumes:
-            - ~/data/carcare/mysql/:/var/lib/mysql/
+            - ~/carcare/data/mysql/:/var/lib/mysql/
         environment:
             - MYSQL_USER=root
             - MYSQL_ROOT_PASSWORD=${MARIADB_PASSWORD_ENV}

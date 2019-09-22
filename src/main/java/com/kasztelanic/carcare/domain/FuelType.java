@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.PersistenceConstructor;
 
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Entity
+@Immutable
 @Table(name = "fuel_types")
 @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 @EqualsAndHashCode(of = { "type" })

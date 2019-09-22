@@ -1,13 +1,11 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
+import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.service.EventsService;
+import com.kasztelanic.carcare.service.dto.ForthcomingEvent;
+import com.kasztelanic.carcare.service.dto.PeriodVehicle;
+import com.kasztelanic.carcare.service.mapper.VehicleRichMapper;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codahale.metrics.annotation.Timed;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.EventsService;
-import com.kasztelanic.carcare.service.dto.ForthcomingEvent;
-import com.kasztelanic.carcare.service.dto.PeriodVehicle;
-import com.kasztelanic.carcare.service.mapper.VehicleRichMapper;
-import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api/events")
@@ -35,7 +34,6 @@ public class EventsResource {
     @Autowired
     private VehicleRichMapper vehicleRichMapper;
 
-    @Timed
     @Transactional
     @PostMapping("")
     public ResponseEntity<List<ForthcomingEvent>> findForthcomingEvents(@RequestBody List<PeriodVehicle> periodVehicles) {

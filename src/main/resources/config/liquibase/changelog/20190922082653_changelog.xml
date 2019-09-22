@@ -1,16 +1,22 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
-    <changeSet author="Kacper (generated)" id="1545061695176-1">
+    <changeSet author="Kacper (generated)" id="1569140831585-1">
         <createTable tableName="fuel_types">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="fuel_typesPK"/>
+            </column>
+            <column name="english" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="polish" type="VARCHAR(30)">
+                <constraints nullable="false"/>
             </column>
             <column name="type" type="VARCHAR(30)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-2">
+    <changeSet author="Kacper (generated)" id="1569140831585-2">
         <createTable tableName="inspections">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="inspectionsPK"/>
@@ -18,19 +24,16 @@
             <column name="cost_in_cents" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="details" type="VARCHAR(255)">
+            <column name="details" type="TEXT">
                 <constraints nullable="false"/>
             </column>
             <column name="station" type="VARCHAR(30)">
                 <constraints nullable="false"/>
             </column>
-            <column name="uuid" type="VARCHAR(36)">
+            <column name="valid_thru" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="valid_thru" type="DATE">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date" type="DATE">
+            <column name="date" type="date">
                 <constraints nullable="false"/>
             </column>
             <column name="mileage" type="INT">
@@ -41,17 +44,23 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-3">
+    <changeSet author="Kacper (generated)" id="1569140831585-3">
         <createTable tableName="insurance_types">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="insurance_typesPK"/>
+            </column>
+            <column name="english" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="polish" type="VARCHAR(30)">
+                <constraints nullable="false"/>
             </column>
             <column name="type" type="VARCHAR(10)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-4">
+    <changeSet author="Kacper (generated)" id="1569140831585-4">
         <createTable tableName="insurances">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="insurancesPK"/>
@@ -59,19 +68,18 @@
             <column name="cost_in_cents" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="details" type="VARCHAR(255)"/>
+            <column name="details" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
             <column name="insurer" type="VARCHAR(20)"/>
             <column name="number" type="VARCHAR(20)"/>
-            <column name="uuid" type="VARCHAR(36)">
+            <column name="valid_from" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="valid_from" type="DATE">
+            <column name="valid_thru" type="date">
                 <constraints nullable="false"/>
             </column>
-            <column name="valid_thru" type="DATE">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date" type="DATE">
+            <column name="date" type="date">
                 <constraints nullable="false"/>
             </column>
             <column name="mileage" type="INT">
@@ -85,7 +93,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-5">
+    <changeSet author="Kacper (generated)" id="1569140831585-5">
         <createTable tableName="refuels">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="refuelsPK"/>
@@ -96,10 +104,7 @@
             <column name="station" type="VARCHAR(30)">
                 <constraints nullable="false"/>
             </column>
-            <column name="uuid" type="VARCHAR(36)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date" type="DATE">
+            <column name="date" type="date">
                 <constraints nullable="false"/>
             </column>
             <column name="mileage" type="INT">
@@ -111,7 +116,17 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-6">
+    <changeSet author="Kacper (generated)" id="1569140831585-6">
+        <createTable tableName="reminder_advances">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="reminder_advancesPK"/>
+            </column>
+            <column name="type" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140831585-7">
         <createTable tableName="repairs">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="repairsPK"/>
@@ -119,16 +134,13 @@
             <column name="cost_in_cents" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="details" type="VARCHAR(255)">
+            <column name="details" type="TEXT">
                 <constraints nullable="false"/>
             </column>
             <column name="station" type="VARCHAR(30)">
                 <constraints nullable="false"/>
             </column>
-            <column name="uuid" type="VARCHAR(36)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date" type="DATE">
+            <column name="date" type="date">
                 <constraints nullable="false"/>
             </column>
             <column name="mileage" type="INT">
@@ -139,26 +151,23 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-7">
+    <changeSet author="Kacper (generated)" id="1569140831585-8">
         <createTable tableName="routine_services">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="routine_servicesPK"/>
             </column>
             <column name="cost_in_cents" type="INT">
                 <constraints nullable="false"/>
-            </column>            
-            <column name="details" type="VARCHAR(255)">
+            </column>
+            <column name="details" type="TEXT">
                 <constraints nullable="false"/>
             </column>
-            <column name="next_by_date" type="DATE"/>
+            <column name="next_by_date" type="date"/>
             <column name="next_by_mileage" type="INT"/>
             <column name="station" type="VARCHAR(30)">
                 <constraints nullable="false"/>
             </column>
-            <column name="uuid" type="VARCHAR(36)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="date" type="DATE">
+            <column name="date" type="date">
                 <constraints nullable="false"/>
             </column>
             <column name="mileage" type="INT">
@@ -169,7 +178,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-8">
+    <changeSet author="Kacper (generated)" id="1569140831585-9">
         <createTable tableName="vehicles">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="vehiclesPK"/>
@@ -183,15 +192,11 @@
             <column name="model" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
-            <column name="uuid" type="VARCHAR(36)">
-                <constraints nullable="false"/>
-            </column>
             <column name="engine_power_in_kw" type="INT"/>
             <column name="engine_volume_in_cm3" type="INT"/>
-            <column name="image" type="LONGBLOB"/>
-            <column name="image_content_type" type="VARCHAR(255)"/>
+            <column name="image" type="VARCHAR(45)"/>
             <column name="model_suffix" type="VARCHAR(30)"/>
-            <column name="notes" type="VARCHAR(255)"/>
+            <column name="notes" type="TEXT"/>
             <column name="registration_certificate" type="VARCHAR(14)"/>
             <column name="vehicle_card" type="VARCHAR(10)"/>
             <column name="vin_number" type="VARCHAR(17)"/>
@@ -205,82 +210,106 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-9">
+    <changeSet author="Kacper (generated)" id="1569140831585-10">
+        <addUniqueConstraint columnNames="english" constraintName="UC_FUEL_TYPESENGLISH_COL" tableName="fuel_types"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140831585-11">
+        <addUniqueConstraint columnNames="polish" constraintName="UC_FUEL_TYPESPOLISH_COL" tableName="fuel_types"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140831585-12">
         <addUniqueConstraint columnNames="type" constraintName="UC_FUEL_TYPESTYPE_COL" tableName="fuel_types"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-10">
-        <addUniqueConstraint columnNames="uuid" constraintName="UC_INSPECTIONSUUID_COL" tableName="inspections"/>
+    <changeSet author="Kacper (generated)" id="1569140831585-13">
+        <addUniqueConstraint columnNames="english" constraintName="UC_INSURANCE_TYPESENGLISH_COL" tableName="insurance_types"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-11">
-        <addUniqueConstraint columnNames="uuid" constraintName="UC_INSURANCESUUID_COL" tableName="insurances"/>
+    <changeSet author="Kacper (generated)" id="1569140831585-14">
+        <addUniqueConstraint columnNames="polish" constraintName="UC_INSURANCE_TYPESPOLISH_COL" tableName="insurance_types"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-12">
+    <changeSet author="Kacper (generated)" id="1569140831585-15">
         <addUniqueConstraint columnNames="type" constraintName="UC_INSURANCE_TYPESTYPE_COL" tableName="insurance_types"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-13">
-        <addUniqueConstraint columnNames="uuid" constraintName="UC_REFUELSUUID_COL" tableName="refuels"/>
+    <changeSet author="Kacper (generated)" id="1569140831585-16">
+        <addUniqueConstraint columnNames="type" constraintName="UC_REMINDER_ADVANCESTYPE_COL" tableName="reminder_advances"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-14">
-        <addUniqueConstraint columnNames="uuid" constraintName="UC_REPAIRSUUID_COL" tableName="repairs"/>
-    </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-15">
-        <addUniqueConstraint columnNames="uuid" constraintName="UC_ROUTINE_SERVICESUUID_COL" tableName="routine_services"/>
-    </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-16">
-        <addUniqueConstraint columnNames="uuid" constraintName="UC_VEHICLESUUID_COL" tableName="vehicles"/>
-    </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-17">
+    <changeSet author="Kacper (generated)" id="1569140831585-17">
         <addForeignKeyConstraint baseColumnNames="insurance_type_id" baseTableName="insurances" constraintName="FK24ys5lgfug2q78d310u04tylf" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="insurance_types"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-18">
+    <changeSet author="Kacper (generated)" id="1569140831585-18">
         <addForeignKeyConstraint baseColumnNames="vehicle_id" baseTableName="refuels" constraintName="FK7cs5c7iw40lj73yo6s77u7rvl" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="vehicles"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-19">
+    <changeSet author="Kacper (generated)" id="1569140831585-19">
         <addForeignKeyConstraint baseColumnNames="fuel_type_id" baseTableName="vehicles" constraintName="FKck94koff5phplxnts3lahjinu" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="fuel_types"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-20">
+    <changeSet author="Kacper (generated)" id="1569140831585-20">
         <addForeignKeyConstraint baseColumnNames="owner_id" baseTableName="vehicles" constraintName="FKhm05kh6d8f082pgddom1q1yco" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-21">
+    <changeSet author="Kacper (generated)" id="1569140831585-21">
         <addForeignKeyConstraint baseColumnNames="vehicle_id" baseTableName="insurances" constraintName="FKk7a7uqrkf4cuvn4w2rsdymafk" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="vehicles"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-22">
+    <changeSet author="Kacper (generated)" id="1569140831585-22">
         <addForeignKeyConstraint baseColumnNames="vehicle_id" baseTableName="inspections" constraintName="FKlfc8sgfw636xmcre6gj9ra4pe" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="vehicles"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-23">
+    <changeSet author="Kacper (generated)" id="1569140831585-23">
         <addForeignKeyConstraint baseColumnNames="vehicle_id" baseTableName="repairs" constraintName="FKr8rwhlbv43kxbn4j93hkul7ax" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="vehicles"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-24">
+    <changeSet author="Kacper (generated)" id="1569140831585-24">
         <addForeignKeyConstraint baseColumnNames="vehicle_id" baseTableName="routine_services" constraintName="FKsy0jrbbtf29lpv37ahmtlj3dv" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="vehicles"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-25">
+    <changeSet author="Kacper (generated)" id="1569140831585-25">
         <dropDefaultValue columnDataType="varchar(20)" columnName="activation_key" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-26">
+    <changeSet author="Kacper (generated)" id="1569140831585-26">
+        <addNotNullConstraint columnDataType="datetime" columnName="created_date" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140831585-27">
         <dropDefaultValue columnDataType="varchar(254)" columnName="email" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-27">
+    <changeSet author="Kacper (generated)" id="1569140831585-28">
         <dropDefaultValue columnDataType="varchar(255)" columnName="event_type" tableName="jhi_persistent_audit_event"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-28">
+    <changeSet author="Kacper (generated)" id="1569140831585-29">
         <dropDefaultValue columnDataType="varchar(50)" columnName="first_name" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-29">
+    <changeSet author="Kacper (generated)" id="1569140831585-30">
         <dropDefaultValue columnDataType="varchar(256)" columnName="image_url" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-30">
+    <changeSet author="Kacper (generated)" id="1569140831585-31">
         <dropDefaultValue columnDataType="varchar(6)" columnName="lang_key" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-31">
+    <changeSet author="Kacper (generated)" id="1569140831585-32">
         <dropDefaultValue columnDataType="varchar(50)" columnName="last_modified_by" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-32">
+    <changeSet author="Kacper (generated)" id="1569140831585-33">
         <dropDefaultValue columnDataType="varchar(50)" columnName="last_name" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-33">
+    <changeSet author="Kacper (generated)" id="1569140831585-34">
         <dropDefaultValue columnDataType="varchar(20)" columnName="reset_key" tableName="jhi_user"/>
     </changeSet>
-    <changeSet author="Kacper (generated)" id="1545061695176-34">
+    <changeSet author="Kacper (generated)" id="1569140831585-35">
         <dropDefaultValue columnDataType="varchar(255)" columnName="value" tableName="jhi_persistent_audit_evt_data"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-1">
+        <dropDefaultValue columnDataType="varchar(45)" columnName="image" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-2">
+        <dropDefaultValue columnDataType="varchar(20)" columnName="insurer" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-3">
+        <dropDefaultValue columnDataType="varchar(30)" columnName="model_suffix" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-4">
+        <dropDefaultValue columnDataType="clob" columnName="notes" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-5">
+        <dropDefaultValue columnDataType="varchar(20)" columnName="number" tableName="insurances"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-6">
+        <dropDefaultValue columnDataType="varchar(14)" columnName="registration_certificate" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-7">
+        <dropDefaultValue columnDataType="varchar(10)" columnName="vehicle_card" tableName="vehicles"/>
+    </changeSet>
+    <changeSet author="Kacper (generated)" id="1569140898451-8">
+        <dropDefaultValue columnDataType="varchar(17)" columnName="vin_number" tableName="vehicles"/>
     </changeSet>
 </databaseChangeLog>

@@ -1,28 +1,5 @@
 package com.kasztelanic.carcare.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.auditing.AuditingHandler;
-import org.springframework.data.auditing.DateTimeProvider;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.kasztelanic.carcare.CarcareApp;
 import com.kasztelanic.carcare.config.Constants;
 import com.kasztelanic.carcare.domain.User;
@@ -30,15 +7,45 @@ import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.service.util.RandomUtil;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.auditing.AuditingHandler;
+import org.springframework.data.auditing.DateTimeProvider;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 /**
- * Test class for the UserResource REST controller.
- *
- * @see UserService
+ * Integration tests for {@link UserService}.
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = CarcareApp.class)
 @Transactional
-public class UserServiceIntTest {
+public class UserServiceIT {
+
+    private static final String DEFAULT_LOGIN = "johndoe";
+
+    private static final String DEFAULT_EMAIL = "johndoe@localhost";
+
+    private static final String DEFAULT_FIRSTNAME = "john";
+
+    private static final String DEFAULT_LASTNAME = "doe";
+
+    private static final String DEFAULT_IMAGEURL = "http://placehold.it/50x50";
+
+    private static final String DEFAULT_LANGKEY = "dummy";
 
     @Autowired
     private UserRepository userRepository;
@@ -50,21 +57,21 @@ public class UserServiceIntTest {
     private AuditingHandler auditingHandler;
 
     @Mock
-    DateTimeProvider dateTimeProvider;
+    private DateTimeProvider dateTimeProvider;
 
     private User user;
 
-    @Before
+    @BeforeEach
     public void init() {
         user = new User();
-        user.setLogin("johndoe");
+        user.setLogin(DEFAULT_LOGIN);
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
-        user.setEmail("johndoe@localhost");
-        user.setFirstName("john");
-        user.setLastName("doe");
-        user.setImageUrl("http://placehold.it/50x50");
-        user.setLangKey("en");
+        user.setEmail(DEFAULT_EMAIL);
+        user.setFirstName(DEFAULT_FIRSTNAME);
+        user.setLastName(DEFAULT_LASTNAME);
+        user.setImageUrl(DEFAULT_IMAGEURL);
+        user.setLangKey(DEFAULT_LANGKEY);
 
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(LocalDateTime.now()));
         auditingHandler.setDateTimeProvider(dateTimeProvider);
@@ -146,18 +153,35 @@ public class UserServiceIntTest {
 
     @Test
     @Transactional
-    public void testFindNotActivatedUsersByCreationDateBefore() {
+    public void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
+        Instant now = Instant.now();
+        when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
+        user.setActivated(false);
+        user.setActivationKey(RandomStringUtils.random(20));
+        User dbUser = userRepository.saveAndFlush(user);
+        dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
+        userRepository.saveAndFlush(user);
+        List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
+        assertThat(users).isNotEmpty();
+        userService.removeNotActivatedUsers();
+        users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
+        assertThat(users).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void assertThatNotActivatedUsersWithNullActivationKeyCreatedBefore3DaysAreNotDeleted() {
         Instant now = Instant.now();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
         user.setActivated(false);
         User dbUser = userRepository.saveAndFlush(user);
         dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
         userRepository.saveAndFlush(user);
-        List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
-        assertThat(users).isNotEmpty();
-        userService.removeNotActivatedUsers();
-        users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
+        List<User> users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
         assertThat(users).isEmpty();
+        userService.removeNotActivatedUsers();
+        Optional<User> maybeDbUser = userRepository.findById(dbUser.getId());
+        assertThat(maybeDbUser).contains(dbUser);
     }
 
     @Test
@@ -172,21 +196,6 @@ public class UserServiceIntTest {
         assertThat(allManagedUsers.getContent().stream()
             .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
             .isTrue();
-    }
-
-
-    @Test
-    @Transactional
-    public void testRemoveNotActivatedUsers() {
-        // custom "now" for audit to use as creation date
-        when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
-
-        user.setActivated(false);
-        userRepository.saveAndFlush(user);
-
-        assertThat(userRepository.findOneByLogin("johndoe")).isPresent();
-        userService.removeNotActivatedUsers();
-        assertThat(userRepository.findOneByLogin("johndoe")).isNotPresent();
     }
 
 }

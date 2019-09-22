@@ -11,39 +11,44 @@ import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.service.mapper.UserMapper;
 import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
 import com.kasztelanic.carcare.web.rest.vm.ManagedUserVM;
+
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.hasItems;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Test class for the UserResource REST controller.
- *
- * @see UserResource
+ * Integration tests for the {@link UserResource} REST controller.
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = CarcareApp.class)
-public class UserResourceIntTest {
+public class UserResourceIT {
 
     private static final String DEFAULT_LOGIN = "johndoe";
     private static final String UPDATED_LOGIN = "jhipster";
@@ -99,7 +104,7 @@ public class UserResourceIntTest {
 
     private User user;
 
-    @Before
+    @BeforeEach
     public void setup() {
         cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).clear();
         cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE).clear();
@@ -131,7 +136,7 @@ public class UserResourceIntTest {
         return user;
     }
 
-    @Before
+    @BeforeEach
     public void initTest() {
         user = createEntity(em);
         user.setLogin(DEFAULT_LOGIN);
@@ -485,7 +490,7 @@ public class UserResourceIntTest {
         // Delete the user
         restUserMockMvc.perform(delete("/api/users/{login}", user.getLogin())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
 
         assertThat(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).get(user.getLogin())).isNull();
 
@@ -522,13 +527,7 @@ public class UserResourceIntTest {
     }
 
     @Test
-    public void testUserFromId() {
-        assertThat(userMapper.userFromId(DEFAULT_ID).getId()).isEqualTo(DEFAULT_ID);
-        assertThat(userMapper.userFromId(null)).isNull();
-    }
-
-    @Test
-    public void testUserDTOtoUser() {
+    public void testUserDtotoUser() {
         UserDto userDto = new UserDto();
         userDto.setId(DEFAULT_ID);
         userDto.setLogin(DEFAULT_LOGIN);
@@ -542,7 +541,7 @@ public class UserResourceIntTest {
         userDto.setLastModifiedBy(DEFAULT_LOGIN);
         userDto.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
-        User user = userMapper.userDTOToUser(userDto);
+        User user = userMapper.userDtoToUser(userDto);
         assertThat(user.getId()).isEqualTo(DEFAULT_ID);
         assertThat(user.getLogin()).isEqualTo(DEFAULT_LOGIN);
         assertThat(user.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
@@ -559,7 +558,7 @@ public class UserResourceIntTest {
     }
 
     @Test
-    public void testUserToUserDTO() {
+    public void testUserToUserDto() {
         user.setId(DEFAULT_ID);
         user.setCreatedBy(DEFAULT_LOGIN);
         user.setCreatedDate(Instant.now());
@@ -571,7 +570,7 @@ public class UserResourceIntTest {
         authorities.add(authority);
         user.setAuthorities(authorities);
 
-        UserDto userDto = userMapper.userToUserDTO(user);
+        UserDto userDto = userMapper.userToUserDto(user);
 
         assertThat(userDto.getId()).isEqualTo(DEFAULT_ID);
         assertThat(userDto.getLogin()).isEqualTo(DEFAULT_LOGIN);

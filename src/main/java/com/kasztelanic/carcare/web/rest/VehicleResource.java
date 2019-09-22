@@ -1,10 +1,14 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
+import com.kasztelanic.carcare.domain.Vehicle;
+import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.service.ImageStorageService;
+import com.kasztelanic.carcare.service.UserService;
+import com.kasztelanic.carcare.service.dto.VehicleDto;
+import com.kasztelanic.carcare.service.mapper.VehicleMapper;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +21,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codahale.metrics.annotation.Timed;
-import com.kasztelanic.carcare.domain.Vehicle;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.ImageStorageService;
-import com.kasztelanic.carcare.service.UserService;
-import com.kasztelanic.carcare.service.dto.VehicleDto;
-import com.kasztelanic.carcare.service.mapper.VehicleMapper;
-import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
-import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api/vehicle")
@@ -46,7 +45,6 @@ public class VehicleResource {
     @Autowired
     private ImageStorageService imageStorageService;
 
-    @Timed
     @Transactional
     @PostMapping("")
     public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
@@ -57,7 +55,6 @@ public class VehicleResource {
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
     }
 
-    @Timed
     @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleDto) {
@@ -69,7 +66,6 @@ public class VehicleResource {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @Timed
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
@@ -82,7 +78,6 @@ public class VehicleResource {
         return ResponseEntity.notFound().build();
     }
 
-    @Timed
     @Transactional
     @GetMapping("/all")
     public ResponseEntity<List<VehicleDto>> getAllVehicles() {
@@ -91,7 +86,6 @@ public class VehicleResource {
         return ResponseUtil.createListOkResponse(list);
     }
 
-    @Timed
     @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<VehicleDto> getVehicle(@PathVariable Long id) {
