@@ -2,6 +2,7 @@
 
 ARTIFACTS=/home/kacper/carcare/artifacts
 SERVER=/home/kacper/carcare/server
+CLIENT=/home/kacper/carcare/client
 MISC=/home/kacper/carcare/misc
 
 cd $ARTIFACTS
@@ -12,6 +13,14 @@ sed -i 's/${MARIADB_PASSWORD_ENV}/'$(grep MARIADB_PASSWORD_ENV= $ARTIFACTS/env |
 sed -i 's/${MARIADB_PASSWORD_ENV}/'$(grep MARIADB_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/mariadb.yml
 sed -i 's/${MAIL_PASSWORD_ENV}/'$(grep MAIL_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/app.yml
 sed -i 's/${MAIL_BASE_URL_ENV}/'$(grep MAIL_BASE_URL_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/app.yml
+
+if [ -n "$1" ]; then
+cd $CLIENT
+git fetch
+git reset origin/master --hard
+npm install
+sh build_prod.sh
+fi
 
 cd $SERVER
 git fetch
