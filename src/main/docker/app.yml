@@ -10,7 +10,7 @@ services:
             - SPRING_DATASOURCE_URL=jdbc:mariadb://carcare-mariadb:3306/carcare
             - SPRING_DATASOURCE_PASSWORD=${MARIADB_PASSWORD_ENV}
             - MAIL_PASSWORD=${MAIL_PASSWORD_ENV}
-            - MAIL_BASE_URL=193.33.111.50
+            - MAIL_BASE_URL=${MAIL_BASE_URL_ENV}
             - JHIPSTER_SLEEP=5
         volumes:
             - /home/kacper/carcare/data/data:/home/jhipster/data

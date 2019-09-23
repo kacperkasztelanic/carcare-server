@@ -11,6 +11,7 @@ ln -sf $MISC/env $ARTIFACTS/env
 sed -i 's/${MARIADB_PASSWORD_ENV}/'$(grep MARIADB_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/app.yml
 sed -i 's/${MARIADB_PASSWORD_ENV}/'$(grep MARIADB_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/mariadb.yml
 sed -i 's/${MAIL_PASSWORD_ENV}/'$(grep MAIL_PASSWORD_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/app.yml
+sed -i 's/${MAIL_BASE_URL_ENV}/'$(grep MAIL_BASE_URL_ENV= $ARTIFACTS/env | cut -d '=' -f2-)'/g' $ARTIFACTS/app.yml
 
 cd $SERVER
 git fetch
