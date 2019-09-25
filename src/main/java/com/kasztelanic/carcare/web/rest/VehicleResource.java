@@ -1,11 +1,8 @@
 package com.kasztelanic.carcare.web.rest;
 
-import com.kasztelanic.carcare.domain.Vehicle;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.service.UserService;
+import com.kasztelanic.carcare.service.VehicleService;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
-import com.kasztelanic.carcare.service.mapper.VehicleMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.URIUtil;
@@ -22,10 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api/vehicle")
@@ -33,73 +26,52 @@ public class VehicleResource {
 
     private static final String ENTITY_NAME = "vehicle";
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
+    private final VehicleService vehicleService;
+    private final UserService userService;
 
     @Autowired
-    private VehicleMapper vehicleMapper;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ImageStorageService imageStorageService;
-
-    @Transactional
-    @PostMapping("")
-    public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
-        Vehicle vehicle = vehicleMapper.vehicleDtoToVehicle(vehicleDto);
-        vehicle.setOwner(userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new));
-        VehicleDto result = vehicleMapper.vehicleToVehicleDto(vehicleRepository.save(vehicle));
-        return ResponseEntity.created(URIUtil.buildURI(String.format("/api/vehicle/%s", result.getId().toString())))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString())).body(result);
+    public VehicleResource(VehicleService vehicleService, UserService userService) {
+        this.vehicleService = vehicleService;
+        this.userService = userService;
     }
 
-    @Transactional
-    @PutMapping("/{id}")
-    public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleDto) {
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(id)
-                .map(i -> updateVehicle(i, vehicleMapper.vehicleDtoToVehicle(vehicleDto))).map(vehicleRepository::save)
-                .map(vehicleMapper::vehicleToVehicleDto)
-                .map(i -> ResponseEntity.ok()
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @Transactional
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
-        Optional<Vehicle> vehicle = vehicleRepository.findByIdAndOwnerIsCurrentUser(id);
-        if (vehicle.isPresent()) {
-            vehicleRepository.delete(vehicle.get());
-            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))
-                    .build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @Transactional
-    @GetMapping("/all")
-    public ResponseEntity<List<VehicleDto>> getAllVehicles() {
-        List<VehicleDto> list = vehicleRepository.findByOwnerIsCurrentUser().stream()
-                .map(vehicleMapper::vehicleToVehicleDto).collect(Collectors.toList());
-        return ResponseUtil.createListOkResponse(list);
-    }
-
-    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<VehicleDto> getVehicle(@PathVariable Long id) {
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(id).map(vehicleMapper::vehicleToVehicleDto)
-                .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return vehicleService.getVehicle(id)//
+                .map(ResponseEntity::ok)//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    private Vehicle updateVehicle(Vehicle vehicle, Vehicle updatedVehicle) {
-        imageStorageService.delete(vehicle.getVehicleDetails().getImage());
-        vehicle.setFuelType(updatedVehicle.getFuelType());
-        vehicle.setLicensePlate(updatedVehicle.getLicensePlate());
-        vehicle.setMake(updatedVehicle.getMake());
-        vehicle.setModel(updatedVehicle.getModel());
-        vehicle.setVehicleDetails(updatedVehicle.getVehicleDetails());
-        return vehicle;
+    @GetMapping("/all")
+    public ResponseEntity<List<VehicleDto>> getAllVehicles() {
+        return ResponseUtil.createListOkResponse(vehicleService.getAllVehicles());
+    }
+
+    @PostMapping("")
+    public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
+        VehicleDto result = vehicleService.addVehicle(vehicleDto, userService.getUserWithAuthoritiesOrFail());
+        return ResponseEntity.created(URIUtil.buildURI(String.format("/api/vehicle/%s", result.getId().toString())))//
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))//
+                .body(result);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleDto) {
+        return vehicleService.editVehicle(id, vehicleDto)//
+                .map(i -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i)//
+                )//
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<VehicleDto> deleteVehicle(@PathVariable Long id) {
+        return vehicleService.deleteVehicle(id)//
+                .map(v -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                        .body(v)//
+                )//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

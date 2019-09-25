@@ -263,6 +263,12 @@ public class UserService {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
     }
 
+    @Transactional(readOnly = true)
+    public User getUserWithAuthoritiesOrFail() {
+        return getUserWithAuthorities()//
+            .orElseThrow(() -> new IllegalStateException("This action can be performed only by authenticated users"));
+    }
+
     /**
      * Not activated users should be automatically deleted after 3 days.
      * <p>
