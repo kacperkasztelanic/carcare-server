@@ -1,27 +1,18 @@
 package com.kasztelanic.carcare.web.rest.vm;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * View Model object for storing the user's key and password.
  */
 public class KeyAndPasswordVM {
 
+    @Getter
+    @Setter
     private String key;
 
+    @Getter
+    @Setter
     private String newPassword;
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getNewPassword() {
-        return newPassword;
-    }
-
-    public void setNewPassword(String newPassword) {
-        this.newPassword = newPassword;
-    }
 }

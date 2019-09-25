@@ -4,7 +4,7 @@ import com.kasztelanic.carcare.service.InspectionService;
 import com.kasztelanic.carcare.service.dto.InspectionDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +48,7 @@ public class InspectionResource {
     public ResponseEntity<InspectionDto> addInspection(@PathVariable Long vehicleId,
             @RequestBody InspectionDto inspectionDto) {
         return inspectionService.addInspection(vehicleId, inspectionDto)//
-                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                .map(i -> ResponseEntity.created(UriUtil.buildURI(
                         String.format("/api/inspection/%s/%s", vehicleId.toString(), i.getId().toString())))//
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
                         .body(i))//

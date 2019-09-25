@@ -5,7 +5,7 @@ import com.kasztelanic.carcare.service.VehicleService;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +50,7 @@ public class VehicleResource {
     @PostMapping("")
     public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
         VehicleDto result = vehicleService.addVehicle(vehicleDto, userService.getUserWithAuthoritiesOrFail());
-        return ResponseEntity.created(URIUtil.buildURI(String.format("/api/vehicle/%s", result.getId().toString())))//
+        return ResponseEntity.created(UriUtil.buildURI(String.format("/api/vehicle/%s", result.getId().toString())))//
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))//
                 .body(result);
     }

@@ -4,7 +4,7 @@ import com.kasztelanic.carcare.service.RefuelService;
 import com.kasztelanic.carcare.service.dto.RefuelDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +47,7 @@ public class RefuelResource {
     @PostMapping("/{vehicleId}")
     public ResponseEntity<RefuelDto> addRefuel(@PathVariable Long vehicleId, @RequestBody RefuelDto refuelDto) {
         return refuelService.addRefuel(vehicleId, refuelDto)//
-                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                .map(i -> ResponseEntity.created(UriUtil.buildURI(
                         String.format("/api/refuel/%s/%s", vehicleId.toString(), i.getId().toString())))//
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
                         .body(i))//

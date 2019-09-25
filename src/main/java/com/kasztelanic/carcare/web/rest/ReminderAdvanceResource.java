@@ -21,7 +21,7 @@ import com.kasztelanic.carcare.repository.ReminderAdvanceRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 @RestController
 @RequestMapping("/api/reminder-advance")
@@ -38,7 +38,7 @@ public class ReminderAdvanceResource {
     public ResponseEntity<Integer> addReminderAdvance(@PathVariable Integer days) {
         ReminderAdvance reminderAdvance = reminderAdvanceRepository.save(ReminderAdvance.of(days));
         return ResponseEntity
-                .created(URIUtil.buildURI(String.format("/api/insuranceType/%s", reminderAdvance.getDays())))
+                .created(UriUtil.buildURI(String.format("/api/insuranceType/%s", reminderAdvance.getDays())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(reminderAdvance.getDays())))
                 .body(reminderAdvance.getDays());
     }

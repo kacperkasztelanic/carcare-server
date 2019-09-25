@@ -13,9 +13,6 @@ public final class HeaderUtil {
 
     private static final String APPLICATION_NAME = "carcareApp";
 
-    private HeaderUtil() {
-    }
-
     public static HttpHeaders createAlert(String message, String param) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-" + APPLICATION_NAME + "-alert", message);
@@ -41,5 +38,8 @@ public final class HeaderUtil {
         headers.add("X-" + APPLICATION_NAME + "-error", "error." + errorKey);
         headers.add("X-" + APPLICATION_NAME + "-params", entityName);
         return headers;
+    }
+
+    private HeaderUtil() {
     }
 }

@@ -4,7 +4,7 @@ import com.kasztelanic.carcare.service.RoutineServiceService;
 import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +48,7 @@ public class RoutineServiceResource {
     public ResponseEntity<RoutineServiceDto> addRoutineService(@PathVariable Long vehicleId,
             @RequestBody RoutineServiceDto routineServiceDto) {
         return routineServiceService.addRoutineService(vehicleId, routineServiceDto)//
-                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                .map(i -> ResponseEntity.created(UriUtil.buildURI(
                         String.format("/api/routine-service/%s/%s", vehicleId.toString(), i.getId().toString())))//
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
                         .body(i))//

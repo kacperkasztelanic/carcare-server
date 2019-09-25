@@ -1,10 +1,10 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
-public class UnparseableURIException extends RuntimeException {
+public class UnparseableUriException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public UnparseableURIException(Throwable cause) {
+    public UnparseableUriException(Throwable cause) {
         super(cause);
     }
 }

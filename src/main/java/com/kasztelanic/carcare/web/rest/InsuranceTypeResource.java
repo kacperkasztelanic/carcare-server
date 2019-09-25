@@ -28,7 +28,7 @@ import com.kasztelanic.carcare.service.dto.InsuranceTypeRequest;
 import com.kasztelanic.carcare.service.mapper.InsuranceTypeMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 @RestController
 @RequestMapping("/api/insurance-type")
@@ -50,7 +50,7 @@ public class InsuranceTypeResource {
         InsuranceType insuranceType = insuranceTypeRepository
                 .save(InsuranceType.of(insuranceTypeRequest.getType().toUpperCase(),
                         insuranceTypeRequest.getEnglishTranslation(), insuranceTypeRequest.getPolishTranslation()));
-        return ResponseEntity.created(URIUtil.buildURI(String.format("/api/insuranceType/%s", insuranceType.getType())))
+        return ResponseEntity.created(UriUtil.buildURI(String.format("/api/insuranceType/%s", insuranceType.getType())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, insuranceType.getType()))
                 .body(insuranceType.getType());
     }

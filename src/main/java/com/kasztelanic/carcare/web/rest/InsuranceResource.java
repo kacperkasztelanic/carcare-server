@@ -4,7 +4,7 @@ import com.kasztelanic.carcare.service.InsuranceService;
 import com.kasztelanic.carcare.service.dto.InsuranceDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +48,7 @@ public class InsuranceResource {
     public ResponseEntity<InsuranceDto> addInsurance(@PathVariable Long vehicleId,
             @RequestBody InsuranceDto insuranceDto) {
         return insuranceService.addInsurance(vehicleId, insuranceDto)//
-                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                .map(i -> ResponseEntity.created(UriUtil.buildURI(
                         String.format("/api/insurance/%s/%s", vehicleId.toString(), i.getId().toString())))//
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
                         .body(i))//

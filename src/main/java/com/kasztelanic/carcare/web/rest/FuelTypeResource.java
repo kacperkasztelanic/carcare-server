@@ -28,7 +28,7 @@ import com.kasztelanic.carcare.service.dto.FuelTypeRequest;
 import com.kasztelanic.carcare.service.mapper.FuelTypeMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
 @RestController
 @RequestMapping("/api/fuel-type")
@@ -49,7 +49,7 @@ public class FuelTypeResource {
     public ResponseEntity<String> addFuelType(@RequestBody FuelTypeRequest fuelTypeDto) {
         FuelType fuelType = fuelTypeRepository.save(FuelType.of(fuelTypeDto.getType().toUpperCase(),
                 fuelTypeDto.getEnglishTranslation(), fuelTypeDto.getPolishTranslation()));
-        return ResponseEntity.created(URIUtil.buildURI(String.format("/api/fuelType/%s", fuelType.getType())))
+        return ResponseEntity.created(UriUtil.buildURI(String.format("/api/fuelType/%s", fuelType.getType())))
                 .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, fuelType.getType()))
                 .body(fuelType.getType());
     }

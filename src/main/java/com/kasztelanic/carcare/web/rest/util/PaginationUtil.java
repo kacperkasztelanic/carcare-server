@@ -13,9 +13,6 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class PaginationUtil {
 
-    private PaginationUtil() {
-    }
-
     public static <T> HttpHeaders generatePaginationHttpHeaders(Page<T> page, String baseUrl) {
 
         HttpHeaders headers = new HttpHeaders();
@@ -40,6 +37,12 @@ public final class PaginationUtil {
     }
 
     private static String generateUri(String baseUrl, int page, int size) {
-        return UriComponentsBuilder.fromUriString(baseUrl).queryParam("page", page).queryParam("size", size).toUriString();
+        return UriComponentsBuilder.fromUriString(baseUrl)//
+                .queryParam("page", page)//
+                .queryParam("size", size)//
+                .toUriString();
+    }
+
+    private PaginationUtil() {
     }
 }
