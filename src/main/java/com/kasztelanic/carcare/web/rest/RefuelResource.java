@@ -1,10 +1,10 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
+import com.kasztelanic.carcare.service.RefuelService;
+import com.kasztelanic.carcare.service.dto.RefuelDto;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kasztelanic.carcare.domain.Refuel;
-import com.kasztelanic.carcare.repository.RefuelRepository;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.dto.RefuelDto;
-import com.kasztelanic.carcare.service.mapper.RefuelMapper;
-import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
-import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/refuel")
@@ -32,71 +25,50 @@ public class RefuelResource {
 
     private static final String ENTITY_NAME = "refuel";
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
+    private final RefuelService refuelService;
 
     @Autowired
-    private RefuelRepository refuelRepository;
-
-    @Autowired
-    private RefuelMapper refuelMapper;
-
-    @Transactional
-    @PostMapping("/{vehicleId}")
-    public ResponseEntity<RefuelDto> addRefuel(@PathVariable Long vehicleId, @RequestBody RefuelDto refuelDto) {
-        Refuel refuel = refuelMapper.refuelDtoToRefuel(refuelDto);
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(refuel::setVehicle)
-                .map(refuelRepository::save).map(refuelMapper::refuelToRefuelDto)
-                .map(i -> ResponseEntity
-                        .created(URIUtil.buildURI(
-                                String.format("/api/refuel/%s/%s", vehicleId.toString(), i.getId().toString())))
-                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
+    public RefuelResource(RefuelService refuelService) {
+        this.refuelService = refuelService;
     }
 
-    @Transactional
-    @PutMapping("/{refuelId}")
-    public ResponseEntity<RefuelDto> editRefuel(@PathVariable Long refuelId, @RequestBody RefuelDto refuelDto) {
-        return refuelRepository.findByIdAndOwnerIsCurrentUser(refuelId)
-                .map(i -> updateRefuel(i, refuelMapper.refuelDtoToRefuel(refuelDto))).map(refuelRepository::save)
-                .map(refuelMapper::refuelToRefuelDto)
-                .map(i -> ResponseEntity.ok()
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{id}")
+    public ResponseEntity<RefuelDto> getRefuel(@PathVariable Long id) {
+        return refuelService.getRefuel(id)//
+                .map(ResponseEntity::ok)//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Transactional
-    @DeleteMapping("/{refuelId}")
-    public ResponseEntity<Void> deleteRefuel(@PathVariable Long refuelId) {
-        Optional<Refuel> insurance = refuelRepository.findByIdAndOwnerIsCurrentUser(refuelId);
-        if (insurance.isPresent()) {
-            refuelRepository.delete(insurance.get());
-            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, refuelId.toString()))
-                    .build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @Transactional
     @GetMapping("/all/{vehicleId}")
     public ResponseEntity<List<RefuelDto>> getAllRefuels(@PathVariable Long vehicleId) {
-        List<RefuelDto> list = refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
-                .map(refuelMapper::refuelToRefuelDto).collect(Collectors.toList());
-        return ResponseUtil.createListOkResponse(list);
+        return ResponseUtil.createListOkResponse(refuelService.getAllRefuels(vehicleId));
     }
 
-    @Transactional
-    @GetMapping("/{refuelId}")
-    public ResponseEntity<RefuelDto> getRefuel(@PathVariable Long refuelId) {
-        return refuelRepository.findByIdAndOwnerIsCurrentUser(refuelId).map(refuelMapper::refuelToRefuelDto)
-                .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    @PostMapping("/{vehicleId}")
+    public ResponseEntity<RefuelDto> addRefuel(@PathVariable Long vehicleId, @RequestBody RefuelDto refuelDto) {
+        return refuelService.addRefuel(vehicleId, refuelDto)//
+                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                        String.format("/api/refuel/%s/%s", vehicleId.toString(), i.getId().toString())))//
+                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    private static Refuel updateRefuel(Refuel refuel, Refuel updatedRefuel) {
-        refuel.setCostInCents(updatedRefuel.getCostInCents());
-        refuel.setStation(updatedRefuel.getStation());
-        refuel.setVolume(updatedRefuel.getVolume());
-        refuel.setVehicleEvent(updatedRefuel.getVehicleEvent());
-        return refuel;
+    @PutMapping("/{id}")
+    public ResponseEntity<RefuelDto> editRefuel(@PathVariable Long id, @RequestBody RefuelDto refuelDto) {
+        return refuelService.editRefuel(id, refuelDto)//
+                .map(i -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<RefuelDto> deleteRefuel(@PathVariable Long id) {
+        return refuelService.deleteRefuel(id)//
+                .map(r -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                        .body(r))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

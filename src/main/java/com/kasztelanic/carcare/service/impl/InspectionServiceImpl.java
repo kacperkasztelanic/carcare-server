@@ -3,6 +3,7 @@ package com.kasztelanic.carcare.service.impl;
 import com.kasztelanic.carcare.domain.Inspection;
 import com.kasztelanic.carcare.repository.InspectionRepository;
 import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.service.InspectionService;
 import com.kasztelanic.carcare.service.dto.InspectionDto;
 import com.kasztelanic.carcare.service.mapper.InspectionMapper;
 
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class InspectionServiceImpl implements com.kasztelanic.carcare.service.InspectionService {
+public class InspectionServiceImpl implements InspectionService {
 
     private final VehicleRepository vehicleRepository;
     private final InspectionRepository inspectionRepository;
