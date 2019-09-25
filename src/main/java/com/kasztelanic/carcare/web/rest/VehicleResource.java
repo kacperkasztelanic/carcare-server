@@ -60,8 +60,7 @@ public class VehicleResource {
         return vehicleService.editVehicle(id, vehicleDto)//
                 .map(i -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
+                        .body(i))//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -70,8 +69,7 @@ public class VehicleResource {
         return vehicleService.deleteVehicle(id)//
                 .map(v -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(v)//
-                )//
+                        .body(v))//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

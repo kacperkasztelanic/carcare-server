@@ -1,10 +1,10 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
+import com.kasztelanic.carcare.service.RoutineServiceService;
+import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kasztelanic.carcare.domain.RoutineService;
-import com.kasztelanic.carcare.repository.RoutineServiceRepository;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
-import com.kasztelanic.carcare.service.mapper.RoutineServiceMapper;
-import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
-import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/routine-service")
@@ -32,79 +25,52 @@ public class RoutineServiceResource {
 
     private static final String ENTITY_NAME = "routineService";
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
+    private final RoutineServiceService routineServiceService;
 
     @Autowired
-    private RoutineServiceRepository routineServiceRepository;
+    public RoutineServiceResource(RoutineServiceService routineServiceService) {
+        this.routineServiceService = routineServiceService;
+    }
 
-    @Autowired
-    private RoutineServiceMapper routineServiceMapper;
+    @GetMapping("/{id}")
+    public ResponseEntity<RoutineServiceDto> getRoutineService(@PathVariable Long id) {
+        return routineServiceService.getRoutineService(id)//
+                .map(ResponseEntity::ok)//
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-    @Transactional
+    @GetMapping("/all/{vehicleId}")
+    public ResponseEntity<List<RoutineServiceDto>> getAllRoutineServices(@PathVariable Long vehicleId) {
+        return ResponseUtil.createListOkResponse(routineServiceService.getAllRoutineServices(vehicleId));
+    }
+
     @PostMapping("/{vehicleId}")
     public ResponseEntity<RoutineServiceDto> addRoutineService(@PathVariable Long vehicleId,
             @RequestBody RoutineServiceDto routineServiceDto) {
-        RoutineService routineService = routineServiceMapper.routineServiceDtoToRoutineService(routineServiceDto);
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(routineService::setVehicle)
-                .map(routineServiceRepository::save).map(routineServiceMapper::routineServiceToRoutineServiceDto)
-                .map(i -> ResponseEntity
-                        .created(URIUtil.buildURI(String.format("/api/routine-service/%s/%s", vehicleId.toString(),
-                                i.getId().toString())))
-                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
+        return routineServiceService.addRoutineService(vehicleId, routineServiceDto)//
+                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                        String.format("/api/routine-service/%s/%s", vehicleId.toString(), i.getId().toString())))//
+                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Transactional
-    @PutMapping("/{routineServiceId}")
-    public ResponseEntity<RoutineServiceDto> editRoutineService(@PathVariable Long routineServiceId,
+    @PutMapping("/{id}")
+    public ResponseEntity<RoutineServiceDto> editRoutineService(@PathVariable Long id,
             @RequestBody RoutineServiceDto routineServiceDto) {
-        return routineServiceRepository.findByIdAndOwnerIsCurrentUser(routineServiceId)
-                .map(i -> updateRoutineService(i,
-                        routineServiceMapper.routineServiceDtoToRoutineService(routineServiceDto)))
-                .map(routineServiceRepository::save).map(routineServiceMapper::routineServiceToRoutineServiceDto)
-                .map(i -> ResponseEntity.ok()
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString())).body(i))
+        return routineServiceService.editRoutineService(id, routineServiceDto)//
+                .map(i -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @Transactional
-    @DeleteMapping("/{routineServiceId}")
-    public ResponseEntity<Void> deleteRoutineService(@PathVariable Long routineServiceId) {
-        Optional<RoutineService> routineService = routineServiceRepository
-                .findByIdAndOwnerIsCurrentUser(routineServiceId);
-        if (routineService.isPresent()) {
-            routineServiceRepository.delete(routineService.get());
-            return ResponseEntity.ok()
-                    .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, routineServiceId.toString())).build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @Transactional
-    @GetMapping("/all/{vehicleId}")
-    public ResponseEntity<List<RoutineServiceDto>> getAllRoutineServices(@PathVariable Long vehicleId) {
-        List<RoutineServiceDto> list = routineServiceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
-                .map(routineServiceMapper::routineServiceToRoutineServiceDto).collect(Collectors.toList());
-        return ResponseUtil.createListOkResponse(list);
-    }
-
-    @Transactional
-    @GetMapping("/{routineServiceId}")
-    public ResponseEntity<RoutineServiceDto> getRoutineService(@PathVariable Long routineServiceId) {
-        return routineServiceRepository.findByIdAndOwnerIsCurrentUser(routineServiceId)
-                .map(routineServiceMapper::routineServiceToRoutineServiceDto).map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    private static RoutineService updateRoutineService(RoutineService routineService,
-            RoutineService updatedRoutineService) {
-        routineService.setCostInCents(updatedRoutineService.getCostInCents());
-        routineService.setDetails(updatedRoutineService.getDetails());
-        routineService.setNextByDate(updatedRoutineService.getNextByDate());
-        routineService.setNextByMileage(updatedRoutineService.getNextByMileage());
-        routineService.setStation(updatedRoutineService.getStation());
-        routineService.setVehicleEvent(updatedRoutineService.getVehicleEvent());
-        return routineService;
+    @DeleteMapping("/{id}")
+    public ResponseEntity<RoutineServiceDto> deleteRoutineService(@PathVariable Long id) {
+        return routineServiceService.deleteRoutineService(id)//
+                .map(r -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                        .body(r))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
