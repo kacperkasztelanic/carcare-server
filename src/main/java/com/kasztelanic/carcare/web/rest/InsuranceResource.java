@@ -1,10 +1,10 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
+import com.kasztelanic.carcare.service.InsuranceService;
+import com.kasztelanic.carcare.service.dto.InsuranceDto;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kasztelanic.carcare.domain.Insurance;
-import com.kasztelanic.carcare.repository.InsuranceRepository;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.dto.InsuranceDto;
-import com.kasztelanic.carcare.service.mapper.InsuranceMapper;
-import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
-import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/insurance")
@@ -32,78 +25,51 @@ public class InsuranceResource {
 
     private static final String ENTITY_NAME = "insurance";
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
+    private final InsuranceService insuranceService;
 
     @Autowired
-    private InsuranceRepository insuranceRepository;
+    public InsuranceResource(InsuranceService insuranceService) {
+        this.insuranceService = insuranceService;
+    }
 
-    @Autowired
-    private InsuranceMapper insuranceMapper;
+    @GetMapping("/{id}")
+    public ResponseEntity<InsuranceDto> getInsurance(@PathVariable Long id) {
+        return insuranceService.getInsurance(id)//
+                .map(ResponseEntity::ok)//
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-    @Transactional
+    @GetMapping("/all/{vehicleId}")
+    public ResponseEntity<List<InsuranceDto>> getAllInsurances(@PathVariable Long vehicleId) {
+        return ResponseUtil.createListOkResponse(insuranceService.getAllInsurances(vehicleId));
+    }
+
     @PostMapping("/{vehicleId}")
     public ResponseEntity<InsuranceDto> addInsurance(@PathVariable Long vehicleId,
             @RequestBody InsuranceDto insuranceDto) {
-        Insurance insurance = insuranceMapper.insuranceDtoToInsurance(insuranceDto);
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(insurance::setVehicle)
-                .map(insuranceRepository::save).map(insuranceMapper::insuranceToInsuranceDto)
-                .map(i -> ResponseEntity
-                        .created(URIUtil.buildURI(
-                                String.format("/api/insurance/%s/%s", vehicleId.toString(), i.getId().toString())))
-                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
+        return insuranceService.addInsurance(vehicleId, insuranceDto)//
+                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                        String.format("/api/insurance/%s/%s", vehicleId.toString(), i.getId().toString())))//
+                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Transactional
-    @PutMapping("/{insuranceId}")
-    public ResponseEntity<InsuranceDto> editInsurance(@PathVariable Long insuranceId,
-            @RequestBody InsuranceDto insuranceDto) {
-        return insuranceRepository.findByIdAndOwnerIsCurrentUser(insuranceId)
-                .map(i -> updateInsurance(i, insuranceMapper.insuranceDtoToInsurance(insuranceDto)))
-                .map(insuranceRepository::save).map(insuranceMapper::insuranceToInsuranceDto)
-                .map(i -> ResponseEntity.ok()
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{id}")
+    public ResponseEntity<InsuranceDto> editInsurance(@PathVariable Long id, @RequestBody InsuranceDto insuranceDto) {
+        return insuranceService.editInsurance(id, insuranceDto)//
+                .map(i -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Transactional
-    @DeleteMapping("/{insuranceId}")
-    public ResponseEntity<Void> deleteInsurance(@PathVariable Long insuranceId) {
-        Optional<Insurance> insurance = insuranceRepository.findByIdAndOwnerIsCurrentUser(insuranceId);
-        if (insurance.isPresent()) {
-            insuranceRepository.delete(insurance.get());
-            return ResponseEntity.ok()
-                    .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, insuranceId.toString())).build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @Transactional
-    @GetMapping("/all/{vehicleId}")
-    public ResponseEntity<List<InsuranceDto>> getAllInsurances(@PathVariable Long vehicleId) {
-        List<InsuranceDto> list = insuranceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
-                .map(insuranceMapper::insuranceToInsuranceDto).collect(Collectors.toList());
-        return ResponseUtil.createListOkResponse(list);
-    }
-
-    @Transactional
-    @GetMapping("/{insuranceId}")
-    public ResponseEntity<InsuranceDto> getInsurance(@PathVariable Long insuranceId) {
-        return insuranceRepository.findByIdAndOwnerIsCurrentUser(insuranceId)
-                .map(insuranceMapper::insuranceToInsuranceDto).map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    private static Insurance updateInsurance(Insurance insurance, Insurance updatedInsurance) {
-        insurance.setCostInCents(updatedInsurance.getCostInCents());
-        insurance.setDetails(updatedInsurance.getDetails());
-        insurance.setInsuranceType(updatedInsurance.getInsuranceType());
-        insurance.setInsurer(updatedInsurance.getInsurer());
-        insurance.setNumber(updatedInsurance.getNumber());
-        insurance.setValidFrom(updatedInsurance.getValidFrom());
-        insurance.setValidThru(updatedInsurance.getValidThru());
-        insurance.setVehicleEvent(updatedInsurance.getVehicleEvent());
-        return insurance;
+    @DeleteMapping("/{id}")
+    public ResponseEntity<InsuranceDto> deleteInsurance(@PathVariable Long id) {
+        return insuranceService.deleteInsurance(id)//
+                .map(i -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
