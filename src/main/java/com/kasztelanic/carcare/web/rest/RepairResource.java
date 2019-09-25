@@ -1,10 +1,10 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
+import com.kasztelanic.carcare.service.RepairService;
+import com.kasztelanic.carcare.service.dto.RepairDto;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.URIUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kasztelanic.carcare.domain.Repair;
-import com.kasztelanic.carcare.repository.RepairRepository;
-import com.kasztelanic.carcare.repository.VehicleRepository;
-import com.kasztelanic.carcare.service.dto.RepairDto;
-import com.kasztelanic.carcare.service.mapper.RepairMapper;
-import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
-import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.URIUtil;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/repair")
@@ -32,71 +25,50 @@ public class RepairResource {
 
     private static final String ENTITY_NAME = "repair";
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
+    private final RepairService repairService;
 
     @Autowired
-    private RepairRepository repairRepository;
-
-    @Autowired
-    private RepairMapper repairMapper;
-
-    @Transactional
-    @PostMapping("/{vehicleId}")
-    public ResponseEntity<RepairDto> addRepair(@PathVariable Long vehicleId, @RequestBody RepairDto repairDto) {
-        Repair repair = repairMapper.repairDtoToRepair(repairDto);
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId).map(repair::setVehicle)
-                .map(repairRepository::save).map(repairMapper::repairToRepairDto)
-                .map(i -> ResponseEntity
-                        .created(URIUtil.buildURI(
-                                String.format("/api/repair/%s/%s", vehicleId.toString(), i.getId().toString())))
-                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
+    public RepairResource(RepairService repairService) {
+        this.repairService = repairService;
     }
 
-    @Transactional
-    @PutMapping("/{repairId}")
-    public ResponseEntity<RepairDto> editRepair(@PathVariable Long repairId, @RequestBody RepairDto repairDto) {
-        return repairRepository.findByIdAndOwnerIsCurrentUser(repairId)
-                .map(i -> updateRepair(i, repairMapper.repairDtoToRepair(repairDto))).map(repairRepository::save)
-                .map(repairMapper::repairToRepairDto)
-                .map(i -> ResponseEntity.ok()
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString())).body(i))
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{id}")
+    public ResponseEntity<RepairDto> getRepair(@PathVariable Long id) {
+        return repairService.getRepair(id)//
+                .map(ResponseEntity::ok)//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Transactional
-    @DeleteMapping("/{repairId}")
-    public ResponseEntity<Void> deleteRepair(@PathVariable Long repairId) {
-        Optional<Repair> repair = repairRepository.findByIdAndOwnerIsCurrentUser(repairId);
-        if (repair.isPresent()) {
-            repairRepository.delete(repair.get());
-            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, repairId.toString()))
-                    .build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @Transactional
     @GetMapping("/all/{vehicleId}")
     public ResponseEntity<List<RepairDto>> getAllRepairs(@PathVariable Long vehicleId) {
-        List<RepairDto> list = repairRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
-                .map(repairMapper::repairToRepairDto).collect(Collectors.toList());
-        return ResponseUtil.createListOkResponse(list);
+        return ResponseUtil.createListOkResponse(repairService.getAllRepairs(vehicleId));
     }
 
-    @Transactional
-    @GetMapping("/{repairId}")
-    public ResponseEntity<RepairDto> getRepair(@PathVariable Long repairId) {
-        return repairRepository.findByIdAndOwnerIsCurrentUser(repairId).map(repairMapper::repairToRepairDto)
-                .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    @PostMapping("/{vehicleId}")
+    public ResponseEntity<RepairDto> addRepair(@PathVariable Long vehicleId, @RequestBody RepairDto repairDto) {
+        return repairService.addRepair(vehicleId, repairDto)//
+                .map(i -> ResponseEntity.created(URIUtil.buildURI(
+                        String.format("/api/repair/%s/%s", vehicleId.toString(), i.getId().toString())))//
+                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    private static Repair updateRepair(Repair repair, Repair updatedRepair) {
-        repair.setCostInCents(updatedRepair.getCostInCents());
-        repair.setDetails(updatedRepair.getDetails());
-        repair.setStation(updatedRepair.getStation());
-        repair.setVehicleEvent(updatedRepair.getVehicleEvent());
-        return repair;
+    @PutMapping("/{id}")
+    public ResponseEntity<RepairDto> editRepair(@PathVariable Long id, @RequestBody RepairDto repairDto) {
+        return repairService.editRepair(id, repairDto)//
+                .map(i -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                        .body(i))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<RepairDto> deleteRepair(@PathVariable Long id) {
+        return repairService.deleteRepair(id)//
+                .map(r -> ResponseEntity.ok()//
+                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                        .body(r))//
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
