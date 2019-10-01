@@ -1,4 +1,4 @@
-package com.kasztelanic.carcare.reports;
+package com.kasztelanic.carcare.service.reports;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,8 +36,12 @@ public class VehicleReport {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatters.DATE_FORMATTER;
     private static final String DECIMAL_FORMAT = "0.00";
 
+    private final MessageSource messageSource;
+
     @Autowired
-    private MessageSource messageSource;
+    public VehicleReport(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
 
     public byte[] generateVehicleReport(VehicleRichDto vehicle, Locale locale) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -110,10 +114,10 @@ public class VehicleReport {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.insurance", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.insurance.date", "reports.vehicle.insurance.mileage",
-                "reports.vehicle.insurance.cost", "reports.vehicle.insurance.type", "reports.vehicle.insurance.number",
-                "reports.vehicle.insurance.insurer", "reports.vehicle.insurance.validFrom",
-                "reports.vehicle.insurance.validThru", "reports.vehicle.insurance.details" };
+        String[] titles = { "reports.vehicle.insurance.date", "reports.vehicle.insurance.mileage", "reports.vehicle" +
+                ".insurance.cost", "reports.vehicle.insurance.type", "reports.vehicle.insurance.number", "reports" +
+                ".vehicle.insurance.insurer", "reports.vehicle.insurance.validFrom", "reports.vehicle.insurance" +
+                ".validThru", "reports.vehicle.insurance.details" };
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
@@ -150,9 +154,9 @@ public class VehicleReport {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.inspection", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.inspection.date", "reports.vehicle.inspection.mileage",
-                "reports.vehicle.inspection.cost", "reports.vehicle.inspection.station",
-                "reports.vehicle.inspection.dateNext", "reports.vehicle.inspection.details" };
+        String[] titles = { "reports.vehicle.inspection.date", "reports.vehicle.inspection.mileage", "reports.vehicle" +
+                ".inspection.cost", "reports.vehicle.inspection.station", "reports.vehicle.inspection.dateNext",
+                "reports.vehicle.inspection.details" };
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
@@ -183,10 +187,9 @@ public class VehicleReport {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.service", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.service.date", "reports.vehicle.service.mileage",
-                "reports.vehicle.service.cost", "reports.vehicle.service.nextMileage",
-                "reports.vehicle.service.nextDate", "reports.vehicle.service.station",
-                "reports.vehicle.service.details" };
+        String[] titles = { "reports.vehicle.service.date", "reports.vehicle.service.mileage", "reports.vehicle" +
+                ".service.cost", "reports.vehicle.service.nextMileage", "reports.vehicle.service.nextDate", "reports" +
+                ".vehicle.service.station", "reports.vehicle.service.details" };
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
@@ -222,8 +225,8 @@ public class VehicleReport {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.repair", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.repair.date", "reports.vehicle.repair.mileage",
-                "reports.vehicle.repair.cost", "reports.vehicle.repair.station", "reports.vehicle.repair.details" };
+        String[] titles = { "reports.vehicle.repair.date", "reports.vehicle.repair.mileage", "reports.vehicle.repair" +
+                ".cost", "reports.vehicle.repair.station", "reports.vehicle.repair.details" };
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
@@ -251,9 +254,9 @@ public class VehicleReport {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.refuel", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.refuel.date", "reports.vehicle.refuel.mileage",
-                "reports.vehicle.refuel.cost", "reports.vehicle.refuel.volume", "reports.vehicle.refuel.price",
-                "reports.vehicle.refuel.station" };
+        String[] titles = { "reports.vehicle.refuel.date", "reports.vehicle.refuel.mileage", "reports.vehicle.refuel" +
+                ".cost", "reports.vehicle.refuel.volume", "reports.vehicle.refuel.price", "reports.vehicle.refuel" +
+                ".station" };
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));

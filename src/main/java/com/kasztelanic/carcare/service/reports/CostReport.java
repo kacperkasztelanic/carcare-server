@@ -1,4 +1,4 @@
-package com.kasztelanic.carcare.reports;
+package com.kasztelanic.carcare.service.reports;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,11 +29,15 @@ public class CostReport {
 
     private static final String DECIMAL_FORMAT = "0.00";
 
-    @Autowired
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
-    public byte[] generateCostReport(Collection<CostResult> costs, Collection<VehicleRichDto> vehicles, Locale locale)
-            throws IOException {
+    @Autowired
+    public CostReport(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
+    public byte[] generateCostReport(Collection<CostResult> costs, Collection<VehicleRichDto> vehicles,
+            Locale locale) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             DataFormat format = workbook.createDataFormat();
             CellStyle cellStyle = workbook.createCellStyle();
@@ -50,7 +54,7 @@ public class CostReport {
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
         String[] titles = { "reports.costs.costs", "reports.costs.insurance", "reports.costs.inspection",
-                "reports.costs.service", "reports.costs.repair", "reports.costs.refuel", "reports.costs.sum" };
+                "reports" + ".costs.service", "reports.costs.repair", "reports.costs.refuel", "reports.costs.sum" };
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
@@ -86,6 +90,6 @@ public class CostReport {
     }
 
     private static double sumCosts(Collection<CostResult> costs, ToDoubleFunction<CostResult> extractor) {
-        return costs.stream().mapToDouble(extractor::applyAsDouble).sum();
+        return costs.stream().mapToDouble(extractor).sum();
     }
 }

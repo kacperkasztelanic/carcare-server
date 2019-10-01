@@ -5,6 +5,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.AverageConsumptionCalculator;
 import com.kasztelanic.carcare.service.CostCalculator;
 import com.kasztelanic.carcare.service.MileageService;
+import com.kasztelanic.carcare.service.StatisticService;
 import com.kasztelanic.carcare.service.dto.AverageConsumptionResult;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.CostResult;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class StatisticServiceImpl implements com.kasztelanic.carcare.service.StatisticService {
+public class StatisticServiceImpl implements StatisticService {
 
     private final AverageConsumptionCalculator averageConsumptionCalculator;
     private final MileageService mileageService;
