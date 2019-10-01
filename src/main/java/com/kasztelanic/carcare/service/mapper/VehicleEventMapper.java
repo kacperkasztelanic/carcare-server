@@ -1,9 +1,9 @@
 package com.kasztelanic.carcare.service.mapper;
 
-import org.springframework.stereotype.Service;
-
 import com.kasztelanic.carcare.domain.VehicleEvent;
 import com.kasztelanic.carcare.service.dto.VehicleEventDto;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public class VehicleEventMapper {

@@ -1,53 +1,56 @@
 package com.kasztelanic.carcare.service.mapper;
 
+import com.kasztelanic.carcare.domain.Vehicle;
+import com.kasztelanic.carcare.domain.VehicleDetails;
+import com.kasztelanic.carcare.service.ImageStorageService;
+import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
+
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.kasztelanic.carcare.domain.Vehicle;
-import com.kasztelanic.carcare.domain.VehicleDetails;
-import com.kasztelanic.carcare.domain.VehicleDetails.VehicleDetailsBuilder;
-import com.kasztelanic.carcare.service.ImageStorageService;
-import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
-import com.kasztelanic.carcare.service.dto.VehicleDetailsDto.VehicleDetailsDtoBuilder;
-
 @Service
 public class VehicleDetailsMapper {
 
+    private final ImageStorageService imageStorageService;
+    private final Tika tika = new Tika();
+
     @Autowired
-    private ImageStorageService imageStorageService;
-    private Tika tika = new Tika();
+    public VehicleDetailsMapper(ImageStorageService imageStorageService) {
+        this.imageStorageService = imageStorageService;
+    }
 
     public VehicleDetailsDto vehicleDetailsToVehicleDetailsDto(Vehicle vehicle) {
         VehicleDetails vehicleDetails = vehicle.getVehicleDetails();
-        VehicleDetailsDtoBuilder builder = VehicleDetailsDto.builder();
-        builder.modelSuffix(vehicleDetails.getModelSuffix());
-        builder.vinNumber(vehicleDetails.getVinNumber());
-        builder.enginePower(vehicleDetails.getEnginePower());
-        builder.engineVolume(vehicleDetails.getEngineVolume());
-        builder.notes(vehicleDetails.getNotes());
-        builder.registrationCertificate(vehicleDetails.getRegistrationCertificate());
-        builder.vehicleCard(vehicleDetails.getVehicleCard());
-        builder.weight(vehicleDetails.getWeight());
-        builder.yearOfManufacture(vehicleDetails.getYearOfManufacture());
-        builder.image(imageStorageService.load(vehicleDetails.getImage()));
-        builder.imageContentType(tika.detect(vehicleDetails.getImage()));
-        builder.vehicleId(vehicle.getId());
-        return builder.build();
+        return VehicleDetailsDto.builder()//
+                .modelSuffix(vehicleDetails.getModelSuffix())//
+                .vinNumber(vehicleDetails.getVinNumber())//
+                .enginePower(vehicleDetails.getEnginePower())//
+                .engineVolume(vehicleDetails.getEngineVolume())//
+                .notes(vehicleDetails.getNotes())//
+                .registrationCertificate(vehicleDetails.getRegistrationCertificate())//
+                .vehicleCard(vehicleDetails.getVehicleCard())//
+                .weight(vehicleDetails.getWeight())//
+                .yearOfManufacture(vehicleDetails.getYearOfManufacture())//
+                .image(imageStorageService.load(vehicleDetails.getImage()))//
+                .imageContentType(tika.detect(vehicleDetails.getImage()))//
+                .vehicleId(vehicle.getId())//
+                .build();
     }
 
     public VehicleDetails vehicleDetailsDtoToVehicleDetails(VehicleDetailsDto vehicleDetailsDto) {
-        VehicleDetailsBuilder builder = VehicleDetails.builder();
-        builder.modelSuffix(vehicleDetailsDto.getModelSuffix().trim());
-        builder.vinNumber(vehicleDetailsDto.getVinNumber().trim());
-        builder.enginePower(vehicleDetailsDto.getEnginePower());
-        builder.engineVolume(vehicleDetailsDto.getEngineVolume());
-        builder.notes(vehicleDetailsDto.getNotes().trim());
-        builder.registrationCertificate(vehicleDetailsDto.getRegistrationCertificate().trim());
-        builder.vehicleCard(vehicleDetailsDto.getVehicleCard().trim());
-        builder.weight(vehicleDetailsDto.getWeight());
-        builder.yearOfManufacture(vehicleDetailsDto.getYearOfManufacture());
-        builder.image(imageStorageService.save(vehicleDetailsDto.getImage(), vehicleDetailsDto.getImageContentType()));
-        return builder.build();
+        return VehicleDetails.builder()//
+                .modelSuffix(vehicleDetailsDto.getModelSuffix().trim())//
+                .vinNumber(vehicleDetailsDto.getVinNumber().trim())//
+                .enginePower(vehicleDetailsDto.getEnginePower())//
+                .engineVolume(vehicleDetailsDto.getEngineVolume())//
+                .notes(vehicleDetailsDto.getNotes().trim())//
+                .registrationCertificate(vehicleDetailsDto.getRegistrationCertificate().trim())//
+                .vehicleCard(vehicleDetailsDto.getVehicleCard().trim())//
+                .weight(vehicleDetailsDto.getWeight())//
+                .yearOfManufacture(vehicleDetailsDto.getYearOfManufacture())//
+                .image(imageStorageService
+                        .save(vehicleDetailsDto.getImage(), vehicleDetailsDto.getImageContentType()))//
+                .build();
     }
 }

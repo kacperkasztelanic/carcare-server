@@ -1,36 +1,38 @@
 package com.kasztelanic.carcare.service.mapper;
 
+import com.kasztelanic.carcare.domain.Refuel;
+import com.kasztelanic.carcare.service.dto.RefuelDto;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.kasztelanic.carcare.domain.Refuel;
-import com.kasztelanic.carcare.domain.Refuel.RefuelBuilder;
-import com.kasztelanic.carcare.service.dto.RefuelDto;
-import com.kasztelanic.carcare.service.dto.RefuelDto.RefuelDtoBuilder;
 
 @Service
 public class RefuelMapper {
 
+    private final VehicleEventMapper vehicleEventMapper;
+
     @Autowired
-    private VehicleEventMapper vehicleEventMapper;
+    public RefuelMapper(VehicleEventMapper vehicleEventMapper) {
+        this.vehicleEventMapper = vehicleEventMapper;
+    }
 
     public RefuelDto refuelToRefuelDto(Refuel refuel) {
-        RefuelDtoBuilder builder = RefuelDto.builder();
-        builder.id(refuel.getId());
-        builder.costInCents(refuel.getCostInCents());
-        builder.station(refuel.getStation());
-        builder.volume(refuel.getVolume());
-        builder.vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(refuel.getVehicleEvent()));
-        builder.vehicleId(refuel.getVehicle().getId());
-        return builder.build();
+        return RefuelDto.builder()//
+                .id(refuel.getId())//
+                .costInCents(refuel.getCostInCents())//
+                .station(refuel.getStation())//
+                .volume(refuel.getVolume())//
+                .vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(refuel.getVehicleEvent()))//
+                .vehicleId(refuel.getVehicle().getId())//
+                .build();
     }
 
     public Refuel refuelDtoToRefuel(RefuelDto refuelDto) {
-        RefuelBuilder builder = Refuel.builder();
-        builder.costInCents(refuelDto.getCostInCents());
-        builder.station(refuelDto.getStation().trim());
-        builder.volume(refuelDto.getVolume());
-        builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(refuelDto.getVehicleEvent()));
-        return builder.build();
+        return Refuel.builder()//
+                .costInCents(refuelDto.getCostInCents())//
+                .station(refuelDto.getStation().trim())//
+                .volume(refuelDto.getVolume())//
+                .vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(refuelDto.getVehicleEvent()))//
+                .build();
     }
 }

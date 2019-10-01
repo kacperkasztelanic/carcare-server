@@ -1,49 +1,51 @@
 package com.kasztelanic.carcare.service.mapper;
 
-import java.util.Locale;
+import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.service.dto.InsuranceDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.kasztelanic.carcare.domain.Insurance;
-import com.kasztelanic.carcare.domain.Insurance.InsuranceBuilder;
-import com.kasztelanic.carcare.service.dto.InsuranceDto;
-import com.kasztelanic.carcare.service.dto.InsuranceDto.InsuranceDtoBuilder;
+import java.util.Locale;
 
 @Service
 public class InsuranceMapper {
 
+    private final VehicleEventMapper vehicleEventMapper;
+    private final InsuranceTypeMapper insuranceTypeMapper;
+
     @Autowired
-    private VehicleEventMapper vehicleEventMapper;
-    @Autowired
-    private InsuranceTypeMapper insuranceTypeMapper;
+    public InsuranceMapper(VehicleEventMapper vehicleEventMapper, InsuranceTypeMapper insuranceTypeMapper) {
+        this.vehicleEventMapper = vehicleEventMapper;
+        this.insuranceTypeMapper = insuranceTypeMapper;
+    }
 
     public InsuranceDto insuranceToInsuranceDto(Insurance insurance) {
-        InsuranceDtoBuilder builder = InsuranceDto.builder();
-        builder.id(insurance.getId());
-        builder.costInCents(insurance.getCostInCents());
-        builder.details(insurance.getDetails());
-        builder.insuranceType(insuranceTypeMapper.insuranceTypeToInsuranceTypeDto(insurance.getInsuranceType(),
-                Locale.forLanguageTag(insurance.getVehicle().getOwner().getLangKey())));
-        builder.insurer(insurance.getInsurer());
-        builder.number(insurance.getNumber());
-        builder.validFrom(insurance.getValidFrom());
-        builder.validThru(insurance.getValidThru());
-        builder.vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(insurance.getVehicleEvent()));
-        builder.vehicleId(insurance.getVehicle().getId());
-        return builder.build();
+        return InsuranceDto.builder()//
+                .id(insurance.getId())//
+                .costInCents(insurance.getCostInCents())//
+                .details(insurance.getDetails())//
+                .insuranceType(insuranceTypeMapper.insuranceTypeToInsuranceTypeDto(insurance.getInsuranceType(),
+                        Locale.forLanguageTag(insurance.getVehicle().getOwner().getLangKey())))//
+                .insurer(insurance.getInsurer())//
+                .number(insurance.getNumber())//
+                .validFrom(insurance.getValidFrom())//
+                .validThru(insurance.getValidThru())//
+                .vehicleEvent(vehicleEventMapper.vehicleEventToVehicleEventDto(insurance.getVehicleEvent()))//
+                .vehicleId(insurance.getVehicle().getId())//
+                .build();
     }
 
     public Insurance insuranceDtoToInsurance(InsuranceDto insuranceDto) {
-        InsuranceBuilder builder = Insurance.builder();
-        builder.costInCents(insuranceDto.getCostInCents());
-        builder.details(insuranceDto.getDetails().trim());
-        builder.insuranceType(insuranceTypeMapper.insuranceTypeDtoToInsuranceType(insuranceDto.getInsuranceType()));
-        builder.insurer(insuranceDto.getInsurer().trim());
-        builder.number(insuranceDto.getNumber().trim());
-        builder.validFrom(insuranceDto.getValidFrom());
-        builder.validThru(insuranceDto.getValidThru());
-        builder.vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(insuranceDto.getVehicleEvent()));
-        return builder.build();
+        return Insurance.builder()//
+                .costInCents(insuranceDto.getCostInCents())//
+                .details(insuranceDto.getDetails().trim())//
+                .insuranceType(insuranceTypeMapper.insuranceTypeDtoToInsuranceType(insuranceDto.getInsuranceType()))//
+                .insurer(insuranceDto.getInsurer().trim())//
+                .number(insuranceDto.getNumber().trim())//
+                .validFrom(insuranceDto.getValidFrom())//
+                .validThru(insuranceDto.getValidThru())//
+                .vehicleEvent(vehicleEventMapper.vehicleEventDtoToVehicleEvent(insuranceDto.getVehicleEvent()))//
+                .build();
     }
 }

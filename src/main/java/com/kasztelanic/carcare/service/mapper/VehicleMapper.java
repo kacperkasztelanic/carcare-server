@@ -1,45 +1,50 @@
 package com.kasztelanic.carcare.service.mapper;
 
-import java.util.Locale;
+import com.kasztelanic.carcare.domain.Vehicle;
+import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
+import com.kasztelanic.carcare.service.dto.VehicleDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.kasztelanic.carcare.domain.Vehicle;
-import com.kasztelanic.carcare.domain.Vehicle.VehicleBuilder;
-import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
-import com.kasztelanic.carcare.service.dto.VehicleDto;
-import com.kasztelanic.carcare.service.dto.VehicleDto.VehicleDtoBuilder;
+import java.util.Locale;
 
 @Service
 public class VehicleMapper {
 
+    private final FuelTypeMapper fuelTypeMapper;
+    private final VehicleDetailsMapper vehicleDetailsMapper;
+
     @Autowired
-    private FuelTypeMapper fuelTypeMapper;
-    @Autowired
-    private VehicleDetailsMapper vehicleDetailsMapper;
+    public VehicleMapper(FuelTypeMapper fuelTypeMapper, VehicleDetailsMapper vehicleDetailsMapper) {
+        this.fuelTypeMapper = fuelTypeMapper;
+        this.vehicleDetailsMapper = vehicleDetailsMapper;
+    }
 
     public VehicleDto vehicleToVehicleDto(Vehicle vehicle) {
-        VehicleDtoBuilder builder = VehicleDto.builder();
-        builder.id(vehicle.getId());
-        builder.make(vehicle.getMake());
-        builder.model(vehicle.getModel());
-        builder.licensePlate(vehicle.getLicensePlate());
-        builder.fuelType(fuelTypeMapper.fuelTypeToFuelTypeDto(vehicle.getFuelType(),
-                Locale.forLanguageTag(vehicle.getOwner().getLangKey())));
-        builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle));
-        return builder.build();
+        return VehicleDto.builder()//
+                .id(vehicle.getId())//
+                .make(vehicle.getMake())//
+                .model(vehicle.getModel())//
+                .licensePlate(vehicle.getLicensePlate())//
+                .fuelType(fuelTypeMapper.fuelTypeToFuelTypeDto(vehicle.getFuelType(),
+                        Locale.forLanguageTag(vehicle.getOwner().getLangKey())))//
+                .vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle))//
+                .build();
     }
 
     public Vehicle vehicleDtoToVehicle(VehicleDto vehicleDto) {
-        VehicleBuilder builder = Vehicle.builder();
-        builder.make(vehicleDto.getMake().trim());
-        builder.model(vehicleDto.getModel().trim());
-        builder.licensePlate(vehicleDto.getLicensePlate().trim());
-        builder.fuelType(fuelTypeMapper.fuelTypeDtoToFuelType(vehicleDto.getFuelType()));
-        builder.vehicleDetails(vehicleDetailsMapper.vehicleDetailsDtoToVehicleDetails(
-                vehicleDto.getVehicleDetails() != null ? vehicleDto.getVehicleDetails()
-                        : VehicleDetailsDto.defaultBuilder().vehicleId(vehicleDto.getId()).build()));
-        return builder.build();
+        return Vehicle.builder()//
+                .make(vehicleDto.getMake().trim())//
+                .model(vehicleDto.getModel().trim())//
+                .licensePlate(vehicleDto.getLicensePlate().trim())//
+                .fuelType(fuelTypeMapper.fuelTypeDtoToFuelType(vehicleDto.getFuelType()))//
+                .vehicleDetails(vehicleDetailsMapper.vehicleDetailsDtoToVehicleDetails(
+                        vehicleDto.getVehicleDetails() != null ? vehicleDto.getVehicleDetails() : VehicleDetailsDto
+                                .defaultBuilder()//
+                                .vehicleId(vehicleDto.getId())//
+                                .build())//
+                )//
+                .build();
     }
 }

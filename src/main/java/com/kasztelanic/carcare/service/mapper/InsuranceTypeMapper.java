@@ -12,15 +12,20 @@ import com.kasztelanic.carcare.service.dto.InsuranceTypeDto;
 @Service
 public class InsuranceTypeMapper {
 
+    private final InsuranceTypeRepository insuranceTypeRepository;
+
     @Autowired
-    private InsuranceTypeRepository insuranceTypeRepository;
+    public InsuranceTypeMapper(InsuranceTypeRepository insuranceTypeRepository) {
+        this.insuranceTypeRepository = insuranceTypeRepository;
+    }
 
     public InsuranceTypeDto insuranceTypeToInsuranceTypeDto(InsuranceType insuranceType, Locale locale) {
         return InsuranceTypeDto.of(insuranceType.getType(), selectTranslation(insuranceType, locale));
     }
 
     public InsuranceType insuranceTypeDtoToInsuranceType(InsuranceTypeDto insuranceTypeDto) {
-        return insuranceTypeRepository.findByType(insuranceTypeDto.getType()).orElseThrow(IllegalStateException::new);
+        return insuranceTypeRepository.findByType(insuranceTypeDto.getType())//
+                .orElseThrow(IllegalStateException::new);
     }
 
     private static String selectTranslation(InsuranceType insuranceType, Locale locale) {
