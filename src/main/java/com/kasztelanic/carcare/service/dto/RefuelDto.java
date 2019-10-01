@@ -7,8 +7,7 @@ import lombok.ToString;
 
 @Builder
 @EqualsAndHashCode(of = { "id" })
-// @ToString(of = { "costInCents", "volume" }, includeFieldNames = false)
-@ToString
+@ToString(of = { "costInCents", "volume" }, includeFieldNames = false)
 public class RefuelDto implements HasVehicleEvent, HasCost {
 
     @Getter

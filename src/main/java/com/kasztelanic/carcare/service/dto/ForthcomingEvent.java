@@ -44,12 +44,12 @@ public class ForthcomingEvent implements Comparable<ForthcomingEvent> {
         @Getter
         private final Class<?> clazz;
 
-        private EventType(Class<?> clazz) {
+        EventType(Class<?> clazz) {
             this.clazz = clazz;
         }
 
-        private static final Map<Class<?>, EventType> CLAZZ_MAP = Arrays.stream(EventType.values())
-                .collect(ImmutableMap.toImmutableMap(t -> t.getClazz(), Function.identity()));
+        private static final Map<Class<?>, EventType> CLAZZ_MAP = Arrays.stream(EventType.values())//
+                .collect(ImmutableMap.toImmutableMap(EventType::getClazz, Function.identity()));
 
         public static EventType fromClass(Class<?> clazz) {
             return CLAZZ_MAP.get(clazz);

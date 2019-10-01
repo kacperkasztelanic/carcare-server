@@ -34,7 +34,15 @@ public class VehicleDetailsDto {
     private final Long vehicleId;
 
     public static VehicleDetailsDtoBuilder defaultBuilder() {
-        return VehicleDetailsDto.builder().modelSuffix("").vinNumber("").vehicleCard("").registrationCertificate("")
-                .yearOfManufacture(0).enginePower(0).engineVolume(0).weight(0).notes("");
+        return VehicleDetailsDto.builder()//
+                .modelSuffix("")//
+                .vinNumber("")//
+                .vehicleCard("")//
+                .registrationCertificate("")//
+                .yearOfManufacture(0)//
+                .enginePower(0)//
+                .engineVolume(0)//
+                .weight(0)//
+                .notes("");
     }
 }
