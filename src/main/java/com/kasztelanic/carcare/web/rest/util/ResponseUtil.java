@@ -1,10 +1,9 @@
 package com.kasztelanic.carcare.web.rest.util;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 
-import lombok.experimental.UtilityClass;
+import java.util.List;
+import java.util.Optional;
 
 public class ResponseUtil {
 
