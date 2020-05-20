@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
+import java.util.function.BiFunction;
 
 @RestController
 @RequestMapping("/api/routine-service")
@@ -47,11 +49,13 @@ public class RoutineServiceResource {
     @PostMapping("/{vehicleId}")
     public ResponseEntity<RoutineServiceDto> addRoutineService(@PathVariable Long vehicleId,
             @RequestBody RoutineServiceDto routineServiceDto) {
+        BiFunction<Long, RoutineServiceDto, URI> uriProvider = //
+                (i, r) -> UriUtil.buildURI(String.format("/api/routine-service/%s/%s", i, r.getId()));
         return routineServiceService.addRoutineService(vehicleId, routineServiceDto)//
-                .map(i -> ResponseEntity.created(UriUtil.buildURI(
-                        String.format("/api/routine-service/%s/%s", vehicleId.toString(), i.getId().toString())))//
+                .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -61,7 +65,8 @@ public class RoutineServiceResource {
         return routineServiceService.editRoutineService(id, routineServiceDto)//
                 .map(i -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -70,7 +75,8 @@ public class RoutineServiceResource {
         return routineServiceService.deleteRoutineService(id)//
                 .map(r -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(r))//
+                        .body(r)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

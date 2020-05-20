@@ -30,6 +30,7 @@ import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.UriUtil;
 
+//TODO extract service
 @RestController
 @RequestMapping("/api/insurance-type")
 public class InsuranceTypeResource {

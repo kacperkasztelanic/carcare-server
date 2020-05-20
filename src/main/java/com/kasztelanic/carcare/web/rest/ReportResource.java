@@ -5,8 +5,6 @@ import com.kasztelanic.carcare.service.ReportService;
 import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.Report;
-import com.kasztelanic.carcare.service.exception.ReportGenerationException;
-import com.kasztelanic.carcare.util.EitherUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.vavr.control.Either;
+import static io.vavr.API.Right;
+import static java.util.function.Function.identity;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -37,20 +36,18 @@ public class ReportResource {
     @GetMapping("/vehicle/{id}")
     public ResponseEntity<byte[]> reportForVehicle(@PathVariable long id) {
         User user = userService.getUserWithAuthoritiesOrFail();
-        Either<ReportGenerationException, ResponseEntity<byte[]>> either = reportService
-                .generateVehicleReport(id, user)//
+        return reportService.generateVehicleReport(id, user)//
                 .map(e -> e.map(ReportResource::prepareResponse))//
-                .orElseGet(() -> Either.right(ResponseEntity.notFound().build()));
-        return EitherUtil.getOrThrow(either);
+                .orElseGet(() -> Right(ResponseEntity.notFound().build()))//
+                .getOrElseThrow(identity());
     }
 
     @PostMapping("/costs")
     public ResponseEntity<byte[]> costReport(@RequestBody CostRequest costRequest) {
         User user = userService.getUserWithAuthoritiesOrFail();
-        Either<ReportGenerationException, ResponseEntity<byte[]>> either = reportService
-                .generateCostReport(costRequest, user)//
-                .map(ReportResource::prepareResponse);
-        return EitherUtil.getOrThrow(either);
+        return reportService.generateCostReport(costRequest, user)//
+                .map(ReportResource::prepareResponse)//
+                .getOrElseThrow(identity());
 
     }
 
@@ -59,6 +56,8 @@ public class ReportResource {
         headers.setContentType(MediaType.parseMediaType("application/vnd.ms-excel"));
         headers.setContentDispositionFormData(report.getName(), report.getName());
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-        return ResponseEntity.ok().headers(headers).body(report.getBytes());
+        return ResponseEntity.ok()//
+                .headers(headers)//
+                .body(report.getBytes());
     }
 }

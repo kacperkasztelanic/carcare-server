@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
+import java.util.function.BiFunction;
 
 @RestController
 @RequestMapping("/api/inspection")
@@ -47,11 +49,13 @@ public class InspectionResource {
     @PostMapping("/{vehicleId}")
     public ResponseEntity<InspectionDto> addInspection(@PathVariable Long vehicleId,
             @RequestBody InspectionDto inspectionDto) {
+        BiFunction<Long, InspectionDto, URI> uriProvider = //
+                (i, r) -> UriUtil.buildURI(String.format("/api/inspection/%s/%s", i, r.getId()));
         return inspectionService.addInspection(vehicleId, inspectionDto)//
-                .map(i -> ResponseEntity.created(UriUtil.buildURI(
-                        String.format("/api/inspection/%s/%s", vehicleId.toString(), i.getId().toString())))//
+                .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -61,7 +65,8 @@ public class InspectionResource {
         return inspectionService.editInspection(id, inspectionDto)//
                 .map(i -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -70,7 +75,8 @@ public class InspectionResource {
         return inspectionService.deleteInspection(id)//
                 .map(i -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

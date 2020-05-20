@@ -13,6 +13,7 @@ import com.kasztelanic.carcare.service.dto.HasVehicleEvent;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.service.dto.VehicleRichDto;
 
+//TODO refactor builder
 @Service
 public class CostCalculatorImpl implements CostCalculator {
 

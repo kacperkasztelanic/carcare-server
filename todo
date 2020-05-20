@@ -1,0 +1,10 @@
+TODO:
+- finish refactor
+- add impersonation
+- add maintenance mode
+- use vavr instead of standard library
+- use basicreporter for reports
+- upgrade dependencies
+- consider changing domain model
+- type class for translation selection (fueltype, insurancetype etc.)
+- fix EN emails

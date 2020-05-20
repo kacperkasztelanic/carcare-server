@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.kasztelanic.carcare</groupId>
 	<artifactId>carcare</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 	<packaging>war</packaging>
 	<name>CarCare</name>
 
@@ -87,7 +87,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.10</version><!--$NO-MVN-MAN-VER$ -->
+			<version>1.18.12</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
         <dependency>
             <groupId>io.vavr</groupId>
@@ -95,19 +95,24 @@
             <version>0.10.2</version>
         </dependency>
         <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr-jackson</artifactId>
+            <version>0.10.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>28.1-jre</version>
+            <version>29.0-jre</version>
         </dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>4.1.0</version>
+			<version>4.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>1.22</version>
+			<version>1.23</version>
 		</dependency>
 
 		<dependency>

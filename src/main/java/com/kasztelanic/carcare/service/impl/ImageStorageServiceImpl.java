@@ -17,6 +17,7 @@ import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.util.UuidProvider;
 
+//TODO refactor to be like in hrtool
 @Service
 public class ImageStorageServiceImpl implements ImageStorageService {
 

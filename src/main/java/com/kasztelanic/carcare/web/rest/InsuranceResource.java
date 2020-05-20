@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
+import java.util.function.BiFunction;
 
 @RestController
 @RequestMapping("/api/insurance")
@@ -47,11 +49,13 @@ public class InsuranceResource {
     @PostMapping("/{vehicleId}")
     public ResponseEntity<InsuranceDto> addInsurance(@PathVariable Long vehicleId,
             @RequestBody InsuranceDto insuranceDto) {
+        BiFunction<Long, InsuranceDto, URI> uriProvider = //
+                (i, r) -> UriUtil.buildURI(String.format("/api/insurance/%s/%s", i, r.getId()));
         return insuranceService.addInsurance(vehicleId, insuranceDto)//
-                .map(i -> ResponseEntity.created(UriUtil.buildURI(
-                        String.format("/api/insurance/%s/%s", vehicleId.toString(), i.getId().toString())))//
+                .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
                         .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -60,7 +64,8 @@ public class InsuranceResource {
         return insuranceService.editInsurance(id, insuranceDto)//
                 .map(i -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -69,7 +74,8 @@ public class InsuranceResource {
         return insuranceService.deleteInsurance(id)//
                 .map(i -> ResponseEntity.ok()//
                         .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(i))//
+                        .body(i)//
+                )//
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

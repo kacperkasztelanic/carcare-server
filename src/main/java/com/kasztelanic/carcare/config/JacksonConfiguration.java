@@ -10,12 +10,13 @@ import org.springframework.context.annotation.Configuration;
 import org.zalando.problem.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
+import io.vavr.jackson.datatype.VavrModule;
+
 @Configuration
 public class JacksonConfiguration {
 
     /**
      * Support for Java date and time API.
-     * @return the corresponding Jackson module.
      */
     @Bean
     public JavaTimeModule javaTimeModule() {
@@ -26,7 +27,6 @@ public class JacksonConfiguration {
     public Jdk8Module jdk8TimeModule() {
         return new Jdk8Module();
     }
-
 
     /*
      * Support for Hibernate types in Jackson.
@@ -60,4 +60,11 @@ public class JacksonConfiguration {
         return new ConstraintViolationProblemModule();
     }
 
+    /**
+     * Support for Vavr.
+     */
+    @Bean
+    VavrModule vavrModule() {
+        return new VavrModule();
+    }
 }

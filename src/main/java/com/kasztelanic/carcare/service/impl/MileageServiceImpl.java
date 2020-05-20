@@ -19,6 +19,7 @@ import com.kasztelanic.carcare.service.dto.VehicleRichDto;
 @Service
 public class MileageServiceImpl implements MileageService {
 
+    //TODO refactor: ArrayList -> Stream
     @Override
     public MileageResult calculate(PeriodVehicle periodVehicle, VehicleRichDto vehicleRichDto) {
         List<HasVehicleEvent> events = new ArrayList<>();

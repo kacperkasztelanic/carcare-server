@@ -3,7 +3,6 @@ package com.kasztelanic.carcare.web.rest.util;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ResponseUtil {
 

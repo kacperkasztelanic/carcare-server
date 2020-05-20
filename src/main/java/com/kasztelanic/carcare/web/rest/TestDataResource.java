@@ -13,6 +13,7 @@ import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.service.FuelAndInsuranceTypePopulator;
 import com.kasztelanic.carcare.service.impl.RandomDataServiceImpl;
 
+//TODO refactor
 @RestController
 @RequestMapping("/api/test-data")
 @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
