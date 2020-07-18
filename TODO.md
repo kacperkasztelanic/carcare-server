@@ -6,5 +6,6 @@ TODO:
 - use basicreporter for reports
 - upgrade dependencies
 - consider changing domain model
-- type class for translation selection (fueltype, insurancetype etc.)
+
+ISSUES:
 - fix EN emails
