@@ -4,7 +4,6 @@ TODO:
 - add maintenance mode
 - use vavr instead of standard library
 - use basicreporter for reports
-- upgrade dependencies
 - consider changing domain model
 
 ISSUES:
