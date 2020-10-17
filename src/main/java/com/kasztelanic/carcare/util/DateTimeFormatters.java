@@ -4,6 +4,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateTimeFormatters {
 
     public static final String DATE_SPLIT_CHARACTER = "-";
@@ -34,7 +38,4 @@ public class DateTimeFormatters {
             + TWO_DIGITS;
 
     public static final String TIMESTAMP_REGEX = DATE_REGEX + TIMESTAMP_SPLIT_CHARACTER + TIME_REGEX;
-
-    private DateTimeFormatters() {
-    }
 }

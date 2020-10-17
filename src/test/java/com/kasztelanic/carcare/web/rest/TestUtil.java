@@ -21,11 +21,15 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Utility class for testing REST controllers.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestUtil {
 
     private static final ObjectMapper mapper = createObjectMapper();
@@ -153,6 +157,4 @@ public final class TestUtil {
         TypedQuery<T> allQuery = em.createQuery(all);
         return allQuery.getResultList();
     }
-
-    private TestUtil() {}
 }

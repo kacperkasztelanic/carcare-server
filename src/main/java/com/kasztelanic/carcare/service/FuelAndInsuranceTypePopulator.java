@@ -4,6 +4,5 @@ public interface FuelAndInsuranceTypePopulator {
 
     boolean populateFuelTypes();
 
-    boolean pupulateInsuranceTypes();
-
+    boolean populateInsuranceTypes();
 }

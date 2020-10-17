@@ -3,20 +3,14 @@ package com.kasztelanic.carcare.service.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
+import lombok.Value;
 
-@Builder
-@EqualsAndHashCode
+@Value(staticConstructor = "of")
 @ToString(includeFieldNames = false)
 public class CostRequest {
 
-    @Getter
-    private final List<Long> vehicleIds;
-    @Getter
-    private final LocalDate dateFrom;
-    @Getter
-    private final LocalDate dateTo;
+    List<Long> vehicleIds;
+    LocalDate dateFrom;
+    LocalDate dateTo;
 }

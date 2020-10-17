@@ -33,7 +33,7 @@ public class TestDataResource {
     @Transactional
     @GetMapping("/populate-insurance-types")
     public boolean populateInsuranceTypes() {
-        return fuelAndInsuranceTypePopulator.pupulateInsuranceTypes();
+        return fuelAndInsuranceTypePopulator.populateInsuranceTypes();
     }
 
     @Transactional

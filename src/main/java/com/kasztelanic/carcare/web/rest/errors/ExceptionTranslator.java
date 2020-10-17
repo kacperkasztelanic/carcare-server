@@ -1,5 +1,7 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
+import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
+
 import io.github.jhipster.web.util.HeaderUtil;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -104,7 +106,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleEmailAreadyUsedException(
-            com.kasztelanic.carcare.service.EmailAlreadyUsedException ex, NativeWebRequest request) {
+            com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException ex, NativeWebRequest request) {
         EmailAlreadyUsedException problem = new EmailAlreadyUsedException();
         return create(problem, request, HeaderUtil
                 .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
@@ -113,7 +115,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleUsernameAreadyUsedException(
-            com.kasztelanic.carcare.service.UsernameAlreadyUsedException ex, NativeWebRequest request) {
+            UsernameAlreadyUsedException ex, NativeWebRequest request) {
         LoginAlreadyUsedException problem = new LoginAlreadyUsedException();
         return create(problem, request, HeaderUtil
                 .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
@@ -122,7 +124,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleInvalidPasswordException(
-            com.kasztelanic.carcare.service.InvalidPasswordException ex, NativeWebRequest request) {
+            com.kasztelanic.carcare.service.exception.InvalidPasswordException ex, NativeWebRequest request) {
         return create(new InvalidPasswordException(), request);
     }
 

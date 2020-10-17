@@ -12,8 +12,10 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * An authority (a security role) used by Spring Security.
@@ -21,6 +23,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "jhi_authority")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EqualsAndHashCode
+@ToString(includeFieldNames = false)
 public class Authority implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -32,26 +36,4 @@ public class Authority implements Serializable {
     @Getter
     @Setter
     private String name;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Authority authority = (Authority) o;
-        return !(name != null ? !name.equals(authority.name) : authority.name != null);
-    }
-
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return "Authority(" + name + ")";
-    }
 }

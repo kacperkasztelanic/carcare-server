@@ -12,6 +12,10 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ObjectMapperFactory {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -35,8 +39,5 @@ public class ObjectMapperFactory {
 
     private static SimpleAbstractTypeResolver defaultMappingsResolver() {
         return new SimpleAbstractTypeResolver();
-    }
-
-    private ObjectMapperFactory() {
     }
 }

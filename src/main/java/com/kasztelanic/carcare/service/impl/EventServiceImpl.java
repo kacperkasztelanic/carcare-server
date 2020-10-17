@@ -18,9 +18,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.function.Function.identity;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -37,7 +38,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<ForthcomingEvent> findForthcomingEvents(Collection<PeriodVehicle> periodVehicles) {
         Map<Long, PeriodVehicle> periodVehiclesByVehicleId = periodVehicles.stream()//
-                .collect(Collectors.toMap(PeriodVehicle::getVehicleId, Function.identity()));
+                .collect(Collectors.toMap(PeriodVehicle::getVehicleId, identity()));
         Set<Long> vehicleIds = periodVehicles.stream()//
                 .map(PeriodVehicle::getVehicleId)//
                 .collect(Collectors.toSet());
@@ -53,7 +54,7 @@ public class EventServiceImpl implements EventService {
         return Stream.of(findForthcomingInspections(periodVehicle, vehicle.getInspection()),
                 findForthcomingInsurances(periodVehicle, vehicle.getInsurance()),
                 findForthcomingRoutineServices(periodVehicle, vehicle.getRoutineService()))//
-                .flatMap(Function.identity())//
+                .flatMap(identity())//
                 .sorted()//
                 .collect(Collectors.toList());
     }

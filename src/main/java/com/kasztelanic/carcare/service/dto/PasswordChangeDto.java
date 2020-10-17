@@ -1,24 +1,13 @@
 package com.kasztelanic.carcare.service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Value;
 
 /**
  * A DTO representing a password change required data - current and new password.
  */
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+@Value(staticConstructor = "of")
 public class PasswordChangeDto {
 
-    @Getter
-    @Setter
-    private String currentPassword;
-
-    @Getter
-    @Setter
-    private String newPassword;
+    String currentPassword;
+    String newPassword;
 }

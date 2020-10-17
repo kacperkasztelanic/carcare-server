@@ -4,9 +4,13 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.security.SecureRandom;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Utility class for generating random Strings.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RandomUtil {
 
     private static final int DEF_COUNT = 20;
@@ -47,8 +51,5 @@ public final class RandomUtil {
      */
     public static String generateResetKey() {
         return generateRandomAlphanumericString();
-    }
-
-    private RandomUtil(){
     }
 }

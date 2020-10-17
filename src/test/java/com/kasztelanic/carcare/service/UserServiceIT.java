@@ -33,26 +33,19 @@ import static org.mockito.Mockito.when;
  */
 @SpringBootTest(classes = CarcareApp.class)
 @Transactional
-public class UserServiceIT {
+class UserServiceIT {
 
     private static final String DEFAULT_LOGIN = "johndoe";
-
     private static final String DEFAULT_EMAIL = "johndoe@localhost";
-
     private static final String DEFAULT_FIRSTNAME = "john";
-
     private static final String DEFAULT_LASTNAME = "doe";
-
     private static final String DEFAULT_IMAGEURL = "http://placehold.it/50x50";
-
     private static final String DEFAULT_LANGKEY = "dummy";
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private AuditingHandler auditingHandler;
 
@@ -62,7 +55,7 @@ public class UserServiceIT {
     private User user;
 
     @BeforeEach
-    public void init() {
+    void init() {
         user = new User();
         user.setLogin(DEFAULT_LOGIN);
         user.setPassword(RandomStringUtils.random(60));
@@ -79,7 +72,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatUserMustExistToResetPassword() {
+    void assertThatUserMustExistToResetPassword() {
         userRepository.saveAndFlush(user);
         Optional<User> maybeUser = userService.requestPasswordReset("invalid.login@localhost");
         assertThat(maybeUser).isNotPresent();
@@ -93,7 +86,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatOnlyActivatedUserCanRequestPasswordReset() {
+    void assertThatOnlyActivatedUserCanRequestPasswordReset() {
         user.setActivated(false);
         userRepository.saveAndFlush(user);
 
@@ -104,7 +97,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatResetKeyMustNotBeOlderThan24Hours() {
+    void assertThatResetKeyMustNotBeOlderThan24Hours() {
         Instant daysAgo = Instant.now().minus(25, ChronoUnit.HOURS);
         String resetKey = RandomUtil.generateResetKey();
         user.setActivated(true);
@@ -119,7 +112,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatResetKeyMustBeValid() {
+    void assertThatResetKeyMustBeValid() {
         Instant daysAgo = Instant.now().minus(25, ChronoUnit.HOURS);
         user.setActivated(true);
         user.setResetDate(daysAgo);
@@ -133,7 +126,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatUserCanResetPassword() {
+    void assertThatUserCanResetPassword() {
         String oldPassword = user.getPassword();
         Instant daysAgo = Instant.now().minus(2, ChronoUnit.HOURS);
         String resetKey = RandomUtil.generateResetKey();
@@ -153,7 +146,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
+    void assertThatNotActivatedUsersWithNotNullActivationKeyCreatedBefore3DaysAreDeleted() {
         Instant now = Instant.now();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
         user.setActivated(false);
@@ -170,7 +163,7 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatNotActivatedUsersWithNullActivationKeyCreatedBefore3DaysAreNotDeleted() {
+    void assertThatNotActivatedUsersWithNullActivationKeyCreatedBefore3DaysAreNotDeleted() {
         Instant now = Instant.now();
         when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
         user.setActivated(false);
@@ -186,9 +179,9 @@ public class UserServiceIT {
 
     @Test
     @Transactional
-    public void assertThatAnonymousUserIsNotGet() {
+    void assertThatAnonymousUserIsNotGet() {
         user.setLogin(Constants.ANONYMOUS_USER);
-        if (!userRepository.findOneByLogin(Constants.ANONYMOUS_USER).isPresent()) {
+        if (userRepository.findOneByLogin(Constants.ANONYMOUS_USER).isEmpty()) {
             userRepository.saveAndFlush(user);
         }
         final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
@@ -197,5 +190,4 @@ public class UserServiceIT {
             .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
             .isTrue();
     }
-
 }

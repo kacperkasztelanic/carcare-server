@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Utility class for Spring Security.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SecurityUtils {
-
-    private SecurityUtils() {
-    }
 
     /**
      * Get the login of the current user.

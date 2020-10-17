@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
@@ -23,6 +22,8 @@ import org.springframework.stereotype.Service;
 import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.dto.VehicleRichDto;
+
+import static java.util.function.Function.identity;
 
 @Service
 public class CostReport {
@@ -60,7 +61,7 @@ public class CostReport {
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
         Map<Long, VehicleDto> vehicleById = vehicles.stream()
-                .collect(Collectors.toMap(VehicleDto::getId, Function.identity()));
+                .collect(Collectors.toMap(VehicleDto::getId, identity()));
         for (CostResult cost : costs) {
             Row row = sheet.createRow(rowNum++);
             VehicleDto vehicle = vehicleById.get(cost.getPeriodVehicle().getVehicleId());

@@ -3,8 +3,7 @@ package com.kasztelanic.carcare.service;
 import com.kasztelanic.carcare.config.audit.AuditEventConverter;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,21 +16,23 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import io.github.jhipster.config.JHipsterProperties;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service for managing audit events.
  * <p>
  * This is the default implementation to support SpringBoot Actuator AuditEventRepository
  */
+@Slf4j
 @Service
 @Transactional
 public class AuditEventService {
 
-    private final Logger log = LoggerFactory.getLogger(AuditEventService.class);
     private final JHipsterProperties jHipsterProperties;
     private final PersistenceAuditEventRepository persistenceAuditEventRepository;
     private final AuditEventConverter auditEventConverter;
 
+    @Autowired
     public AuditEventService(
         PersistenceAuditEventRepository persistenceAuditEventRepository,
         AuditEventConverter auditEventConverter, JHipsterProperties jhipsterProperties) {
@@ -66,9 +67,7 @@ public class AuditEventService {
     }
 
     public Optional<AuditEvent> find(Long id) {
-        return Optional.ofNullable(persistenceAuditEventRepository.findById(id))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+        return persistenceAuditEventRepository.findById(id)
             .map(auditEventConverter::convertToAuditEvent);
     }
 }

@@ -8,10 +8,12 @@ import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.security.SecurityUtils;
 import com.kasztelanic.carcare.service.dto.UserDto;
+import com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException;
+import com.kasztelanic.carcare.service.exception.InvalidPasswordException;
+import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
 import com.kasztelanic.carcare.service.util.RandomUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,27 +24,31 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service class for managing users.
  */
+@Slf4j
 @Service
 @Transactional
 public class UserService {
 
-    private final Logger log = LoggerFactory.getLogger(UserService.class);
-
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AuthorityRepository authorityRepository;
-
     private final CacheManager cacheManager;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
+    @Autowired
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            AuthorityRepository authorityRepository, CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;

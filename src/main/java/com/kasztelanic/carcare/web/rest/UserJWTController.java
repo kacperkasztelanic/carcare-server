@@ -1,7 +1,7 @@
 package com.kasztelanic.carcare.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kasztelanic.carcare.security.jwt.JWTFilter;
+import com.kasztelanic.carcare.security.jwt.JwtFilter;
 import com.kasztelanic.carcare.security.jwt.TokenProvider;
 import com.kasztelanic.carcare.web.rest.vm.LoginVM;
 
@@ -47,10 +47,10 @@ public class UserJWTController {
                 loginVM.getUsername(), loginVM.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        boolean rememberMe = loginVM.isRememberMe() != null && loginVM.isRememberMe();
+        boolean rememberMe = loginVM.getRememberMe() != null && loginVM.getRememberMe();
         String jwt = tokenProvider.createToken(authentication, rememberMe);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
         return ResponseEntity.ok()//
                 .headers(httpHeaders)//
                 .body(JWTToken.of(jwt));

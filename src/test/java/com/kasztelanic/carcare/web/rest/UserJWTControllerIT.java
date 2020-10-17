@@ -16,32 +16,28 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.Matchers.emptyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 
 /**
  * Integration tests for the {@link UserJWTController} REST controller.
  */
 @SpringBootTest(classes = CarcareApp.class)
-public class UserJWTControllerIT {
+class UserJWTControllerIT {
 
     @Autowired
     private TokenProvider tokenProvider;
-
     @Autowired
     private AuthenticationManagerBuilder authenticationManager;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private ExceptionTranslator exceptionTranslator;
 
@@ -57,7 +53,7 @@ public class UserJWTControllerIT {
 
     @Test
     @Transactional
-    public void testAuthorize() throws Exception {
+    void testAuthorize() throws Exception {
         User user = new User();
         user.setLogin("user-jwt-controller");
         user.setEmail("user-jwt-controller@example.com");
@@ -66,9 +62,7 @@ public class UserJWTControllerIT {
 
         userRepository.saveAndFlush(user);
 
-        LoginVM login = new LoginVM();
-        login.setUsername("user-jwt-controller");
-        login.setPassword("test");
+        LoginVM login = LoginVM.of("user-jwt-controller", "test");
         mockMvc.perform(post("/api/authenticate")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(login)))
@@ -76,12 +70,12 @@ public class UserJWTControllerIT {
             .andExpect(jsonPath("$.id_token").isString())
             .andExpect(jsonPath("$.id_token").isNotEmpty())
             .andExpect(header().string("Authorization", not(nullValue())))
-            .andExpect(header().string("Authorization", not(isEmptyString())));
+            .andExpect(header().string("Authorization", not(emptyString())));
     }
 
     @Test
     @Transactional
-    public void testAuthorizeWithRememberMe() throws Exception {
+    void testAuthorizeWithRememberMe() throws Exception {
         User user = new User();
         user.setLogin("user-jwt-controller-remember-me");
         user.setEmail("user-jwt-controller-remember-me@example.com");
@@ -90,10 +84,7 @@ public class UserJWTControllerIT {
 
         userRepository.saveAndFlush(user);
 
-        LoginVM login = new LoginVM();
-        login.setUsername("user-jwt-controller-remember-me");
-        login.setPassword("test");
-        login.setRememberMe(true);
+        LoginVM login = LoginVM.of("user-jwt-controller-remember-me", "test", true);
         mockMvc.perform(post("/api/authenticate")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(login)))
@@ -101,14 +92,12 @@ public class UserJWTControllerIT {
             .andExpect(jsonPath("$.id_token").isString())
             .andExpect(jsonPath("$.id_token").isNotEmpty())
             .andExpect(header().string("Authorization", not(nullValue())))
-            .andExpect(header().string("Authorization", not(isEmptyString())));
+            .andExpect(header().string("Authorization", not(emptyString())));
     }
 
     @Test
-    public void testAuthorizeFails() throws Exception {
-        LoginVM login = new LoginVM();
-        login.setUsername("wrong-user");
-        login.setPassword("wrong password");
+    void testAuthorizeFails() throws Exception {
+        LoginVM login = LoginVM.of("wrong-user", "wrong password");
         mockMvc.perform(post("/api/authenticate")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(login)))

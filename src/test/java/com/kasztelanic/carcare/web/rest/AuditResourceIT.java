@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(classes = CarcareApp.class)
 @Transactional
-public class AuditResourceIT {
+class AuditResourceIT {
 
     private static final String SAMPLE_PRINCIPAL = "SAMPLE_PRINCIPAL";
     private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
@@ -42,29 +42,23 @@ public class AuditResourceIT {
 
     @Autowired
     private PersistenceAuditEventRepository auditEventRepository;
-
     @Autowired
     private AuditEventConverter auditEventConverter;
-
     @Autowired
     private JHipsterProperties jhipsterProperties;
-
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
     @Autowired
     @Qualifier("mvcConversionService")
     private FormattingConversionService formattingConversionService;
-
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
     private PersistentAuditEvent auditEvent;
-
     private MockMvc restAuditMockMvc;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.initMocks(this);
         AuditEventService auditEventService =
             new AuditEventService(auditEventRepository, auditEventConverter, jhipsterProperties);
@@ -76,7 +70,7 @@ public class AuditResourceIT {
     }
 
     @BeforeEach
-    public void initTest() {
+    void initTest() {
         auditEventRepository.deleteAll();
         auditEvent = new PersistentAuditEvent();
         auditEvent.setAuditEventType(SAMPLE_TYPE);
@@ -85,31 +79,31 @@ public class AuditResourceIT {
     }
 
     @Test
-    public void getAllAudits() throws Exception {
+    void getAllAudits() throws Exception {
         // Initialize the database
         auditEventRepository.save(auditEvent);
 
         // Get all the audits
         restAuditMockMvc.perform(get("/management/audits"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
     }
 
     @Test
-    public void getAudit() throws Exception {
+    void getAudit() throws Exception {
         // Initialize the database
         auditEventRepository.save(auditEvent);
 
         // Get the audit
         restAuditMockMvc.perform(get("/management/audits/{id}", auditEvent.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.principal").value(SAMPLE_PRINCIPAL));
     }
 
     @Test
-    public void getAuditsByDate() throws Exception {
+    void getAuditsByDate() throws Exception {
         // Initialize the database
         auditEventRepository.save(auditEvent);
 
@@ -120,12 +114,12 @@ public class AuditResourceIT {
         // Get the audit
         restAuditMockMvc.perform(get("/management/audits?fromDate="+fromDate+"&toDate="+toDate))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
     }
 
     @Test
-    public void getNonExistingAuditsByDate() throws Exception {
+    void getNonExistingAuditsByDate() throws Exception {
         // Initialize the database
         auditEventRepository.save(auditEvent);
 
@@ -136,12 +130,12 @@ public class AuditResourceIT {
         // Query audits but expect no results
         restAuditMockMvc.perform(get("/management/audits?fromDate=" + fromDate + "&toDate=" + toDate))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(header().string("X-Total-Count", "0"));
     }
 
     @Test
-    public void getNonExistingAudit() throws Exception {
+    void getNonExistingAudit() throws Exception {
         // Get the audit
         restAuditMockMvc.perform(get("/management/audits/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
@@ -149,7 +143,7 @@ public class AuditResourceIT {
 
     @Test
     @Transactional
-    public void testPersistentAuditEventEquals() throws Exception {
+    void testPersistentAuditEventEquals() throws Exception {
         TestUtil.equalsVerifier(PersistentAuditEvent.class);
         PersistentAuditEvent auditEvent1 = new PersistentAuditEvent();
         auditEvent1.setId(1L);

@@ -19,24 +19,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest(classes = CarcareApp.class)
 @Transactional
-public class AuditEventServiceIT {
+class AuditEventServiceIT {
+
     @Autowired
     private AuditEventService auditEventService;
-
     @Autowired
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
-
     @Autowired
     private JHipsterProperties jHipsterProperties;
 
     private PersistentAuditEvent auditEventOld;
-
     private PersistentAuditEvent auditEventWithinRetention;
-
     private PersistentAuditEvent auditEventNew;
 
     @BeforeEach
-    public void init() {
+    void init() {
         auditEventOld = new PersistentAuditEvent();
         auditEventOld.setAuditEventDate(Instant.now().minus(jHipsterProperties.getAuditEvents().getRetentionPeriod() + 1, ChronoUnit.DAYS));
         auditEventOld.setPrincipal("test-user-old");
@@ -55,7 +52,7 @@ public class AuditEventServiceIT {
 
     @Test
     @Transactional
-    public void verifyOldAuditEventsAreDeleted() {
+    void verifyOldAuditEventsAreDeleted() {
         persistenceAuditEventRepository.deleteAll();
         persistenceAuditEventRepository.save(auditEventOld);
         persistenceAuditEventRepository.save(auditEventWithinRetention);

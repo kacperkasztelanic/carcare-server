@@ -4,28 +4,21 @@ import java.time.LocalDate;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
+import lombok.Value;
 
+@Value
 @Builder
 @EqualsAndHashCode(of = { "id" })
 @ToString(of = { "id" }, includeFieldNames = false)
 public class RoutineServiceDto implements HasVehicleEvent, HasCost {
 
-    @Getter
-    private final Long id;
-    @Getter
-    private final VehicleEventDto vehicleEvent;
-    @Getter
-    private final Integer costInCents;
-    @Getter
-    private final Integer nextByMileage;
-    @Getter
-    private final LocalDate nextByDate;
-    @Getter
-    private final String station;
-    @Getter
-    private final String details;
-    @Getter
-    private final Long vehicleId;
+     Long id;
+     VehicleEventDto vehicleEvent;
+     Integer costInCents;
+     Integer nextByMileage;
+     LocalDate nextByDate;
+     String station;
+     String details;
+     Long vehicleId;
 }

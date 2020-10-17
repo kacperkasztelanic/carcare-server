@@ -3,7 +3,6 @@ package com.kasztelanic.carcare.service.dto;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -11,6 +10,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+
+import static java.util.function.Function.identity;
 
 @Builder
 @EqualsAndHashCode
@@ -49,7 +50,7 @@ public class ForthcomingEvent implements Comparable<ForthcomingEvent> {
         }
 
         private static final Map<Class<?>, EventType> CLAZZ_MAP = Arrays.stream(EventType.values())//
-                .collect(ImmutableMap.toImmutableMap(EventType::getClazz, Function.identity()));
+                .collect(ImmutableMap.toImmutableMap(EventType::getClazz, identity()));
 
         public static EventType fromClass(Class<?> clazz) {
             return CLAZZ_MAP.get(clazz);

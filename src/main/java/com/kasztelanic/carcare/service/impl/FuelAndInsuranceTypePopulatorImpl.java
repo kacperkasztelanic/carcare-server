@@ -48,7 +48,7 @@ public class FuelAndInsuranceTypePopulatorImpl implements FuelAndInsuranceTypePo
     }
 
     @Override
-    public boolean pupulateInsuranceTypes() {
+    public boolean populateInsuranceTypes() {
         try {
             List<InsuranceType> insuranceTypes = fuelAndInsuranceTypesProvider
                     .deserializeInsuranceTypes(readJson(INSURANCE_TYPES_RESOURCE));

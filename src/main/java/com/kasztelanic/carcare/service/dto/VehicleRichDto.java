@@ -4,23 +4,19 @@ import java.util.Set;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
+import lombok.Value;
 
+@Value
 @EqualsAndHashCode(callSuper = true, of = {})
 @ToString(callSuper = true, of = {}, includeFieldNames = false)
 public class VehicleRichDto extends VehicleDto {
 
-    @Getter
-    private final Set<InsuranceDto> insurance;
-    @Getter
-    private final Set<InspectionDto> inspection;
-    @Getter
-    private final Set<RoutineServiceDto> routineService;
-    @Getter
-    private final Set<RepairDto> repair;
-    @Getter
-    private final Set<RefuelDto> refuel;
+     Set<InsuranceDto> insurance;
+     Set<InspectionDto> inspection;
+     Set<RoutineServiceDto> routineService;
+     Set<RepairDto> repair;
+     Set<RefuelDto> refuel;
 
     @Builder(builderMethodName = "richBuilder")
     @SuppressWarnings("all")

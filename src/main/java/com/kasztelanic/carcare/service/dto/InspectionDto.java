@@ -4,26 +4,20 @@ import java.time.LocalDate;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
+import lombok.Value;
 
+@Value
 @Builder
 @EqualsAndHashCode(of = { "id" })
 @ToString(of = { "validThru", "vehicleEvent" })
 public class InspectionDto implements HasVehicleEvent, HasCost {
-
-    @Getter
-    private final Long id;
-    @Getter
-    private final VehicleEventDto vehicleEvent;
-    @Getter
-    private final Integer costInCents;
-    @Getter
-    private final String station;
-    @Getter
-    private final LocalDate validThru;
-    @Getter
-    private final String details;
-    @Getter
-    private final Long vehicleId;
+    
+     Long id;
+     VehicleEventDto vehicleEvent;
+     Integer costInCents;
+     String station;
+     LocalDate validThru;
+     String details;
+     Long vehicleId;
 }
