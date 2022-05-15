@@ -5,15 +5,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.kasztelanic.carcare</groupId>
 	<artifactId>carcare</artifactId>
-	<version>1.2.1</version>
+	<version>1.3.0</version>
 	<packaging>war</packaging>
 	<name>CarCare</name>
 
     <properties>
-        <carcare-client.version>1.1.0</carcare-client.version>
+        <carcare-client.version>1.2.0</carcare-client.version>
 		<!-- Build properties -->
         <maven.version>3.8.5</maven.version>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
@@ -63,11 +63,11 @@
         <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
         <checkstyle.version>9.2.1</checkstyle.version>
-        <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
+        <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
         <modernizer-maven-plugin.version>2.3.0</modernizer-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
         <jib-maven-plugin.version>3.2.0</jib-maven-plugin.version>
-        <jib-maven-plugin.image>eclipse-temurin:11-jre-focal</jib-maven-plugin.image>
+        <jib-maven-plugin.image>eclipse-temurin:17-jre</jib-maven-plugin.image>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
@@ -428,11 +428,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <argLine>
-                        --illegal-access=permit
-                    </argLine>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -445,11 +440,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>
-                        --illegal-access=permit
-                    </argLine>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -599,7 +589,7 @@
                     <version>${jib-maven-plugin.version}</version>
                     <configuration>
                         <from>
-                            <image>adoptopenjdk:11-jre-hotspot</image>
+                            <image>eclipse-temurin:17-jre</image>
                         </from>
                         <to>
                             <image>carcare:latest</image>
@@ -705,8 +695,8 @@
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 12.</message>
-                                <version>[1.8,13)</version>
+                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 17.</message>
+                                <version>[1.8,18)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>
@@ -768,9 +758,6 @@
                             <exclude>**/*IT*</exclude>
                             <exclude>**/*IntTest*</exclude>
                         </excludes>
-                        <argLine>
-                            --illegal-access=permit
-                        </argLine>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -788,9 +775,6 @@
                             <include>**/*IT*</include>
                             <include>**/*IntTest*</include>
                         </includes>
-                        <argLine>
-                            --illegal-access=permit
-                        </argLine>
                     </configuration>
                     <executions>
                         <execution>

@@ -6,7 +6,6 @@ services:
         environment:
             #- _JAVA_OPTIONS=-Xmx512m -Xms256m
             - SPRING_PROFILES_ACTIVE=prod,api-docs
-            - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
             - SPRING_DATASOURCE_URL=jdbc:mariadb://carcare-mariadb:3306/carcare
             - SPRING_DATASOURCE_PASSWORD=${MARIADB_PASSWORD_ENV}
             - MAIL_PASSWORD=${MAIL_PASSWORD_ENV}
