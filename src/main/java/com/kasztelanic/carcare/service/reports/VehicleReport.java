@@ -1,15 +1,13 @@
 package com.kasztelanic.carcare.service.reports;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.kasztelanic.carcare.service.dto.InspectionDto;
+import com.kasztelanic.carcare.service.dto.InsuranceDto;
+import com.kasztelanic.carcare.service.dto.RefuelDto;
+import com.kasztelanic.carcare.service.dto.RepairDto;
+import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
+import com.kasztelanic.carcare.service.dto.VehicleDto;
+import com.kasztelanic.carcare.service.dto.VehicleRichDto;
+import com.kasztelanic.carcare.util.DateTimeFormatters;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -21,14 +19,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import com.kasztelanic.carcare.service.dto.InspectionDto;
-import com.kasztelanic.carcare.service.dto.InsuranceDto;
-import com.kasztelanic.carcare.service.dto.RefuelDto;
-import com.kasztelanic.carcare.service.dto.RepairDto;
-import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
-import com.kasztelanic.carcare.service.dto.VehicleDto;
-import com.kasztelanic.carcare.service.dto.VehicleRichDto;
-import com.kasztelanic.carcare.util.DateTimeFormatters;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class VehicleReport {
@@ -69,22 +68,22 @@ public class VehicleReport {
         createMainSheetRow(1, vehicle.getMake(), locale, "reports.vehicle.main.make", sheet);
         createMainSheetRow(2, vehicle.getModel(), locale, "reports.vehicle.main.model", sheet);
         createMainSheetRow(3, vehicle.getVehicleDetails().getModelSuffix(), locale, "reports.vehicle.main.suffix",
-                sheet);
+            sheet);
         createMainSheetRow(4, vehicle.getLicensePlate(), locale, "reports.vehicle.main.licensePlate", sheet);
         createMainSheetNumericRow(5, vehicle.getVehicleDetails().getYearOfManufacture(), locale,
-                "reports.vehicle.main.year", sheet);
+            "reports.vehicle.main.year", sheet);
         createMainSheetRow(6, vehicle.getFuelType().getTranslation(), locale, "reports.vehicle.main.fuelType", sheet);
         createMainSheetNumericRow(7, vehicle.getVehicleDetails().getEngineVolume(), locale,
-                "reports.vehicle.main.volume", sheet);
+            "reports.vehicle.main.volume", sheet);
         createMainSheetNumericRow(8, vehicle.getVehicleDetails().getEnginePower(), locale, "reports.vehicle.main.power",
-                sheet);
+            sheet);
         createMainSheetNumericRow(9, vehicle.getVehicleDetails().getWeight(), locale, "reports.vehicle.main.weight",
-                sheet);
+            sheet);
         createMainSheetRow(10, vehicle.getVehicleDetails().getVinNumber(), locale, "reports.vehicle.main.vin", sheet);
         createMainSheetRow(11, vehicle.getVehicleDetails().getVehicleCard(), locale, "reports.vehicle.main.card",
-                sheet);
+            sheet);
         createMainSheetRow(12, vehicle.getVehicleDetails().getRegistrationCertificate(), locale,
-                "reports.vehicle.main.certificate", sheet);
+            "reports.vehicle.main.certificate", sheet);
     }
 
     private void createMainSheetTitleRow(Locale locale, String title, Sheet sheet) {
@@ -110,21 +109,21 @@ public class VehicleReport {
     }
 
     private void createInsuranceSheet(Workbook workbook, Collection<InsuranceDto> insurances, Locale locale,
-            CellStyle cellStyle) {
+                                      CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.insurance", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.insurance.date", "reports.vehicle.insurance.mileage", "reports.vehicle" +
-                ".insurance.cost", "reports.vehicle.insurance.type", "reports.vehicle.insurance.number", "reports" +
-                ".vehicle.insurance.insurer", "reports.vehicle.insurance.validFrom", "reports.vehicle.insurance" +
-                ".validThru", "reports.vehicle.insurance.details" };
+        String[] titles = {"reports.vehicle.insurance.date", "reports.vehicle.insurance.mileage", "reports.vehicle" +
+            ".insurance.cost", "reports.vehicle.insurance.type", "reports.vehicle.insurance.number", "reports" +
+            ".vehicle.insurance.insurer", "reports.vehicle.insurance.validFrom", "reports.vehicle.insurance" +
+            ".validThru", "reports.vehicle.insurance.details"};
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
 
         List<InsuranceDto> sortedInsurances = insurances.stream()
-                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (InsuranceDto insurance : sortedInsurances) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -150,20 +149,20 @@ public class VehicleReport {
     }
 
     private void createInspectionSheet(Workbook workbook, Collection<InspectionDto> inspections, Locale locale,
-            CellStyle cellStyle) {
+                                       CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.inspection", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.inspection.date", "reports.vehicle.inspection.mileage", "reports.vehicle" +
-                ".inspection.cost", "reports.vehicle.inspection.station", "reports.vehicle.inspection.dateNext",
-                "reports.vehicle.inspection.details" };
+        String[] titles = {"reports.vehicle.inspection.date", "reports.vehicle.inspection.mileage", "reports.vehicle" +
+            ".inspection.cost", "reports.vehicle.inspection.station", "reports.vehicle.inspection.dateNext",
+            "reports.vehicle.inspection.details"};
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
 
         List<InspectionDto> sortedInspections = inspections.stream()
-                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (InspectionDto inspection : sortedInspections) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -183,20 +182,20 @@ public class VehicleReport {
     }
 
     private void createRoutineServiceSheet(Workbook workbook, Set<RoutineServiceDto> routineServices, Locale locale,
-            CellStyle cellStyle) {
+                                           CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.service", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.service.date", "reports.vehicle.service.mileage", "reports.vehicle" +
-                ".service.cost", "reports.vehicle.service.nextMileage", "reports.vehicle.service.nextDate", "reports" +
-                ".vehicle.service.station", "reports.vehicle.service.details" };
+        String[] titles = {"reports.vehicle.service.date", "reports.vehicle.service.mileage", "reports.vehicle" +
+            ".service.cost", "reports.vehicle.service.nextMileage", "reports.vehicle.service.nextDate", "reports" +
+            ".vehicle.service.station", "reports.vehicle.service.details"};
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
 
         List<RoutineServiceDto> sortedRoutineServices = routineServices.stream()
-                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (RoutineServiceDto routineService : sortedRoutineServices) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -225,15 +224,15 @@ public class VehicleReport {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.repair", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.repair.date", "reports.vehicle.repair.mileage", "reports.vehicle.repair" +
-                ".cost", "reports.vehicle.repair.station", "reports.vehicle.repair.details" };
+        String[] titles = {"reports.vehicle.repair.date", "reports.vehicle.repair.mileage", "reports.vehicle.repair" +
+            ".cost", "reports.vehicle.repair.station", "reports.vehicle.repair.details"};
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
 
         List<RepairDto> sortedRepairs = repairs.stream()
-                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (RepairDto repairDto : sortedRepairs) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -254,16 +253,16 @@ public class VehicleReport {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.vehicle.refuel", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.vehicle.refuel.date", "reports.vehicle.refuel.mileage", "reports.vehicle.refuel" +
-                ".cost", "reports.vehicle.refuel.volume", "reports.vehicle.refuel.price", "reports.vehicle.refuel" +
-                ".station" };
+        String[] titles = {"reports.vehicle.refuel.date", "reports.vehicle.refuel.mileage", "reports.vehicle.refuel" +
+            ".cost", "reports.vehicle.refuel.volume", "reports.vehicle.refuel.price", "reports.vehicle.refuel" +
+            ".station"};
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
 
         List<RefuelDto> sortedRefuels = refuels.stream()
-                .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
         for (RefuelDto refuelDto : sortedRefuels) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);

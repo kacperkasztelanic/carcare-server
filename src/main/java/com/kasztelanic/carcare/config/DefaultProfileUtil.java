@@ -1,12 +1,12 @@
 package com.kasztelanic.carcare.config;
 
-import io.github.jhipster.config.JHipsterConstants;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
 import org.springframework.boot.SpringApplication;
+import tech.jhipster.config.JHipsterConstants;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utility class to load a Spring profile to be used as default

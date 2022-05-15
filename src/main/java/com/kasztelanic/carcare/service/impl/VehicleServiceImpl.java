@@ -7,8 +7,7 @@ import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.service.VehicleService;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.mapper.VehicleMapper;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,33 +16,26 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
     private final ImageStorageService imageStorageService;
 
-    @Autowired
-    public VehicleServiceImpl(VehicleRepository vehicleRepository, VehicleMapper vehicleMapper,
-            ImageStorageService imageStorageService) {
-        this.vehicleRepository = vehicleRepository;
-        this.vehicleMapper = vehicleMapper;
-        this.imageStorageService = imageStorageService;
-    }
-
     @Override
     @Transactional(readOnly = true)
     public Optional<VehicleDto> getVehicle(Long id) {
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(id)//
-                .map(vehicleMapper::vehicleToVehicleDto);
+            .map(vehicleMapper::vehicleToVehicleDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<VehicleDto> getAllVehicles() {
         return vehicleRepository.findByOwnerIsCurrentUser().stream()//
-                .map(vehicleMapper::vehicleToVehicleDto)//
-                .collect(Collectors.toList());
+            .map(vehicleMapper::vehicleToVehicleDto)//
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -58,16 +50,16 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional
     public Optional<VehicleDto> editVehicle(Long id, VehicleDto vehicleDto) {
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(id)//
-                .map(i -> updateVehicle(i, vehicleMapper.vehicleDtoToVehicle(vehicleDto)))//
-                .map(vehicleRepository::save)//
-                .map(vehicleMapper::vehicleToVehicleDto);
+            .map(i -> updateVehicle(i, vehicleMapper.vehicleDtoToVehicle(vehicleDto)))//
+            .map(vehicleRepository::save)//
+            .map(vehicleMapper::vehicleToVehicleDto);
     }
 
     @Override
     @Transactional
     public Optional<VehicleDto> deleteVehicle(Long id) {
         Optional<VehicleDto> vehicle = vehicleRepository.findByIdAndOwnerIsCurrentUser(id)//
-                .map(vehicleMapper::vehicleToVehicleDto);
+            .map(vehicleMapper::vehicleToVehicleDto);
         vehicle.ifPresent(v -> vehicleRepository.deleteById(id));
         return vehicle;
     }

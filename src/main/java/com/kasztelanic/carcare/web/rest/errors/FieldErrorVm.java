@@ -1,12 +1,12 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
-import java.io.Serializable;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @AllArgsConstructor
-public class FieldErrorVM implements Serializable {
+public class FieldErrorVm implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

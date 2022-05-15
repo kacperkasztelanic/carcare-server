@@ -1,5 +1,7 @@
 package com.kasztelanic.carcare.web.rest.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -11,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Pagination uses the same principles as the <a href="https://developer.github.com/v3/#pagination">GitHub API</a>,
  * and follow <a href="http://tools.ietf.org/html/rfc5988">RFC 5988 (Link header)</a>.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PaginationUtil {
 
     public static <T> HttpHeaders generatePaginationHttpHeaders(Page<T> page, String baseUrl) {
@@ -38,11 +41,8 @@ public final class PaginationUtil {
 
     private static String generateUri(String baseUrl, int page, int size) {
         return UriComponentsBuilder.fromUriString(baseUrl)//
-                .queryParam("page", page)//
-                .queryParam("size", size)//
-                .toUriString();
-    }
-
-    private PaginationUtil() {
+            .queryParam("page", page)//
+            .queryParam("size", size)//
+            .toUriString();
     }
 }

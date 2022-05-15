@@ -2,21 +2,19 @@ package com.kasztelanic.carcare.service;
 
 import com.kasztelanic.carcare.config.audit.AuditEventConverter;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tech.jhipster.config.JHipsterProperties;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-
-import io.github.jhipster.config.JHipsterProperties;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service for managing audit events.
@@ -26,24 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class AuditEventService {
 
-    private final JHipsterProperties jHipsterProperties;
     private final PersistenceAuditEventRepository persistenceAuditEventRepository;
     private final AuditEventConverter auditEventConverter;
-
-    @Autowired
-    public AuditEventService(
-        PersistenceAuditEventRepository persistenceAuditEventRepository,
-        AuditEventConverter auditEventConverter, JHipsterProperties jhipsterProperties) {
-        this.persistenceAuditEventRepository = persistenceAuditEventRepository;
-        this.auditEventConverter = auditEventConverter;
-        this.jHipsterProperties = jhipsterProperties;
-    }
+    private final JHipsterProperties jHipsterProperties;
 
     /**
      * Old audit events should be automatically deleted after 30 days.
-     *
+     * <p>
      * This is scheduled to get fired at 12:00 (am).
      */
     @Scheduled(cron = "0 0 12 * * ?")

@@ -10,13 +10,7 @@ import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.web.rest.errors.BadRequestAlertException;
 import com.kasztelanic.carcare.web.rest.errors.EmailAlreadyUsedException;
 import com.kasztelanic.carcare.web.rest.errors.LoginAlreadyUsedException;
-
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -24,13 +18,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing users.
@@ -56,11 +61,10 @@ import java.util.*;
  * <p>
  * Another option would be to have a specific JPA entity graph to handle this case.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class UserResource {
-
-    private final Logger log = LoggerFactory.getLogger(UserResource.class);
 
     private final String applicationName;
     private final UserService userService;
@@ -69,7 +73,7 @@ public class UserResource {
 
     @Autowired
     public UserResource(@Value("${jhipster.clientApp.name}") String applicationName, UserService userService,
-            UserRepository userRepository, MailService mailService) {
+                        UserRepository userRepository, MailService mailService) {
         this.applicationName = applicationName;
         this.userService = userService;
         this.userRepository = userRepository;
@@ -85,7 +89,7 @@ public class UserResource {
      *
      * @param userDto the user to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new user, or with status {@code 400 (Bad Request)} if the login or email is already in use.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     * @throws URISyntaxException       if the Location URI syntax is incorrect.
      * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or email is already in use.
      */
     @PostMapping("/users")
@@ -104,7 +108,7 @@ public class UserResource {
             User newUser = userService.createUser(userDto);
             mailService.sendCreationEmail(newUser);
             return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
-                .headers(HeaderUtil.createAlert(applicationName,  "userManagement.created", newUser.getLogin()))
+                .headers(HeaderUtil.createAlert(applicationName, "userManagement.created", newUser.getLogin()))
                 .body(newUser);
         }
     }
@@ -145,14 +149,15 @@ public class UserResource {
     public ResponseEntity<List<UserDto>> getAllUsers(Pageable pageable) {
         Page<UserDto> page = userService.getAllManagedUsers(pageable);
         HttpHeaders headers = PaginationUtil
-                .generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            .generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok()//
-                .headers(headers)//
-                .body(page.getContent());
+            .headers(headers)//
+            .body(page.getContent());
     }
 
     /**
      * Gets a list of all roles.
+     *
      * @return a string list of all roles.
      */
     @GetMapping("/users/authorities")
@@ -185,7 +190,7 @@ public class UserResource {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
         return ResponseEntity.noContent()//
-                .headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login))//
-                .build();
+            .headers(HeaderUtil.createAlert(applicationName, "userManagement.deleted", login))//
+            .build();
     }
 }

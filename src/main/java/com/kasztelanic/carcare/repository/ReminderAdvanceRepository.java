@@ -1,11 +1,10 @@
 package com.kasztelanic.carcare.repository;
 
-import java.util.Optional;
-
+import com.kasztelanic.carcare.domain.ReminderAdvance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.kasztelanic.carcare.domain.ReminderAdvance;
+import java.util.Optional;
 
 @Repository
 public interface ReminderAdvanceRepository extends JpaRepository<ReminderAdvance, Long> {

@@ -1,7 +1,8 @@
 package com.kasztelanic.carcare.web.rest;
 
-import javax.transaction.Transactional;
-
+import com.kasztelanic.carcare.security.AuthoritiesConstants;
+import com.kasztelanic.carcare.service.FuelAndInsuranceTypePopulator;
+import com.kasztelanic.carcare.service.impl.RandomDataServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,9 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kasztelanic.carcare.security.AuthoritiesConstants;
-import com.kasztelanic.carcare.service.FuelAndInsuranceTypePopulator;
-import com.kasztelanic.carcare.service.impl.RandomDataServiceImpl;
+import javax.transaction.Transactional;
 
 //TODO refactor
 @RestController

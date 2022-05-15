@@ -1,11 +1,11 @@
 package com.kasztelanic.carcare.web.rest;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
-
+import com.kasztelanic.carcare.domain.ReminderAdvance;
+import com.kasztelanic.carcare.repository.ReminderAdvanceRepository;
+import com.kasztelanic.carcare.security.AuthoritiesConstants;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.UriUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,12 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kasztelanic.carcare.domain.ReminderAdvance;
-import com.kasztelanic.carcare.repository.ReminderAdvanceRepository;
-import com.kasztelanic.carcare.security.AuthoritiesConstants;
-import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
-import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
-import com.kasztelanic.carcare.web.rest.util.UriUtil;
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 //TODO extract service
 @RestController
@@ -39,9 +37,9 @@ public class ReminderAdvanceResource {
     public ResponseEntity<Integer> addReminderAdvance(@PathVariable Integer days) {
         ReminderAdvance reminderAdvance = reminderAdvanceRepository.save(ReminderAdvance.of(days));
         return ResponseEntity
-                .created(UriUtil.buildURI(String.format("/api/insuranceType/%s", reminderAdvance.getDays())))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(reminderAdvance.getDays())))
-                .body(reminderAdvance.getDays());
+            .created(UriUtil.buildURI(String.format("/api/insuranceType/%s", reminderAdvance.getDays())))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(reminderAdvance.getDays())))
+            .body(reminderAdvance.getDays());
     }
 
     @Transactional
@@ -53,7 +51,7 @@ public class ReminderAdvanceResource {
             reminderAdvanceRepository.delete(reminderAdvance.get());
             return ResponseEntity.ok().headers(
                     HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, String.valueOf(reminderAdvance.get().getDays())))
-                    .build();
+                .build();
         }
         return ResponseEntity.notFound().build();
     }
@@ -62,7 +60,7 @@ public class ReminderAdvanceResource {
     @GetMapping("")
     public ResponseEntity<List<Integer>> getReminderAdvances() {
         List<Integer> list = reminderAdvanceRepository.findAll().stream().map(ReminderAdvance::getDays)
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
         return ResponseUtil.createListOkResponse(list);
     }
 }

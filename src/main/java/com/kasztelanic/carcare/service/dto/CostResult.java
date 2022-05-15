@@ -7,8 +7,8 @@ import lombok.Value;
 
 @Value
 @Builder
-@EqualsAndHashCode(of = { "periodVehicle" })
-@ToString(of = { "periodVehicle" }, includeFieldNames = false)
+@EqualsAndHashCode(of = {"periodVehicle"})
+@ToString(of = {"periodVehicle"}, includeFieldNames = false)
 public class CostResult {
 
     PeriodVehicle periodVehicle;

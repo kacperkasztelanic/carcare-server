@@ -11,7 +11,6 @@ import com.kasztelanic.carcare.service.mapper.FuelTypeMapper;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.UriUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,12 +22,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.transaction.Transactional;
 
 //TODO extract service
 @RestController
@@ -43,7 +41,7 @@ public class FuelTypeResource {
 
     @Autowired
     public FuelTypeResource(FuelTypeRepository fuelTypeRepository, FuelTypeMapper fuelTypeMapper,
-            UserService userService) {
+                            UserService userService) {
         this.fuelTypeRepository = fuelTypeRepository;
         this.fuelTypeMapper = fuelTypeMapper;
         this.userService = userService;
@@ -54,14 +52,14 @@ public class FuelTypeResource {
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<String> addFuelType(@RequestBody FuelTypeRequest fuelTypeDto) {
         FuelType fuelType = fuelTypeRepository.save(//
-                FuelType.of(fuelTypeDto.getType().toUpperCase(),//
-                        fuelTypeDto.getEnglishTranslation(),//
-                        fuelTypeDto.getPolishTranslation()//
-                )//
+            FuelType.of(fuelTypeDto.getType().toUpperCase(),//
+                fuelTypeDto.getEnglishTranslation(),//
+                fuelTypeDto.getPolishTranslation()//
+            )//
         );
         return ResponseEntity.created(UriUtil.buildURI(String.format("/api/fuelType/%s", fuelType.getType())))
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, fuelType.getType()))
-                .body(fuelType.getType());
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, fuelType.getType()))
+            .body(fuelType.getType());
     }
 
     @Transactional
@@ -72,8 +70,8 @@ public class FuelTypeResource {
         if (fuelType.isPresent()) {
             fuelTypeRepository.delete(fuelType.get());
             return ResponseEntity.ok()
-                    .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, fuelType.get().getType()))//
-                    .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, fuelType.get().getType()))//
+                .build();
         }
         return ResponseEntity.notFound().build();
     }
@@ -83,8 +81,8 @@ public class FuelTypeResource {
     public ResponseEntity<List<FuelTypeDto>> getFuelTypes() {
         User user = userService.getUserWithAuthoritiesOrFail();
         List<FuelTypeDto> list = fuelTypeRepository.findAll().stream()
-                .map(t -> fuelTypeMapper.fuelTypeToFuelTypeDto(t, Locale.forLanguageTag(user.getLangKey())))
-                .collect(Collectors.toList());
+            .map(t -> fuelTypeMapper.fuelTypeToFuelTypeDto(t, Locale.forLanguageTag(user.getLangKey())))
+            .collect(Collectors.toList());
         return ResponseUtil.createListOkResponse(list);
     }
 }

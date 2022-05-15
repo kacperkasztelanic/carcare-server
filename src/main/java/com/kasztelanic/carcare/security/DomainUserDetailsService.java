@@ -2,9 +2,9 @@ package com.kasztelanic.carcare.security;
 
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.repository.UserRepository;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,23 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Authenticate a user from the database.
  */
 @Slf4j
 @Component("userDetailsService")
+@RequiredArgsConstructor
 public class DomainUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
-    @Autowired
-    public DomainUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     @Transactional
@@ -57,9 +52,11 @@ public class DomainUserDetailsService implements UserDetailsService {
         }
         List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
             .map(authority -> new SimpleGrantedAuthority(authority.getName()))
-            .collect(Collectors.toList());
-        return new org.springframework.security.core.userdetails.User(user.getLogin(),
+            .collect(toList());
+        return new org.springframework.security.core.userdetails.User(
+            user.getLogin(),
             user.getPassword(),
-            grantedAuthorities);
+            grantedAuthorities
+        );
     }
 }

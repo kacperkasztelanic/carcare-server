@@ -12,7 +12,7 @@ logging:
     level:
         ROOT: INFO
         com.kasztelanic.carcare: INFO
-        io.github.jhipster: INFO
+        tech.jhipster: INFO
 
 management:
     metrics:
@@ -109,10 +109,6 @@ jhipster:
                 token-validity-in-seconds-for-remember-me: 2592000
     mail: # specific JHipster mail property, for standard properties see MailProperties
         base-url: ${MAIL_BASE_URL:} # Modify according to your server's URL
-    metrics:
-        logs: # Reports metrics in the logs
-            enabled: false
-            report-frequency: 60 # in seconds
     logging:
         use-json-format: false # By default, logs are not in Json format
         logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration

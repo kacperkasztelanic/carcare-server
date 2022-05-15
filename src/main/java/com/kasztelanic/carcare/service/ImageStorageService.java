@@ -5,6 +5,6 @@ public interface ImageStorageService {
     String save(byte[] image, String fileType);
 
     byte[] load(String name);
-    
+
     boolean delete(String name);
 }

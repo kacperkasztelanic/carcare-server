@@ -10,14 +10,14 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Builder
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "make", "model", "licensePlate" }, includeFieldNames = false)
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"make", "model", "licensePlate"}, includeFieldNames = false)
 public class VehicleDto {
 
-     Long id;
-     String make;
-     String model;
-     String licensePlate;
-     FuelTypeDto fuelType;
-     VehicleDetailsDto vehicleDetails;
+    Long id;
+    String make;
+    String model;
+    String licensePlate;
+    FuelTypeDto fuelType;
+    VehicleDetailsDto vehicleDetails;
 }

@@ -10,7 +10,7 @@ import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.service.mapper.UserMapper;
 import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
-import com.kasztelanic.carcare.web.rest.vm.ManagedUserVM;
+import com.kasztelanic.carcare.web.rest.vm.ManagedUserVm;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -144,7 +144,7 @@ class UserResourceIT {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
         // Create the User
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setLogin(DEFAULT_LOGIN);
         managedUserVM.setPassword(DEFAULT_PASSWORD);
         managedUserVM.setFirstName(DEFAULT_FIRSTNAME);
@@ -177,7 +177,7 @@ class UserResourceIT {
     void createUserWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setId(1L);
         managedUserVM.setLogin(DEFAULT_LOGIN);
         managedUserVM.setPassword(DEFAULT_PASSWORD);
@@ -207,7 +207,7 @@ class UserResourceIT {
         userRepository.saveAndFlush(user);
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setLogin(DEFAULT_LOGIN);// this login should already be used
         managedUserVM.setPassword(DEFAULT_PASSWORD);
         managedUserVM.setFirstName(DEFAULT_FIRSTNAME);
@@ -236,7 +236,7 @@ class UserResourceIT {
         userRepository.saveAndFlush(user);
         int databaseSizeBeforeCreate = userRepository.findAll().size();
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setLogin("anotherlogin");
         managedUserVM.setPassword(DEFAULT_PASSWORD);
         managedUserVM.setFirstName(DEFAULT_FIRSTNAME);
@@ -316,7 +316,7 @@ class UserResourceIT {
         // Update the user
         User updatedUser = userRepository.findById(user.getId()).get();
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setId(updatedUser.getId());
         managedUserVM.setLogin(updatedUser.getLogin());
         managedUserVM.setPassword(UPDATED_PASSWORD);
@@ -358,7 +358,7 @@ class UserResourceIT {
         // Update the user
         User updatedUser = userRepository.findById(user.getId()).get();
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setId(updatedUser.getId());
         managedUserVM.setLogin(UPDATED_LOGIN);
         managedUserVM.setPassword(UPDATED_PASSWORD);
@@ -411,7 +411,7 @@ class UserResourceIT {
         // Update the user
         User updatedUser = userRepository.findById(user.getId()).get();
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setId(updatedUser.getId());
         managedUserVM.setLogin(updatedUser.getLogin());
         managedUserVM.setPassword(updatedUser.getPassword());
@@ -453,7 +453,7 @@ class UserResourceIT {
         // Update the user
         User updatedUser = userRepository.findById(user.getId()).get();
 
-        ManagedUserVM managedUserVM = new ManagedUserVM();
+        ManagedUserVm managedUserVM = new ManagedUserVm();
         managedUserVM.setId(updatedUser.getId());
         managedUserVM.setLogin("jhipster");// this login should already be used by anotherUser
         managedUserVM.setPassword(updatedUser.getPassword());

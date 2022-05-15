@@ -1,15 +1,5 @@
 package com.kasztelanic.carcare.service.impl;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.kasztelanic.carcare.domain.FuelType;
 import com.kasztelanic.carcare.domain.InsuranceType;
 import com.kasztelanic.carcare.repository.FuelTypeRepository;
@@ -17,6 +7,15 @@ import com.kasztelanic.carcare.repository.InsuranceTypeRepository;
 import com.kasztelanic.carcare.service.FuelAndInsuranceTypePopulator;
 import com.kasztelanic.carcare.testdata.FuelAndInsuranceTypesProvider;
 import com.kasztelanic.carcare.testdata.ObjectMapperFactory;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 
 @Service
 public class FuelAndInsuranceTypePopulatorImpl implements FuelAndInsuranceTypePopulator {
@@ -26,8 +25,7 @@ public class FuelAndInsuranceTypePopulatorImpl implements FuelAndInsuranceTypePo
     public static final String FUEL_TYPES_RESOURCE = "testdata/FuelTypes.json";
     public static final String INSURANCE_TYPES_RESOURCE = "testdata/InsuranceTypes.json";
 
-    private final FuelAndInsuranceTypesProvider fuelAndInsuranceTypesProvider = new FuelAndInsuranceTypesProvider(
-            ObjectMapperFactory.create());
+    private final FuelAndInsuranceTypesProvider fuelAndInsuranceTypesProvider = new FuelAndInsuranceTypesProvider(ObjectMapperFactory.create());
 
     @Autowired
     private FuelTypeRepository fuelTypeRepository;
@@ -38,7 +36,7 @@ public class FuelAndInsuranceTypePopulatorImpl implements FuelAndInsuranceTypePo
     public boolean populateFuelTypes() {
         try {
             List<FuelType> fuelTypes = fuelAndInsuranceTypesProvider
-                    .deserializeFuelTypes(readJson(FUEL_TYPES_RESOURCE));
+                .deserializeFuelTypes(readJson(FUEL_TYPES_RESOURCE));
             fuelTypeRepository.saveAll(fuelTypes);
             return true;
         } catch (IOException e) {
@@ -51,7 +49,7 @@ public class FuelAndInsuranceTypePopulatorImpl implements FuelAndInsuranceTypePo
     public boolean populateInsuranceTypes() {
         try {
             List<InsuranceType> insuranceTypes = fuelAndInsuranceTypesProvider
-                    .deserializeInsuranceTypes(readJson(INSURANCE_TYPES_RESOURCE));
+                .deserializeInsuranceTypes(readJson(INSURANCE_TYPES_RESOURCE));
             insuranceTypeRepository.saveAll(insuranceTypes);
             return true;
         } catch (IOException e) {

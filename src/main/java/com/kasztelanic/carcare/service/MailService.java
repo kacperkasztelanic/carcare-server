@@ -1,11 +1,12 @@
 package com.kasztelanic.carcare.service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-
-import javax.mail.internet.MimeMessage;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.kasztelanic.carcare.domain.Inspection;
+import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.domain.RoutineService;
+import com.kasztelanic.carcare.domain.User;
+import com.kasztelanic.carcare.domain.Vehicle;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -13,15 +14,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+import tech.jhipster.config.JHipsterProperties;
 
-import com.kasztelanic.carcare.domain.Inspection;
-import com.kasztelanic.carcare.domain.Insurance;
-import com.kasztelanic.carcare.domain.RoutineService;
-import com.kasztelanic.carcare.domain.User;
-import com.kasztelanic.carcare.domain.Vehicle;
-
-import io.github.jhipster.config.JHipsterProperties;
-import lombok.extern.slf4j.Slf4j;
+import javax.mail.internet.MimeMessage;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 /**
  * Service for sending emails.
@@ -30,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MailService {
 
     private static final String USER = "user";
@@ -40,19 +38,10 @@ public class MailService {
     private final MessageSource messageSource;
     private final SpringTemplateEngine templateEngine;
 
-    @Autowired
-    public MailService(JHipsterProperties jHipsterProperties, JavaMailSender javaMailSender,
-            MessageSource messageSource, SpringTemplateEngine templateEngine) {
-        this.jHipsterProperties = jHipsterProperties;
-        this.javaMailSender = javaMailSender;
-        this.messageSource = messageSource;
-        this.templateEngine = templateEngine;
-    }
-
     @Async
     public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml) {
         log.debug("Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}", isMultipart,
-                isHtml, to, subject, content);
+            isHtml, to, subject, content);
 
         // Prepare message using a Spring helper
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();

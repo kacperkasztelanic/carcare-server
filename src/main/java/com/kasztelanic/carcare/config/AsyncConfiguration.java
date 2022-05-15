@@ -1,7 +1,7 @@
 package com.kasztelanic.carcare.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
@@ -11,23 +11,18 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import tech.jhipster.async.ExceptionHandlingAsyncTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-import io.github.jhipster.async.ExceptionHandlingAsyncTaskExecutor;
-
+@Slf4j
 @Configuration
 @EnableAsync
 @EnableScheduling
+@RequiredArgsConstructor
 public class AsyncConfiguration implements AsyncConfigurer {
 
-    private final Logger log = LoggerFactory.getLogger(AsyncConfiguration.class);
-
     private final TaskExecutionProperties taskExecutionProperties;
-
-    public AsyncConfiguration(TaskExecutionProperties taskExecutionProperties) {
-        this.taskExecutionProperties = taskExecutionProperties;
-    }
 
     @Override
     @Bean(name = "taskExecutor")

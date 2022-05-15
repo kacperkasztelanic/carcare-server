@@ -1,18 +1,16 @@
 package com.kasztelanic.carcare.domain;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.validation.constraints.Min;
-
-import org.hibernate.validator.constraints.Length;
-import org.springframework.data.annotation.PersistenceConstructor;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.PersistenceConstructor;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.validation.constraints.Min;
+import java.io.Serializable;
 
 @Embeddable
 @ToString
@@ -68,7 +66,7 @@ public class VehicleDetails implements Serializable {
 
     @Getter
     @Setter
-    @Column(name = "notes", length = 65535, columnDefinition = "Text")
+    @Column(name = "notes", length = 65535, columnDefinition = "clob")
     private String notes;
 
     @Getter
@@ -83,8 +81,8 @@ public class VehicleDetails implements Serializable {
     @Builder
     @SuppressWarnings("all")
     private VehicleDetails(String modelSuffix, String vinNumber, String vehicleCard, String registrationCertificate,
-            Integer yearOfManufacture, Integer engineVolume, Integer enginePower, Integer weight, String notes,
-            String image) {
+                           Integer yearOfManufacture, Integer engineVolume, Integer enginePower, Integer weight, String notes,
+                           String image) {
         this.modelSuffix = modelSuffix;
         this.vinNumber = vinNumber;
         this.vehicleCard = vehicleCard;

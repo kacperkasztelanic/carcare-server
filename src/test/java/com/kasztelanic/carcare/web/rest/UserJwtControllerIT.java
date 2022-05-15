@@ -5,7 +5,7 @@ import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.security.jwt.TokenProvider;
 import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
-import com.kasztelanic.carcare.web.rest.vm.LoginVM;
+import com.kasztelanic.carcare.web.rest.vm.LoginVm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +25,10 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.not;
 
 /**
- * Integration tests for the {@link UserJWTController} REST controller.
+ * Integration tests for the {@link UserJwtController} REST controller.
  */
 @SpringBootTest(classes = CarcareApp.class)
-class UserJWTControllerIT {
+class UserJwtControllerIT {
 
     @Autowired
     private TokenProvider tokenProvider;
@@ -45,7 +45,7 @@ class UserJWTControllerIT {
 
     @BeforeEach
     public void setup() {
-        UserJWTController userJWTController = new UserJWTController(tokenProvider, authenticationManager);
+        UserJwtController userJWTController = new UserJwtController(tokenProvider, authenticationManager);
         this.mockMvc = MockMvcBuilders.standaloneSetup(userJWTController)
             .setControllerAdvice(exceptionTranslator)
             .build();
@@ -62,7 +62,7 @@ class UserJWTControllerIT {
 
         userRepository.saveAndFlush(user);
 
-        LoginVM login = LoginVM.of("user-jwt-controller", "test");
+        LoginVm login = LoginVm.of("user-jwt-controller", "test");
         mockMvc.perform(post("/api/authenticate")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(login)))
@@ -84,7 +84,7 @@ class UserJWTControllerIT {
 
         userRepository.saveAndFlush(user);
 
-        LoginVM login = LoginVM.of("user-jwt-controller-remember-me", "test", true);
+        LoginVm login = LoginVm.of("user-jwt-controller-remember-me", "test", true);
         mockMvc.perform(post("/api/authenticate")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(login)))
@@ -97,7 +97,7 @@ class UserJWTControllerIT {
 
     @Test
     void testAuthorizeFails() throws Exception {
-        LoginVM login = LoginVM.of("wrong-user", "wrong password");
+        LoginVm login = LoginVm.of("wrong-user", "wrong password");
         mockMvc.perform(post("/api/authenticate")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(login)))

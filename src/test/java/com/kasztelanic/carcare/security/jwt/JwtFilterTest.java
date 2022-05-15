@@ -1,7 +1,9 @@
 package com.kasztelanic.carcare.security.jwt;
 
+import com.kasztelanic.carcare.management.SecurityMetersService;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
-import io.github.jhipster.config.JHipsterProperties;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import tech.jhipster.config.JHipsterProperties;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
@@ -24,11 +26,13 @@ class JwtFilterTest {
 
     private TokenProvider tokenProvider;
     private JwtFilter jwtFilter;
+    private
 
     @BeforeEach
     void setup() {
+        SecurityMetersService securityMetersService = new SecurityMetersService(new SimpleMeterRegistry());
         JHipsterProperties jHipsterProperties = new JHipsterProperties();
-        tokenProvider = new TokenProvider(jHipsterProperties);
+        tokenProvider = new TokenProvider(securityMetersService, jHipsterProperties);
         ReflectionTestUtils.setField(tokenProvider, "key",
             Keys.hmacShaKeyFor(Decoders.BASE64
                 .decode("fd54a45s65fds737b9aafcb3412e07ed99b267f33413274720ddbb7f6c5e64e9f14075f2d7ed041592f0b7657baf8")));

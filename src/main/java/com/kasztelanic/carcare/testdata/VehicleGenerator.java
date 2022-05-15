@@ -1,15 +1,14 @@
 package com.kasztelanic.carcare.testdata;
 
-import java.util.List;
-import java.util.Random;
-
-import org.apache.commons.lang3.RandomStringUtils;
-
 import com.kasztelanic.carcare.service.dto.FuelTypeDto;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto.VehicleDetailsDtoBuilder;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.dto.VehicleDto.VehicleDtoBuilder;
+import org.apache.commons.lang3.RandomStringUtils;
+
+import java.util.List;
+import java.util.Random;
 
 public class VehicleGenerator {
 
@@ -47,7 +46,7 @@ public class VehicleGenerator {
     }
 
     private String randomLicensePlate() {
-        String[] letters = { "DW", "DWR", "DKL", "DTR", "DB", "WW", "PO", "OP" };
+        String[] letters = {"DW", "DWR", "DKL", "DTR", "DB", "WW", "PO", "OP"};
         StringBuilder builder = new StringBuilder();
         builder.append(letters[random.nextInt(letters.length)]);
         builder.append(" ");
@@ -59,7 +58,7 @@ public class VehicleGenerator {
 
     private String randomRegistrationCertificate() {
         return (RandomStringUtils.randomAlphabetic(2) + "/" + RandomStringUtils.randomAlphabetic(2)
-                + RandomStringUtils.randomNumeric(9)).toUpperCase();
+            + RandomStringUtils.randomNumeric(9)).toUpperCase();
     }
 
     private String randomVehicleCard() {

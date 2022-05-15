@@ -1,7 +1,17 @@
 package com.kasztelanic.carcare.domain;
 
-import java.io.Serializable;
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -14,28 +24,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.data.annotation.PersistenceConstructor;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.Accessors;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "insurances")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Accessors(chain = true)
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "validThru", "vehicleEvent", "vehicle" })
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"validThru", "vehicleEvent", "vehicle"})
 public class Insurance implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -95,7 +92,7 @@ public class Insurance implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @Column(name = "details", nullable = false, length = 65535, columnDefinition = "Text")
+    @Column(name = "details", nullable = false, length = 65535, columnDefinition = "clob")
     private String details;
 
     @Getter
@@ -113,7 +110,7 @@ public class Insurance implements Serializable {
     @Builder
     @SuppressWarnings("all")
     private Insurance(VehicleEvent vehicleEvent, LocalDate validFrom, LocalDate validThru, Integer costInCents,
-            String number, String insurer, String details, InsuranceType insuranceType, Vehicle vehicle) {
+                      String number, String insurer, String details, InsuranceType insuranceType, Vehicle vehicle) {
         this.vehicleEvent = vehicleEvent;
         this.validFrom = validFrom;
         this.validThru = validThru;

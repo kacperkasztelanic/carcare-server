@@ -6,7 +6,6 @@ import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.UriUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,8 +39,8 @@ public class VehicleResource {
     @GetMapping("/{id}")
     public ResponseEntity<VehicleDto> getVehicle(@PathVariable Long id) {
         return vehicleService.getVehicle(id)//
-                .map(ResponseEntity::ok)//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/all")
@@ -54,27 +53,27 @@ public class VehicleResource {
         Function<VehicleDto, URI> uriProvider = v -> UriUtil.buildURI(String.format("/api/vehicle/%s", v.getId()));
         VehicleDto result = vehicleService.addVehicle(vehicleDto, userService.getUserWithAuthoritiesOrFail());
         return ResponseEntity.created(uriProvider.apply(result))//
-                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))//
-                .body(result);
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))//
+            .body(result);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleDto) {
         return vehicleService.editVehicle(id, vehicleDto)//
-                .map(i -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<VehicleDto> deleteVehicle(@PathVariable Long id) {
         return vehicleService.deleteVehicle(id)//
-                .map(v -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(v)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(v -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                .body(v)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

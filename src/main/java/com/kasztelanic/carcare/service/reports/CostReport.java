@@ -1,13 +1,8 @@
 package com.kasztelanic.carcare.service.reports;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
-
+import com.kasztelanic.carcare.service.dto.CostResult;
+import com.kasztelanic.carcare.service.dto.VehicleDto;
+import com.kasztelanic.carcare.service.dto.VehicleRichDto;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -19,9 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import com.kasztelanic.carcare.service.dto.CostResult;
-import com.kasztelanic.carcare.service.dto.VehicleDto;
-import com.kasztelanic.carcare.service.dto.VehicleRichDto;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
 
@@ -38,7 +37,7 @@ public class CostReport {
     }
 
     public byte[] generateCostReport(Collection<CostResult> costs, Collection<VehicleRichDto> vehicles,
-            Locale locale) throws IOException {
+                                     Locale locale) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(true); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             DataFormat format = workbook.createDataFormat();
             CellStyle cellStyle = workbook.createCellStyle();
@@ -50,23 +49,23 @@ public class CostReport {
     }
 
     private void createSheet(Workbook workbook, Collection<CostResult> costs, Collection<VehicleRichDto> vehicles,
-            Locale locale, CellStyle cellStyle) {
+                             Locale locale, CellStyle cellStyle) {
         Sheet sheet = workbook.createSheet(messageSource.getMessage("reports.costs", null, locale));
         int rowNum = 0;
         Row titleRow = sheet.createRow(rowNum++);
-        String[] titles = { "reports.costs.costs", "reports.costs.insurance", "reports.costs.inspection",
-                "reports" + ".costs.service", "reports.costs.repair", "reports.costs.refuel", "reports.costs.sum" };
+        String[] titles = {"reports.costs.costs", "reports.costs.insurance", "reports.costs.inspection",
+            "reports" + ".costs.service", "reports.costs.repair", "reports.costs.refuel", "reports.costs.sum"};
         for (int i = 0; i < titles.length; i++) {
             Cell cell = titleRow.createCell(i);
             cell.setCellValue(messageSource.getMessage(titles[i], null, locale));
         }
         Map<Long, VehicleDto> vehicleById = vehicles.stream()
-                .collect(Collectors.toMap(VehicleDto::getId, identity()));
+            .collect(Collectors.toMap(VehicleDto::getId, identity()));
         for (CostResult cost : costs) {
             Row row = sheet.createRow(rowNum++);
             VehicleDto vehicle = vehicleById.get(cost.getPeriodVehicle().getVehicleId());
             row.createCell(0).setCellValue(
-                    String.format("%s %s - %s", vehicle.getMake(), vehicle.getModel(), vehicle.getLicensePlate()));
+                String.format("%s %s - %s", vehicle.getMake(), vehicle.getModel(), vehicle.getLicensePlate()));
             createCostCell(1, cost.getInsuranceCosts(), row, cellStyle);
             createCostCell(2, cost.getInspectionCosts(), row, cellStyle);
             createCostCell(3, cost.getRoutineServiceCosts(), row, cellStyle);

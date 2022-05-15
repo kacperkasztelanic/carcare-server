@@ -4,7 +4,6 @@ import org.zalando.problem.AbstractThrowableProblem;
 import org.zalando.problem.Status;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 
 public class BadRequestAlertException extends AbstractThrowableProblem {
@@ -34,9 +33,9 @@ public class BadRequestAlertException extends AbstractThrowableProblem {
     }
 
     private static Map<String, Object> getAlertParameters(String entityName, String errorKey) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("message", "error." + errorKey);
-        parameters.put("params", entityName);
-        return parameters;
+        return Map.of(
+            "message", "error." + errorKey,
+            "params", entityName
+        );
     }
 }

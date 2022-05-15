@@ -3,7 +3,6 @@ package com.kasztelanic.carcare.service.mapper;
 import com.kasztelanic.carcare.domain.FuelType;
 import com.kasztelanic.carcare.repository.FuelTypeRepository;
 import com.kasztelanic.carcare.service.dto.FuelTypeDto;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,7 @@ public class FuelTypeMapper {
 
     public FuelType fuelTypeDtoToFuelType(FuelTypeDto fuelTypeDto) {
         return fuelTypeRepository.findByType(fuelTypeDto.getType())//
-                .orElseThrow(IllegalStateException::new);
+            .orElseThrow(IllegalStateException::new);
     }
 
     private static String selectTranslation(FuelType fuelType, Locale locale) {

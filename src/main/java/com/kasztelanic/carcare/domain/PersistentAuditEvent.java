@@ -1,9 +1,7 @@
 package com.kasztelanic.carcare.domain;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -16,9 +14,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Persist AuditEvent managed by the Spring Boot actuator.

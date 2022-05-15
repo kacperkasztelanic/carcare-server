@@ -5,10 +5,10 @@ import lombok.ToString;
 import lombok.Value;
 
 @Value(staticConstructor = "of")
-@EqualsAndHashCode(of = { "name" })
-@ToString(of = { "name" }, includeFieldNames = false)
+@EqualsAndHashCode(of = {"name"})
+@ToString(of = {"name"}, includeFieldNames = false)
 public class Report {
 
-     String name;
-     byte[] bytes;
+    String name;
+    byte[] bytes;
 }

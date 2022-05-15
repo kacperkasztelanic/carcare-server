@@ -3,9 +3,13 @@ package com.kasztelanic.carcare.web.rest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kasztelanic.carcare.security.jwt.JwtFilter;
 import com.kasztelanic.carcare.security.jwt.TokenProvider;
-import com.kasztelanic.carcare.web.rest.vm.LoginVM;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.kasztelanic.carcare.web.rest.vm.LoginVm;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,41 +23,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 /**
  * Controller to authenticate users.
  */
 @RestController
 @RequestMapping("/api")
-public class UserJWTController {
+@RequiredArgsConstructor
+public class UserJwtController {
 
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    @Autowired
-    public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
-        this.tokenProvider = tokenProvider;
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-    }
-
     @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                loginVM.getUsername(), loginVM.getPassword());
+    public ResponseEntity<JwtToken> authorize(@Valid @RequestBody LoginVm loginVm) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginVm.getUsername(), loginVm.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        boolean rememberMe = loginVM.getRememberMe() != null && loginVM.getRememberMe();
+        boolean rememberMe = loginVm.getRememberMe() != null && loginVm.getRememberMe();
         String jwt = tokenProvider.createToken(authentication, rememberMe);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
         return ResponseEntity.ok()//
-                .headers(httpHeaders)//
-                .body(JWTToken.of(jwt));
+            .headers(httpHeaders)//
+            .body(JwtToken.of(jwt));
     }
 
     /**
@@ -62,7 +54,7 @@ public class UserJWTController {
     @AllArgsConstructor(staticName = "of")
     @EqualsAndHashCode
     @ToString(includeFieldNames = false)
-    private static class JWTToken {
+    private static class JwtToken {
 
         @Getter
         @Setter

@@ -7,16 +7,16 @@ import lombok.Value;
 
 @Value
 @Builder
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "costInCents", "volume" }, includeFieldNames = false)
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"costInCents", "volume"}, includeFieldNames = false)
 public class RefuelDto implements HasVehicleEvent, HasCost {
 
     public static final RefuelDto ZERO = RefuelDto.builder()//
-            .costInCents(0)//
-            .volume(0)//
-            .station("")//
-            .vehicleEvent(VehicleEventDto.ZERO)//
-            .build();
+        .costInCents(0)//
+        .volume(0)//
+        .station("")//
+        .vehicleEvent(VehicleEventDto.ZERO)//
+        .build();
 
     Long id;
     VehicleEventDto vehicleEvent;

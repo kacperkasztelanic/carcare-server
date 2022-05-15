@@ -1,19 +1,5 @@
 package com.kasztelanic.carcare.service.impl;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.VehicleRepository;
@@ -26,12 +12,23 @@ import com.kasztelanic.carcare.testdata.FuelAndInsuranceTypesProvider;
 import com.kasztelanic.carcare.testdata.ObjectMapperFactory;
 import com.kasztelanic.carcare.testdata.VehicleGenerator;
 import com.kasztelanic.carcare.testdata.VehicleTemplate;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 //TODO move to testdata
+@Slf4j
 @Service
 public class RandomDataServiceImpl {
-
-    private Logger log = LoggerFactory.getLogger(RandomDataServiceImpl.class);
 
     private static final String FUEL_TYPES_RESOURCE = FuelAndInsuranceTypePopulatorImpl.FUEL_TYPES_RESOURCE;
     private static final String VEHICLE_TEMPLATES_RESOURCE = "testdata/VehicleTemplates.json";
@@ -50,7 +47,7 @@ public class RandomDataServiceImpl {
         List<VehicleTemplate> vehicleTemplates = prepareVehicleTemplates(ObjectMapperFactory.create());
         Collections.shuffle(vehicleTemplates);
         return vehicleTemplates.stream().limit(numberOfVehicles).map(i -> generateOne(vehicleGenerator, i))
-                .count() == numberOfVehicles;
+            .count() == numberOfVehicles;
     }
 
     private boolean generateOne(VehicleGenerator generator, VehicleTemplate template) {
@@ -63,13 +60,13 @@ public class RandomDataServiceImpl {
 
     private List<FuelTypeDto> prepareFuelTypes() {
         Locale locale = Locale.forLanguageTag(
-                userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new).getLangKey());
+            userService.getUserWithAuthorities().orElseThrow(IllegalStateException::new).getLangKey());
         FuelAndInsuranceTypesProvider provider = new FuelAndInsuranceTypesProvider(ObjectMapperFactory.create());
         try {
             return provider
-                    .deserializeFuelTypes(IOUtils.resourceToString(FUEL_TYPES_RESOURCE, Charset.forName("utf-8"),
-                            getClass().getClassLoader()))
-                    .stream().map(i -> fuelTypeMapper.fuelTypeToFuelTypeDto(i, locale)).collect(Collectors.toList());
+                .deserializeFuelTypes(IOUtils.resourceToString(FUEL_TYPES_RESOURCE, Charset.forName("utf-8"),
+                    getClass().getClassLoader()))
+                .stream().map(i -> fuelTypeMapper.fuelTypeToFuelTypeDto(i, locale)).collect(Collectors.toList());
         } catch (IOException e) {
             log.error("Could not prepare fuel types");
             return Collections.emptyList();
@@ -79,7 +76,7 @@ public class RandomDataServiceImpl {
     private List<VehicleTemplate> prepareVehicleTemplates(ObjectMapper mapper) {
         try {
             return Arrays.asList(mapper.readValue(IOUtils.resourceToString(VEHICLE_TEMPLATES_RESOURCE,
-                    Charset.forName("utf-8"), getClass().getClassLoader()), VehicleTemplate[].class));
+                Charset.forName("utf-8"), getClass().getClassLoader()), VehicleTemplate[].class));
         } catch (IOException e) {
             log.error("Could not prepare vehicle templates");
             return Collections.emptyList();

@@ -5,7 +5,6 @@ import com.kasztelanic.carcare.service.ReportService;
 import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.Report;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -37,17 +36,17 @@ public class ReportResource {
     public ResponseEntity<byte[]> reportForVehicle(@PathVariable long id) {
         User user = userService.getUserWithAuthoritiesOrFail();
         return reportService.generateVehicleReport(id, user)//
-                .map(e -> e.map(ReportResource::prepareResponse))//
-                .orElseGet(() -> Right(ResponseEntity.notFound().build()))//
-                .getOrElseThrow(identity());
+            .map(e -> e.map(ReportResource::prepareResponse))//
+            .orElseGet(() -> Right(ResponseEntity.notFound().build()))//
+            .getOrElseThrow(identity());
     }
 
     @PostMapping("/costs")
     public ResponseEntity<byte[]> costReport(@RequestBody CostRequest costRequest) {
         User user = userService.getUserWithAuthoritiesOrFail();
         return reportService.generateCostReport(costRequest, user)//
-                .map(ReportResource::prepareResponse)//
-                .getOrElseThrow(identity());
+            .map(ReportResource::prepareResponse)//
+            .getOrElseThrow(identity());
 
     }
 
@@ -57,7 +56,7 @@ public class ReportResource {
         headers.setContentDispositionFormData(report.getName(), report.getName());
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         return ResponseEntity.ok()//
-                .headers(headers)//
-                .body(report.getBytes());
+            .headers(headers)//
+            .body(report.getBytes());
     }
 }

@@ -8,7 +8,7 @@ import lombok.Value;
  */
 @Value(staticConstructor = "of")
 @ToString(of = "key", includeFieldNames = false)
-public class KeyAndPasswordVM {
+public class KeyAndPasswordVm {
 
     String key;
     String newPassword;

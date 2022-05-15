@@ -5,7 +5,6 @@ import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.UriUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,8 +36,8 @@ public class RoutineServiceResource {
     @GetMapping("/{id}")
     public ResponseEntity<RoutineServiceDto> getRoutineService(@PathVariable Long id) {
         return routineServiceService.getRoutineService(id)//
-                .map(ResponseEntity::ok)//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/all/{vehicleId}")
@@ -48,35 +47,35 @@ public class RoutineServiceResource {
 
     @PostMapping("/{vehicleId}")
     public ResponseEntity<RoutineServiceDto> addRoutineService(@PathVariable Long vehicleId,
-            @RequestBody RoutineServiceDto routineServiceDto) {
+                                                               @RequestBody RoutineServiceDto routineServiceDto) {
         BiFunction<Long, RoutineServiceDto, URI> uriProvider = //
-                (i, r) -> UriUtil.buildURI(String.format("/api/routine-service/%s/%s", i, r.getId()));
+            (i, r) -> UriUtil.buildURI(String.format("/api/routine-service/%s/%s", i, r.getId()));
         return routineServiceService.addRoutineService(vehicleId, routineServiceDto)//
-                .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
-                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RoutineServiceDto> editRoutineService(@PathVariable Long id,
-            @RequestBody RoutineServiceDto routineServiceDto) {
+                                                                @RequestBody RoutineServiceDto routineServiceDto) {
         return routineServiceService.editRoutineService(id, routineServiceDto)//
-                .map(i -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
-                .orElse(ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                .body(i)//
+            )//
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<RoutineServiceDto> deleteRoutineService(@PathVariable Long id) {
         return routineServiceService.deleteRoutineService(id)//
-                .map(r -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(r)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(r -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                .body(r)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

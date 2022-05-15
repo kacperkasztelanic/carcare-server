@@ -4,7 +4,7 @@ import com.kasztelanic.carcare.config.Constants;
 
 import com.kasztelanic.carcare.CarcareApp;
 import com.kasztelanic.carcare.domain.User;
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

@@ -6,7 +6,6 @@ import com.kasztelanic.carcare.service.dto.HasCost;
 import com.kasztelanic.carcare.service.dto.HasVehicleEvent;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.service.dto.VehicleRichDto;
-
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -20,21 +19,21 @@ public class CostCalculatorImpl implements CostCalculator {
         LocalDate dateFrom = periodVehicle.getDateFrom();
         LocalDate dateTo = periodVehicle.getDateTo();
         return CostResult.builder()//
-                .periodVehicle(periodVehicle)//
-                .insuranceCosts(sumCostsBetweenDates(vehicle.getInsurance(), dateFrom, dateTo))//
-                .inspectionCosts(sumCostsBetweenDates(vehicle.getInspection(), dateFrom, dateTo))//
-                .routineServiceCosts(sumCostsBetweenDates(vehicle.getRoutineService(), dateFrom, dateTo))//
-                .repairCosts(sumCostsBetweenDates(vehicle.getRepair(), dateFrom, dateTo))//
-                .refuelCosts(sumCostsBetweenDates(vehicle.getRefuel(), dateFrom, dateTo))//
-                .build();
+            .periodVehicle(periodVehicle)//
+            .insuranceCosts(sumCostsBetweenDates(vehicle.getInsurance(), dateFrom, dateTo))//
+            .inspectionCosts(sumCostsBetweenDates(vehicle.getInspection(), dateFrom, dateTo))//
+            .routineServiceCosts(sumCostsBetweenDates(vehicle.getRoutineService(), dateFrom, dateTo))//
+            .repairCosts(sumCostsBetweenDates(vehicle.getRepair(), dateFrom, dateTo))//
+            .refuelCosts(sumCostsBetweenDates(vehicle.getRefuel(), dateFrom, dateTo))//
+            .build();
     }
 
     private static <T extends HasCost & HasVehicleEvent> double sumCostsBetweenDates(Collection<T> collection,
-            LocalDate dateFrom, LocalDate dateTo) {
+                                                                                     LocalDate dateFrom, LocalDate dateTo) {
         return collection.stream()//
-                .filter(i -> !i.getVehicleEvent().getDate().isBefore(dateFrom)//
-                        && !i.getVehicleEvent().getDate().isAfter(dateTo)//
-                )//
-                .mapToInt(HasCost::getCostInCents).sum() / 100.0;
+            .filter(i -> !i.getVehicleEvent().getDate().isBefore(dateFrom)//
+                && !i.getVehicleEvent().getDate().isAfter(dateTo)//
+            )//
+            .mapToInt(HasCost::getCostInCents).sum() / 100.0;
     }
 }

@@ -1,9 +1,9 @@
 package com.kasztelanic.carcare.util;
 
-import java.util.UUID;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 //TODO make it a bean
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

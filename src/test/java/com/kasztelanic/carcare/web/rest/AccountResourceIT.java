@@ -12,8 +12,8 @@ import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.PasswordChangeDto;
 import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
-import com.kasztelanic.carcare.web.rest.vm.KeyAndPasswordVM;
-import com.kasztelanic.carcare.web.rest.vm.ManagedUserVM;
+import com.kasztelanic.carcare.web.rest.vm.KeyAndPasswordVm;
+import com.kasztelanic.carcare.web.rest.vm.ManagedUserVm;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -147,7 +147,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testRegisterValid() throws Exception {
-        ManagedUserVM validUser = new ManagedUserVM();
+        ManagedUserVm validUser = new ManagedUserVm();
         validUser.setLogin("test-register-valid");
         validUser.setPassword("password");
         validUser.setFirstName("Alice");
@@ -170,7 +170,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testRegisterInvalidLogin() throws Exception {
-        ManagedUserVM invalidUser = new ManagedUserVM();
+        ManagedUserVm invalidUser = new ManagedUserVm();
         invalidUser.setLogin("funky-log!n");// <-- invalid
         invalidUser.setPassword("password");
         invalidUser.setFirstName("Funky");
@@ -194,7 +194,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testRegisterInvalidEmail() throws Exception {
-        ManagedUserVM invalidUser = new ManagedUserVM();
+        ManagedUserVm invalidUser = new ManagedUserVm();
         invalidUser.setLogin("bob");
         invalidUser.setPassword("password");
         invalidUser.setFirstName("Bob");
@@ -218,7 +218,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testRegisterInvalidPassword() throws Exception {
-        ManagedUserVM invalidUser = new ManagedUserVM();
+        ManagedUserVm invalidUser = new ManagedUserVm();
         invalidUser.setLogin("bob");
         invalidUser.setPassword("123");// password with only 3 digits
         invalidUser.setFirstName("Bob");
@@ -242,7 +242,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testRegisterNullPassword() throws Exception {
-        ManagedUserVM invalidUser = new ManagedUserVM();
+        ManagedUserVm invalidUser = new ManagedUserVm();
         invalidUser.setLogin("bob");
         invalidUser.setPassword(null);// invalid null password
         invalidUser.setFirstName("Bob");
@@ -267,7 +267,7 @@ class AccountResourceIT {
     @Transactional
     void testRegisterDuplicateLogin() throws Exception {
         // First registration
-        ManagedUserVM firstUser = new ManagedUserVM();
+        ManagedUserVm firstUser = new ManagedUserVm();
         firstUser.setLogin("alice");
         firstUser.setPassword("password");
         firstUser.setFirstName("Alice");
@@ -278,7 +278,7 @@ class AccountResourceIT {
         firstUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
         // Duplicate login, different email
-        ManagedUserVM secondUser = new ManagedUserVM();
+        ManagedUserVm secondUser = new ManagedUserVm();
         secondUser.setLogin(firstUser.getLogin());
         secondUser.setPassword(firstUser.getPassword());
         secondUser.setFirstName(firstUser.getFirstName());
@@ -323,7 +323,7 @@ class AccountResourceIT {
     @Transactional
     void testRegisterDuplicateEmail() throws Exception {
         // First user
-        ManagedUserVM firstUser = new ManagedUserVM();
+        ManagedUserVm firstUser = new ManagedUserVm();
         firstUser.setLogin("test-register-duplicate-email");
         firstUser.setPassword("password");
         firstUser.setFirstName("Alice");
@@ -344,7 +344,7 @@ class AccountResourceIT {
         assertThat(testUser1.isPresent()).isTrue();
 
         // Duplicate email, different login
-        ManagedUserVM secondUser = new ManagedUserVM();
+        ManagedUserVm secondUser = new ManagedUserVm();
         secondUser.setLogin("test-register-duplicate-email-2");
         secondUser.setPassword(firstUser.getPassword());
         secondUser.setFirstName(firstUser.getFirstName());
@@ -368,7 +368,7 @@ class AccountResourceIT {
         assertThat(testUser3.isPresent()).isTrue();
 
         // Duplicate email - with uppercase email address
-        ManagedUserVM userWithUpperCaseEmail = new ManagedUserVM();
+        ManagedUserVm userWithUpperCaseEmail = new ManagedUserVm();
         userWithUpperCaseEmail.setId(firstUser.getId());
         userWithUpperCaseEmail.setLogin("test-register-duplicate-email-3");
         userWithUpperCaseEmail.setPassword(firstUser.getPassword());
@@ -404,7 +404,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testRegisterAdminIsIgnored() throws Exception {
-        ManagedUserVM validUser = new ManagedUserVM();
+        ManagedUserVm validUser = new ManagedUserVm();
         validUser.setLogin("badguy");
         validUser.setPassword("password");
         validUser.setFirstName("Bad");
@@ -648,7 +648,7 @@ class AccountResourceIT {
         user.setEmail("change-password-too-small@example.com");
         userRepository.saveAndFlush(user);
 
-        String newPassword = RandomStringUtils.random(ManagedUserVM.PASSWORD_MIN_LENGTH - 1);
+        String newPassword = RandomStringUtils.random(ManagedUserVm.PASSWORD_MIN_LENGTH - 1);
 
         restMvc.perform(post("/api/account/change-password")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -670,7 +670,7 @@ class AccountResourceIT {
         user.setEmail("change-password-too-long@example.com");
         userRepository.saveAndFlush(user);
 
-        String newPassword = RandomStringUtils.random(ManagedUserVM.PASSWORD_MAX_LENGTH + 1);
+        String newPassword = RandomStringUtils.random(ManagedUserVm.PASSWORD_MAX_LENGTH + 1);
 
         restMvc.perform(post("/api/account/change-password")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -750,7 +750,7 @@ class AccountResourceIT {
         user.setResetKey("reset key");
         userRepository.saveAndFlush(user);
 
-        KeyAndPasswordVM keyAndPassword = KeyAndPasswordVM.of(user.getResetKey(), "new password");
+        KeyAndPasswordVm keyAndPassword = KeyAndPasswordVm.of(user.getResetKey(), "new password");
 
         restMvc.perform(
             post("/api/account/reset-password/finish")
@@ -773,7 +773,7 @@ class AccountResourceIT {
         user.setResetKey("reset key too small");
         userRepository.saveAndFlush(user);
 
-        KeyAndPasswordVM keyAndPassword = KeyAndPasswordVM.of(user.getResetKey(), "foo");
+        KeyAndPasswordVm keyAndPassword = KeyAndPasswordVm.of(user.getResetKey(), "foo");
 
         restMvc.perform(
             post("/api/account/reset-password/finish")
@@ -789,7 +789,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testFinishPasswordResetWrongKey() throws Exception {
-        KeyAndPasswordVM keyAndPassword = KeyAndPasswordVM.of("wrong reset key", "new password");
+        KeyAndPasswordVm keyAndPassword = KeyAndPasswordVm.of("wrong reset key", "new password");
 
         restMvc.perform(
             post("/api/account/reset-password/finish")

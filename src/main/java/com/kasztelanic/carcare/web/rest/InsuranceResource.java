@@ -5,7 +5,6 @@ import com.kasztelanic.carcare.service.dto.InsuranceDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.UriUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,8 +36,8 @@ public class InsuranceResource {
     @GetMapping("/{id}")
     public ResponseEntity<InsuranceDto> getInsurance(@PathVariable Long id) {
         return insuranceService.getInsurance(id)//
-                .map(ResponseEntity::ok)//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/all/{vehicleId}")
@@ -48,34 +47,34 @@ public class InsuranceResource {
 
     @PostMapping("/{vehicleId}")
     public ResponseEntity<InsuranceDto> addInsurance(@PathVariable Long vehicleId,
-            @RequestBody InsuranceDto insuranceDto) {
+                                                     @RequestBody InsuranceDto insuranceDto) {
         BiFunction<Long, InsuranceDto, URI> uriProvider = //
-                (i, r) -> UriUtil.buildURI(String.format("/api/insurance/%s/%s", i, r.getId()));
+            (i, r) -> UriUtil.buildURI(String.format("/api/insurance/%s/%s", i, r.getId()));
         return insuranceService.addInsurance(vehicleId, insuranceDto)//
-                .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
-                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<InsuranceDto> editInsurance(@PathVariable Long id, @RequestBody InsuranceDto insuranceDto) {
         return insuranceService.editInsurance(id, insuranceDto)//
-                .map(i -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<InsuranceDto> deleteInsurance(@PathVariable Long id) {
         return insuranceService.deleteInsurance(id)//
-                .map(i -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

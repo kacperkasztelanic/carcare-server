@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Builder
-@EqualsAndHashCode(of = { "make", "model", "modelSuffix" })
-@ToString(of = { "make", "model", "modelSuffix" }, includeFieldNames = false)
+@EqualsAndHashCode(of = {"make", "model", "modelSuffix"})
+@ToString(of = {"make", "model", "modelSuffix"}, includeFieldNames = false)
 public class VehicleTemplate {
 
     @Getter

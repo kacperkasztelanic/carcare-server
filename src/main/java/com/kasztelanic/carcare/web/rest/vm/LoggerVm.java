@@ -9,12 +9,12 @@ import lombok.Value;
  */
 @Value(staticConstructor = "of")
 @ToString(includeFieldNames = false)
-public class LoggerVM {
+public class LoggerVm {
 
     String name;
     String level;
 
-    public static LoggerVM of(Logger logger) {
-        return new LoggerVM(logger.getName(), logger.getEffectiveLevel().toString());
+    public static LoggerVm of(Logger logger) {
+        return new LoggerVm(logger.getName(), logger.getEffectiveLevel().toString());
     }
 }

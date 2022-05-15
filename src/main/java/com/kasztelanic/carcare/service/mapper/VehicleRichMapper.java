@@ -7,7 +7,6 @@ import com.kasztelanic.carcare.repository.RefuelRepository;
 import com.kasztelanic.carcare.repository.RepairRepository;
 import com.kasztelanic.carcare.repository.RoutineServiceRepository;
 import com.kasztelanic.carcare.service.dto.VehicleRichDto;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,11 +32,11 @@ public class VehicleRichMapper {
     @Autowired
     @SuppressWarnings("all")
     public VehicleRichMapper(FuelTypeMapper fuelTypeMapper, VehicleDetailsMapper vehicleDetailsMapper,
-            InsuranceRepository insuranceRepository, InsuranceMapper insuranceMapper,
-            InspectionRepository inspectionRepository, InspectionMapper inspectionMapper, RefuelMapper refuelMapper,
-            RepairRepository repairRepository, RepairMapper repairMapper,
-            RoutineServiceRepository routineServiceRepository, RoutineServiceMapper routineServiceMapper,
-            RefuelRepository refuelRepository) {
+                             InsuranceRepository insuranceRepository, InsuranceMapper insuranceMapper,
+                             InspectionRepository inspectionRepository, InspectionMapper inspectionMapper, RefuelMapper refuelMapper,
+                             RepairRepository repairRepository, RepairMapper repairMapper,
+                             RoutineServiceRepository routineServiceRepository, RoutineServiceMapper routineServiceMapper,
+                             RefuelRepository refuelRepository) {
         this.fuelTypeMapper = fuelTypeMapper;
         this.vehicleDetailsMapper = vehicleDetailsMapper;
         this.insuranceRepository = insuranceRepository;
@@ -54,34 +53,34 @@ public class VehicleRichMapper {
 
     public VehicleRichDto vehicleToVehicleDto(Vehicle vehicle) {
         return VehicleRichDto.richBuilder()//
-                .id(vehicle.getId())//
-                .make(vehicle.getMake())//
-                .model(vehicle.getModel())//
-                .licensePlate(vehicle.getLicensePlate())//
-                .fuelType(fuelTypeMapper.fuelTypeToFuelTypeDto(vehicle.getFuelType(),
-                        Locale.forLanguageTag(vehicle.getOwner().getLangKey()))
-                )//
-                .vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle))//
-                .insurance(insuranceRepository.findByVehicleId(vehicle.getId()).stream()//
-                        .map(insuranceMapper::insuranceToInsuranceDto)//
-                        .collect(Collectors.toSet())//
-                )//
-                .inspection(inspectionRepository.findByVehicleId(vehicle.getId()).stream()//
-                        .map(inspectionMapper::inspectionToInspectionDto)//
-                        .collect(Collectors.toSet())//
-                )//
-                .routineService(routineServiceRepository.findByVehicleId(vehicle.getId()).stream()//
-                        .map(routineServiceMapper::routineServiceToRoutineServiceDto)//
-                        .collect(Collectors.toSet())//
-                )//
-                .repair(repairRepository.findByVehicleId(vehicle.getId()).stream()//
-                        .map(repairMapper::repairToRepairDto)//
-                        .collect(Collectors.toSet())//
-                )//
-                .refuel(refuelRepository.findByVehicleId(vehicle.getId()).stream()//
-                        .map(refuelMapper::refuelToRefuelDto)//
-                        .collect(Collectors.toSet())//
-                )//
-                .build();
+            .id(vehicle.getId())//
+            .make(vehicle.getMake())//
+            .model(vehicle.getModel())//
+            .licensePlate(vehicle.getLicensePlate())//
+            .fuelType(fuelTypeMapper.fuelTypeToFuelTypeDto(vehicle.getFuelType(),
+                Locale.forLanguageTag(vehicle.getOwner().getLangKey()))
+            )//
+            .vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle))//
+            .insurance(insuranceRepository.findByVehicleId(vehicle.getId()).stream()//
+                .map(insuranceMapper::insuranceToInsuranceDto)//
+                .collect(Collectors.toSet())//
+            )//
+            .inspection(inspectionRepository.findByVehicleId(vehicle.getId()).stream()//
+                .map(inspectionMapper::inspectionToInspectionDto)//
+                .collect(Collectors.toSet())//
+            )//
+            .routineService(routineServiceRepository.findByVehicleId(vehicle.getId()).stream()//
+                .map(routineServiceMapper::routineServiceToRoutineServiceDto)//
+                .collect(Collectors.toSet())//
+            )//
+            .repair(repairRepository.findByVehicleId(vehicle.getId()).stream()//
+                .map(repairMapper::repairToRepairDto)//
+                .collect(Collectors.toSet())//
+            )//
+            .refuel(refuelRepository.findByVehicleId(vehicle.getId()).stream()//
+                .map(refuelMapper::refuelToRefuelDto)//
+                .collect(Collectors.toSet())//
+            )//
+            .build();
     }
 }

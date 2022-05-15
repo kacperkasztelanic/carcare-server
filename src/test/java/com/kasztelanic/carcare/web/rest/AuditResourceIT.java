@@ -1,7 +1,7 @@
 package com.kasztelanic.carcare.web.rest;
 
 import com.kasztelanic.carcare.CarcareApp;
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import com.kasztelanic.carcare.config.audit.AuditEventConverter;
 import com.kasztelanic.carcare.domain.PersistentAuditEvent;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;

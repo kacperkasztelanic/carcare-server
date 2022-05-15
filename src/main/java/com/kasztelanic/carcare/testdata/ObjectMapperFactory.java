@@ -1,7 +1,5 @@
 package com.kasztelanic.carcare.testdata;
 
-import java.text.SimpleDateFormat;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.Version;
@@ -11,9 +9,10 @@ import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
+import java.text.SimpleDateFormat;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ObjectMapperFactory {

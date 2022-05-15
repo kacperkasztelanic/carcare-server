@@ -1,6 +1,16 @@
 package com.kasztelanic.carcare.domain;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -11,26 +21,13 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.data.annotation.PersistenceConstructor;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "vehicles")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "make", "model", "licensePlate" }, includeFieldNames = false)
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"make", "model", "licensePlate"}, includeFieldNames = false)
 public class Vehicle implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -90,7 +87,7 @@ public class Vehicle implements Serializable {
     @Builder
     @SuppressWarnings("all")
     private Vehicle(String make, String model, String licensePlate, FuelType fuelType, VehicleDetails vehicleDetails,
-            User owner) {
+                    User owner) {
         this.make = make;
         this.model = model;
         this.licensePlate = licensePlate;

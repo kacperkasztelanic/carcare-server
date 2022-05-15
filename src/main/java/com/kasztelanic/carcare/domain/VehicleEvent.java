@@ -1,17 +1,15 @@
 package com.kasztelanic.carcare.domain;
 
-import java.io.Serializable;
-import java.time.LocalDate;
+import lombok.Getter;
+import lombok.ToString;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import org.springframework.data.annotation.PersistenceConstructor;
-
-import lombok.Getter;
-import lombok.ToString;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 @Embeddable
 @ToString(includeFieldNames = false)

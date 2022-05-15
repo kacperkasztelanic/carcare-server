@@ -1,15 +1,17 @@
 package com.kasztelanic.carcare.web.rest.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 
 /**
  * Utility class for HTTP headers creation.
  */
+@Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HeaderUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(HeaderUtil.class);
     private static final String APPLICATION_NAME = "carcareApp";
 
     public static HttpHeaders createAlert(String message, String param) {
@@ -37,8 +39,5 @@ public final class HeaderUtil {
         headers.add("X-" + APPLICATION_NAME + "-error", "error." + errorKey);
         headers.add("X-" + APPLICATION_NAME + "-params", entityName);
         return headers;
-    }
-
-    private HeaderUtil() {
     }
 }

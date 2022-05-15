@@ -1,7 +1,6 @@
 package com.kasztelanic.carcare.repository;
 
 import com.kasztelanic.carcare.domain.Authority;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

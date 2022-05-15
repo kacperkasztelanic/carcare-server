@@ -1,9 +1,6 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
-
-import io.github.jhipster.web.util.HeaderUtil;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +16,7 @@ import org.zalando.problem.Status;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.spring.web.advice.security.SecurityAdviceTrait;
 import org.zalando.problem.violations.ConstraintViolationProblem;
+import tech.jhipster.web.util.HeaderUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -79,68 +77,68 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @Override
     public ResponseEntity<Problem> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-            @Nonnull NativeWebRequest request) {
+                                                                @Nonnull NativeWebRequest request) {
         BindingResult result = ex.getBindingResult();
-        List<FieldErrorVM> fieldErrors = result.getFieldErrors().stream()//
-                .map(f -> new FieldErrorVM(f.getObjectName().replaceFirst("DTO$", ""), f.getField(), f.getCode()))//
-                .collect(Collectors.toList());
+        List<FieldErrorVm> fieldErrors = result.getFieldErrors().stream()//
+            .map(f -> new FieldErrorVm(f.getObjectName().replaceFirst("DTO$", ""), f.getField(), f.getCode()))//
+            .collect(Collectors.toList());
 
         Problem problem = Problem.builder()//
-                .withType(ErrorConstants.CONSTRAINT_VIOLATION_TYPE)//
-                .withTitle("Method argument not valid")//
-                .withStatus(defaultConstraintViolationStatus())//
-                .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION)//
-                .with(FIELD_ERRORS_KEY, fieldErrors)//
-                .build();
+            .withType(ErrorConstants.CONSTRAINT_VIOLATION_TYPE)//
+            .withTitle("Method argument not valid")//
+            .withStatus(defaultConstraintViolationStatus())//
+            .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION)//
+            .with(FIELD_ERRORS_KEY, fieldErrors)//
+            .build();
         return create(ex, problem, request);
     }
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleNoSuchElementException(NoSuchElementException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()//
-                .withStatus(Status.NOT_FOUND)//
-                .with(MESSAGE_KEY, ErrorConstants.ENTITY_NOT_FOUND_TYPE)//
-                .build();//
+            .withStatus(Status.NOT_FOUND)//
+            .with(MESSAGE_KEY, ErrorConstants.ENTITY_NOT_FOUND_TYPE)//
+            .build();//
         return create(ex, problem, request);
     }
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleEmailAreadyUsedException(
-            com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException ex, NativeWebRequest request) {
+        com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException ex, NativeWebRequest request) {
         EmailAlreadyUsedException problem = new EmailAlreadyUsedException();
         return create(problem, request, HeaderUtil
-                .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
-                        problem.getMessage()));
+            .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
+                problem.getMessage()));
     }
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleUsernameAreadyUsedException(
-            UsernameAlreadyUsedException ex, NativeWebRequest request) {
+        UsernameAlreadyUsedException ex, NativeWebRequest request) {
         LoginAlreadyUsedException problem = new LoginAlreadyUsedException();
         return create(problem, request, HeaderUtil
-                .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
-                        problem.getMessage()));
+            .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
+                problem.getMessage()));
     }
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleInvalidPasswordException(
-            com.kasztelanic.carcare.service.exception.InvalidPasswordException ex, NativeWebRequest request) {
+        com.kasztelanic.carcare.service.exception.InvalidPasswordException ex, NativeWebRequest request) {
         return create(new InvalidPasswordException(), request);
     }
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex,
-            NativeWebRequest request) {
+                                                                  NativeWebRequest request) {
         return create(ex, request, HeaderUtil
-                .createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+            .createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     }
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()//
-                .withStatus(Status.CONFLICT)//
-                .with(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE)//
-                .build();
+            .withStatus(Status.CONFLICT)//
+            .with(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE)//
+            .build();
         return create(ex, problem, request);
     }
 }

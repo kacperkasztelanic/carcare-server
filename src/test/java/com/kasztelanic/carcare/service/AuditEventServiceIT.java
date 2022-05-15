@@ -3,7 +3,7 @@ package com.kasztelanic.carcare.service;
 import com.kasztelanic.carcare.domain.PersistentAuditEvent;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
 import com.kasztelanic.carcare.CarcareApp;
-import io.github.jhipster.config.JHipsterProperties;
+import tech.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,17 @@
 package com.kasztelanic.carcare.domain;
 
-import java.io.Serializable;
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -14,28 +24,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.data.annotation.PersistenceConstructor;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.Accessors;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "inspections")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Accessors(chain = true)
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "validThru", "vehicleEvent", "vehicle" })
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"validThru", "vehicleEvent", "vehicle"})
 public class Inspection implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -84,7 +81,7 @@ public class Inspection implements Serializable {
     @Setter
     @NotNull
     @Length(min = 1)
-    @Column(name = "details", nullable = false, length = 65535, columnDefinition = "Text")
+    @Column(name = "details", nullable = false, length = 65535, columnDefinition = "clob")
     private String details;
 
     @PersistenceConstructor
@@ -95,7 +92,7 @@ public class Inspection implements Serializable {
 
     @Builder
     private Inspection(VehicleEvent vehicleEvent, Integer costInCents, String station, LocalDate validThru,
-            String details, Vehicle vehicle) {
+                       String details, Vehicle vehicle) {
         this.vehicleEvent = vehicleEvent;
         this.costInCents = costInCents;
         this.station = station;

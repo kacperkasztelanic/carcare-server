@@ -1,11 +1,10 @@
 package com.kasztelanic.carcare.repository;
 
-import java.util.Optional;
-
+import com.kasztelanic.carcare.domain.InsuranceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.kasztelanic.carcare.domain.InsuranceType;
+import java.util.Optional;
 
 @Repository
 public interface InsuranceTypeRepository extends JpaRepository<InsuranceType, Long> {

@@ -1,10 +1,10 @@
 package com.kasztelanic.carcare.service.dto;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import lombok.ToString;
 import lombok.Value;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Value(staticConstructor = "of")
 @ToString(includeFieldNames = false)

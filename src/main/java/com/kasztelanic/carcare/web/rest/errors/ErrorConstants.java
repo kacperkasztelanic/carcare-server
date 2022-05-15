@@ -1,7 +1,11 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.net.URI;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ErrorConstants {
 
     public static final String ERR_CONCURRENCY_FAILURE = "error.concurrencyFailure";
@@ -15,7 +19,4 @@ public final class ErrorConstants {
     public static final URI EMAIL_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/email-already-used");
     public static final URI LOGIN_ALREADY_USED_TYPE = URI.create(PROBLEM_BASE_URL + "/login-already-used");
     public static final URI EMAIL_NOT_FOUND_TYPE = URI.create(PROBLEM_BASE_URL + "/email-not-found");
-
-    private ErrorConstants() {
-    }
 }

@@ -5,7 +5,6 @@ import com.kasztelanic.carcare.service.dto.InspectionDto;
 import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import com.kasztelanic.carcare.web.rest.util.UriUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,8 +36,8 @@ public class InspectionResource {
     @GetMapping("/{id}")
     public ResponseEntity<InspectionDto> getInspection(@PathVariable Long id) {
         return inspectionService.getInspection(id)//
-                .map(ResponseEntity::ok)//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/all/{vehicleId}")
@@ -48,35 +47,35 @@ public class InspectionResource {
 
     @PostMapping("/{vehicleId}")
     public ResponseEntity<InspectionDto> addInspection(@PathVariable Long vehicleId,
-            @RequestBody InspectionDto inspectionDto) {
+                                                       @RequestBody InspectionDto inspectionDto) {
         BiFunction<Long, InspectionDto, URI> uriProvider = //
-                (i, r) -> UriUtil.buildURI(String.format("/api/inspection/%s/%s", i, r.getId()));
+            (i, r) -> UriUtil.buildURI(String.format("/api/inspection/%s/%s", i, r.getId()));
         return inspectionService.addInspection(vehicleId, inspectionDto)//
-                .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
-                        .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.created(uriProvider.apply(vehicleId, i))//
+                .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, i.getId().toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<InspectionDto> editInspection(@PathVariable Long id,
-            @RequestBody InspectionDto inspectionDto) {
+                                                        @RequestBody InspectionDto inspectionDto) {
         return inspectionService.editInspection(id, inspectionDto)//
-                .map(i -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<InspectionDto> deleteInspection(@PathVariable Long id) {
         return inspectionService.deleteInspection(id)//
-                .map(i -> ResponseEntity.ok()//
-                        .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
-                        .body(i)//
-                )//
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .map(i -> ResponseEntity.ok()//
+                .headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString()))//
+                .body(i)//
+            )//
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

@@ -1,20 +1,18 @@
 package com.kasztelanic.carcare.service.dto;
 
 import com.kasztelanic.carcare.config.Constants;
-
 import com.kasztelanic.carcare.domain.Authority;
 import com.kasztelanic.carcare.domain.User;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-
-import javax.validation.constraints.*;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * A DTO representing a user, with his authorities.
