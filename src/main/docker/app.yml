@@ -1,6 +1,6 @@
 services:
     carcare-app:
-        image: registry.gitlab.com/kkasztel_carcare/server/app:1.3.1
+        image: registry.gitlab.com/kkasztel_carcare/server/app:1.3.2
         container_name: carcare-app
         restart: always
         environment:
@@ -24,7 +24,7 @@ services:
             service: carcare-mariadb
         restart: always
     reverseproxy:
-        image: registry.gitlab.com/kkasztel_carcare/server/proxy:1.3.1
+        image: registry.gitlab.com/kkasztel_carcare/server/proxy:1.3.2
         container_name: carcare-proxy
         restart: always
         ports:
