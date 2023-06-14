@@ -43,7 +43,7 @@
         <mapstruct.version>1.5.2.Final</mapstruct.version>
         <lombok.version>1.18.24</lombok.version>
         <vavr.version>0.10.3</vavr.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <poi-ooxml.version>5.2.2</poi-ooxml.version>
         <tika-core.version>2.4.1</tika-core.version>
         <springdocs.version>1.6.9</springdocs.version>
