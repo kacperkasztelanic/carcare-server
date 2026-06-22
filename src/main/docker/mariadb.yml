@@ -1,6 +1,6 @@
 services:
     carcare-mariadb:
-        image: mariadb:10.11.2
+        image: mariadb:10.11.6
         container_name: carcare-mariadb
         volumes:
             - ~/carcare/data/mysql/:/var/lib/mysql/
