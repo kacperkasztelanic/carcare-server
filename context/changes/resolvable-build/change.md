@@ -1,7 +1,7 @@
 ---
 change_id: resolvable-build
 title: "Resolvable dependency graph"
-status: implemented
+status: impl_reviewed
 created: 2026-08-24
 updated: 2026-08-25
 roadmap_item: F-01
@@ -21,3 +21,5 @@ rewrite. Both decisions are recorded in `plan-brief.md`.
 
 - Plan: `plan.md`
 - Brief: `plan-brief.md`
+- Implementation review: `reviews/impl-review.md` (triaged — 9 findings fixed, 1 recorded as a
+  deferred follow-up; all 22 automated criteria re-verified green after the fixes)

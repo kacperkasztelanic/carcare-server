@@ -1,4 +1,4 @@
-package com.kasztelanic.carcare.config;
+package com.kasztelanic.carcare.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kasztelanic.carcare.web.rest.errors.SecurityProblemDetails;
@@ -14,6 +14,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Writes the {@code application/problem+json} 403 body for requests that never reach the
@@ -29,10 +30,14 @@ public class ProblemDetailAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException)
         throws IOException, ServletException {
+        if (response.isCommitted()) {
+            return;
+        }
         ProblemDetail problemDetail = SecurityProblemDetails.forSecurityError(HttpStatus.FORBIDDEN,
             accessDeniedException.getMessage(), request.getRequestURI());
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         objectMapper.writeValue(response.getWriter(), problemDetail);
     }
 }

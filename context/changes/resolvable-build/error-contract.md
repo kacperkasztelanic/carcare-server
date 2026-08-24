@@ -75,11 +75,40 @@ bytecode (`javap -v`, `BootstrapMethods` section): the 3-arg constructor used by
 This was already anticipated and flagged as "the one likely genuine divergence" in
 `plan.md` Phase 2 §6. `ExceptionTranslatorIT.testMethodNotSupported` updated accordingly.
 
+## Correction 3: the catch-all is registered for `Exception`, not `Throwable`
+
+*Added post-implementation during the implementation review (finding F4); it should have been
+recorded here when the divergence was made.*
+
+**What the plan said** (`plan.md` Phase 2 §3): "An `@ExceptionHandler(Throwable.class)` catch-all
+emitting 500 … Without it, an unhandled `RuntimeException` falls through to Boot's `/error`,
+which returns `{"timestamp","status","error","path"}` as `application/json` — a different body
+*and* a different content type."
+
+**What was implemented**: `@ExceptionHandler(Exception.class)`
+(`ExceptionTranslator.java:160`). `Throwable` is not registrable here — every route out of this
+class goes through `handleExceptionInternal`, whose Spring-declared signature takes an
+`Exception`, so a `Throwable` handler could not both catch `Error` and share the single
+post-processing hook that gives every body its `path`, `message` fallback and type substitution.
+
+**Consequence, accepted**: the plan's stated goal is met for the case it actually cared about —
+an unhandled `RuntimeException` is caught and rendered as `application/problem+json`. A bare
+`Error` (`OutOfMemoryError`, `StackOverflowError`, …) is *not* caught and does still reach Boot's
+`/error` with the different body and content type. That is the correct outcome regardless: a JVM
+`Error` means the process is already in an undefined state, and rendering a tidy problem
+document over it would be misleading. The remaining exposure is limited to response *shape*
+during a fault that is not survivable anyway.
+
+**Related**: the catch-all's logging is level-switched on `status.is5xxServerError()` — `error`
+for genuine faults, `warn` for a deliberate 4xx carried by `@ResponseStatus`. Zalando's
+`AdviceTrait` made the same distinction; logging every 4xx at `error` would have been a
+regression in log signal-to-noise.
+
 ## Per-handler contract (post-Phase-2)
 
 | Handler | Status | `type` | `title` | `detail` | `message` | `path` |
 | --- | --- | --- | --- | --- | --- | --- |
-| `handleMethodArgumentNotValid` | 400 | about:blank→DEFAULT_TYPE | "Method argument not valid" | — | `ERR_VALIDATION` | added |
+| `handleMethodArgumentNotValid` | 400 | `CONSTRAINT_VIOLATION_TYPE` | "Method argument not valid" | — | `ERR_VALIDATION` | added |
 | `handleNoSuchElementException` | 404 | DEFAULT_TYPE | — | — | `ENTITY_NOT_FOUND_TYPE` (URI, preserved verbatim — pre-existing quirk, not a bug fix) | added |
 | `handleEmailAlreadyUsedException` | 400 | `EMAIL_ALREADY_USED_TYPE` | "Email is already in use!" | — | `error.emailexists` | added (new) |
 | `handleUsernameAlreadyUsedException` | 400 | `LOGIN_ALREADY_USED_TYPE` | "Login name already used!" | — | `error.userexists` | added (new) |
@@ -93,11 +122,17 @@ This was already anticipated and flagged as "the one likely genuine divergence" 
 
 "added (new)" marks the four handlers affected by Correction 1.
 
+`handleMethodArgumentNotValid`'s `type` is set explicitly rather than left to fall through to
+`DEFAULT_TYPE`. The first cut of Phase 2 omitted the `setType` call, which silently changed the
+URI on every `@Valid @RequestBody` failure — the most common error the client sees — and left
+`ErrorConstants.CONSTRAINT_VIOLATION_TYPE` unreferenced. Caught in the implementation review
+(finding F1) and restored; no test asserted `$.type`, so nothing else would have caught it.
+
 ## Security handlers (both layers, `SecurityProblemDetails.forSecurityError`)
 
 Both the advice-level handlers (`ExceptionTranslator.handleAccessDenied` /
 `.handleAuthentication`) and the filter-chain beans
-(`config.ProblemDetailAccessDeniedHandler` / `config.ProblemDetailAuthenticationEntryPoint`)
+(`security.ProblemDetailAccessDeniedHandler` / `security.ProblemDetailAuthenticationEntryPoint`)
 call the same static builder, so a 401/403 produces an identical body regardless of which layer
 intercepted it. Only the advice layer is exercised by `ExceptionTranslatorIT`
 (`MockMvcBuilders.standaloneSetup(...)` has no Spring Security filter chain); the filter-chain

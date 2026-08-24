@@ -19,6 +19,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import tech.jhipster.web.util.HeaderUtil;
@@ -36,8 +37,8 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
-    private static final String MESSAGE_KEY = "message";
-    private static final String PATH_KEY = "path";
+    private static final String MESSAGE_KEY = ErrorConstants.MESSAGE_KEY;
+    private static final String PATH_KEY = ErrorConstants.PATH_KEY;
     private static final URI BLANK_TYPE = URI.create("about:blank");
 
     @Value("${jhipster.clientApp.name}")
@@ -75,6 +76,9 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
             .collect(Collectors.toList());
 
         ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        // Set explicitly: without it the type would fall through to DEFAULT_TYPE in
+        // handleExceptionInternal, changing the URI the client sees for every validation failure.
+        problemDetail.setType(ErrorConstants.CONSTRAINT_VIOLATION_TYPE);
         problemDetail.setTitle("Method argument not valid");
         problemDetail.setProperty(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION);
         problemDetail.setProperty("fieldErrors", fieldErrors);
@@ -127,7 +131,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Advice-level half of the 401/403 handling; {@code config.ProblemDetailAccessDeniedHandler}
+     * Advice-level half of the 401/403 handling; {@code security.ProblemDetailAccessDeniedHandler}
      * is the filter-chain half, since {@link org.springframework.security.web.access.AccessDeniedHandler}
      * runs before the {@code DispatcherServlet} and never reaches this advice. Both delegate to
      * {@link SecurityProblemDetails} so the bodies cannot drift apart.
@@ -140,7 +144,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Advice-level half of 401 handling; {@code config.ProblemDetailAuthenticationEntryPoint}
+     * Advice-level half of 401 handling; {@code security.ProblemDetailAuthenticationEntryPoint}
      * is the filter-chain half. See {@link #handleAccessDenied}.
      */
     @ExceptionHandler(AuthenticationException.class)
@@ -158,9 +162,14 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUncaught(Exception ex, WebRequest request) {
-        log.error("Unhandled exception", ex);
         ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
         HttpStatus status = responseStatus != null ? responseStatus.value() : HttpStatus.INTERNAL_SERVER_ERROR;
+        // A deliberate 4xx carries no diagnostic value at error level; reserve that for genuine faults.
+        if (status.is5xxServerError()) {
+            log.error("Unhandled exception", ex);
+        } else {
+            log.warn("Unhandled exception mapped to {}", status, ex);
+        }
         String title = (responseStatus != null && StringUtils.hasText(responseStatus.reason()))
             ? responseStatus.reason()
             : "Internal Server Error";
@@ -170,6 +179,8 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     }
 
     private static String requestUri(WebRequest request) {
-        return request.getDescription(false).substring(4);
+        return request instanceof ServletWebRequest servletWebRequest
+            ? servletWebRequest.getRequest().getRequestURI()
+            : "";
     }
 }

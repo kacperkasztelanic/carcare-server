@@ -13,6 +13,12 @@ public class InternalServerErrorException extends ErrorResponseException {
         super(HttpStatus.INTERNAL_SERVER_ERROR, problemDetail(message), null);
     }
 
+    /** See {@link BadRequestAlertException#getMessage()} — restores the null {@link Throwable} message for logging. */
+    @Override
+    public String getMessage() {
+        return getBody().getTitle();
+    }
+
     private static ProblemDetail problemDetail(String message) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problemDetail.setType(ErrorConstants.DEFAULT_TYPE);

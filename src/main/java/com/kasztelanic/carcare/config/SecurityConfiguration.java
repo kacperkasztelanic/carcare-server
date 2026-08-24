@@ -1,12 +1,13 @@
 package com.kasztelanic.carcare.config;
 
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
+import com.kasztelanic.carcare.security.ProblemDetailAccessDeniedHandler;
+import com.kasztelanic.carcare.security.ProblemDetailAuthenticationEntryPoint;
 import com.kasztelanic.carcare.security.jwt.JwtConfigurer;
 import com.kasztelanic.carcare.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

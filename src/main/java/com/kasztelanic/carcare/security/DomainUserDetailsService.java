@@ -48,7 +48,11 @@ public class DomainUserDetailsService implements UserDetailsService {
 
     private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, User user) {
         if (!user.isActivated()) {
-            throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
+            // The login stays in the log but out of the exception message: the message reaches the
+            // 401 response body, where naming the account would confirm it exists to an
+            // unauthenticated caller and distinguish "not activated" from "no such account".
+            log.debug("Authentication rejected for {}: account not activated", lowercaseLogin);
+            throw new UserNotActivatedException("User was not activated");
         }
         List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
             .map(authority -> new SimpleGrantedAuthority(authority.getName()))

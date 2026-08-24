@@ -30,6 +30,18 @@ public class BadRequestAlertException extends ErrorResponseException {
         return errorKey;
     }
 
+    /**
+     * {@link ErrorResponseException} leaves the {@link Throwable} message null, so a logged
+     * stack trace would carry no description. Restore the title, which is what
+     * {@code AbstractThrowableProblem} surfaced before the Spring {@code ProblemDetail}
+     * migration. Response bodies and alert headers are unaffected — both read the
+     * {@code ProblemDetail} directly.
+     */
+    @Override
+    public String getMessage() {
+        return getBody().getTitle();
+    }
+
     private static ProblemDetail problemDetail(URI type, String defaultMessage, String entityName, String errorKey) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setType(type);

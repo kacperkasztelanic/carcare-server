@@ -650,6 +650,14 @@ and `-Xmaxerrs 10000` makes failing compiles print more output, both negligible.
 - `tech.jhipster:jhipster-framework` removal, completing FR-002 (F-03).
 - The remaining `commons-compress` `DependencyConvergence` warning is pre-existing, from POI
   and Tika. Not introduced here.
+- **Recorded post-implementation (impl review F7).** Phase 2 deleted
+  `CustomParameterizedException.toProblemParameters(String, Map)`, a `public static` method,
+  which §2's contract ("public constructors and accessors unchanged") did not authorise. It had
+  zero callers repo-wide, so nothing broke and it is not being restored — recorded here so the
+  removal is a decision on the record rather than an untracked drift. Likewise
+  `serialVersionUID` was dropped from all five re-based exception classes while
+  `EmailAlreadyUsedException` and `LoginAlreadyUsedException` still declare theirs; harmless,
+  but worth normalising whenever those classes are next touched.
 
 ## References
 
