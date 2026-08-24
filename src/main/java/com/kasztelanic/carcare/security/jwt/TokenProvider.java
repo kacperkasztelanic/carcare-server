@@ -5,7 +5,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -22,8 +21,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import tech.jhipster.config.JHipsterProperties;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -39,7 +38,7 @@ public class TokenProvider implements InitializingBean {
     private final SecurityMetersService securityMetersService;
     private final JHipsterProperties jHipsterProperties;
 
-    private Key key;
+    private SecretKey key;
     private long tokenValidityInMilliseconds;
     private long tokenValidityInMillisecondsForRememberMe;
 
@@ -77,19 +76,19 @@ public class TokenProvider implements InitializingBean {
         }
 
         return Jwts.builder()
-            .setSubject(authentication.getName())
+            .subject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
-            .signWith(key, SignatureAlgorithm.HS512)
-            .setExpiration(validity)
+            .signWith(key, Jwts.SIG.HS512)
+            .expiration(validity)
             .compact();
     }
 
     public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(key)
+        Claims claims = Jwts.parser()
+            .verifyWith(key)
             .build()
-            .parseClaimsJws(token)
-            .getBody();
+            .parseSignedClaims(token)
+            .getPayload();
 
         Collection<? extends GrantedAuthority> authorities =
             Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
@@ -104,10 +103,10 @@ public class TokenProvider implements InitializingBean {
 
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parserBuilder()
-                .setSigningKey(key)
+            Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(authToken);
+                .parseSignedClaims(authToken);
             return true;
         } catch (ExpiredJwtException e) {
             this.securityMetersService.trackTokenExpired();

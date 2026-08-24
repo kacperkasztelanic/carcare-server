@@ -1,106 +1,114 @@
 # Migration Surface — F-01 Handoff to F-03
 
-> Generated during `resolvable-build` Phase 1. Refreshed at the end of Phase 3 to reflect
-> Zalando and jjwt removal. Commands recorded so the capture is reproducible.
+> Refreshed at the end of Phase 3 (jjwt migration), reflecting the tree after all three phases
+> of `resolvable-build`. Commands recorded so the capture is reproducible.
 
-## javac diagnostic count
+## Note on raw vs. unique diagnostic counts
+
+`./mvnw compile 2>&1 | grep -c '^\[ERROR\] /'` — the exact command this plan's success
+criteria specify — counts each diagnostic **twice**: maven-compiler-plugin logs every error
+inline during compilation, then reprints the identical list in its final
+`Compilation failure:` summary. Maven's own `[INFO] N errors` line gives the true unique count
+(confirmed: raw count / 2 == `[INFO] N errors`, exactly, at every measurement below). The
+success criteria are defined against the raw (doubled) count, so that is what is reported
+where a criterion asks for it; the unique count is reported alongside for clarity, since a
+reader of this document should not conclude there are 796 distinct problems when there are
+398.
+
+## javac diagnostic count, end of Phase 3
 
 Command: `./mvnw compile 2>&1 | grep -c '^\[ERROR\] /'`
 
-| Run | `-Xmaxerrs` | Diagnostic count |
+| Point | Raw count | Unique count (`[INFO] N errors`) |
 | --- | --- | --- |
-| Unflagged (arg commented out) | default javac cap | 200 |
-| Flagged (this change's config) | `10000` | **882** |
+| Phase 1 end (before Phase 2/3 changes) | 882 | 441 |
+| Phase 3 end (this refresh) | 796 | 398 |
 
-The flagged run is strictly greater than the unflagged run and lands on neither count —
-confirms `-Xmaxerrs 10000` is binding, not a no-op.
+Lower on both measures, satisfying "diagnostic count is lower than Phase 1's" (criterion 3.5).
+The drop (86 raw / 43 unique) is entirely Phase 2's Zalando removal and Phase 3's jjwt
+migration — neither phase converts any `javax.*` import, so the Jakarta surface itself is
+unchanged in size; the reduction is Zalando/jjwt-attributable diagnostics disappearing.
 
-## Full javac diagnostic list
+## Category attribution (criterion 3.4)
 
-Command: `./mvnw compile 2>&1` (with `-Xmaxerrs 10000` active, this change's `pom.xml`)
+Every one of the 398 unique `[ERROR]` source lines was walked file-by-file
+(`./mvnw compile` output, deduplicated by taking only the lines before Maven's final summary
+reprint) and assigned to a cause. The plan anticipated three categories; measurement surfaced
+a **fourth** that the plan's prose did not mention. Both corrections are called out below.
 
-882 `[ERROR]`-prefixed source-location lines. Full raw output captured at
-`/tmp/carcare-compile-final.log` during implementation; not inlined here for length. Re-run
-the command above to regenerate.
+| Category | Files | Unique error lines | Note |
+| --- | --- | --- | --- |
+| (a) Unconverted Jakarta namespace | 15 domain entities, `UserDto`, `LoginVm`, `ManagedUserVm`, `AccountResource`, `UserResource`, `UserJwtController`, `JwtFilter`, `WebConfigurer`, `MailService` (1 line: `javax.mail.internet`) | 393 | F-03's core worklist — matches the 152 static `javax.*` import count from Phase 1, modulo cascading "cannot find symbol" fan-out per file |
+| (b) Spring Security 6 API removal | `SecurityConfiguration.java` (`WebSecurityConfigurerAdapter`, lines 15 & 28) | 2 | F-03 / FR-004 |
+| (c) `tech.jhipster` symbol | — | 0 | `jhipster-framework` is pinned and resolves cleanly; no `tech.jhipster.*` symbol is currently unresolved anywhere in the tree |
+| **(d) NEW — third-party artifact rename tied to Spring version** | `MailService.java` (lines 16, 30, 39) | 3 | **Not one of the plan's three categories.** `org.thymeleaf.spring5.SpringTemplateEngine` does not exist for Spring 6; Thymeleaf's Spring-integration module is `org.thymeleaf.spring6` for this Boot version. This is a one-line import fix (`org.thymeleaf.spring5` → `org.thymeleaf.spring6`), analogous to the springdoc artifact rename Phase 1 already handled in `pom.xml`, except this one is a *source* import, not a POM coordinate — `spring-boot-starter-thymeleaf` already pulls the correct `thymeleaf-spring6` jar transitively. Flagged here as a discovered gap in the plan's three-category framing; low effort for F-03 to close. |
 
-Representative early errors (first 10 source-location lines):
+393 + 2 + 0 + 3 = 398. ✓
 
-```
-web/rest/vm/LoginVm.java:[20,6] cannot find symbol — class Size
-config/SecurityConfiguration.java:[28,9] cannot find symbol — class SecurityProblemSupport
-web/rest/UserJwtController.java:[38,48] cannot find symbol — class Valid
-web/rest/AccountResource.java:[62,34] cannot find symbol — class Valid
-web/rest/AccountResource.java:[117,30] cannot find symbol — class Valid
-web/rest/vm/ManagedUserVm.java:[19,6] cannot find symbol — class Size
-web/rest/UserResource.java:[97,45] cannot find symbol — class Valid
-web/rest/UserResource.java:[126,48] cannot find symbol — class Valid
-```
+## Correction: `antMatchers` is a real, verified problem but does not currently produce a diagnostic
 
-`SecurityProblemSupport` is a Phase-2-introduced diagnostic (zalando class still referenced
-in `SecurityConfiguration` before Phase 2 runs); the `javax.validation.Size`/`Valid` errors
-are the Jakarta namespace surface F-03 will convert.
+`plan.md`'s Success Criteria for Phase 3 states: *"`SecurityConfiguration.java:45-51,86-96`
+calls `antMatchers(...)`, removed in Spring Security 6 (`AbstractRequestMatcherRegistry`
+exposes only `requestMatchers`), and cascading `cannot find symbol` errors name only the
+missing symbol."*
 
-## `javax.*` import counts (static, `src/main` and `src/test`)
+The removal itself is confirmed — `javap -p` on `spring-security-config-6.1.5`'s
+`AbstractRequestMatcherRegistry` shows only `requestMatchers(...)` overloads, no
+`antMatchers`. But **no diagnostic for it currently appears**: `SecurityConfiguration.java`
+produces exactly 2 unique errors, both `WebSecurityConfigurerAdapter` (the `import` and the
+`extends` clause), and zero errors reference `antMatchers`, `requestMatchers`, or
+`AbstractRequestMatcherRegistry` anywhere in the compile output (`grep -i antMatchers` /
+`requestMatchers` on the full log: no matches).
+
+**Reason**: once `extends WebSecurityConfigurerAdapter` fails to resolve, javac cannot verify
+`configure(WebSecurity)` / `configure(HttpSecurity)` as valid overrides of anything, and its
+error-recovery suppresses further member-level type-checking inside that class rather than
+cascading. The `antMatchers` problem is real and will surface as soon as F-03 fixes the
+`WebSecurityConfigurerAdapter` issue — it just isn't currently *measurable* as a compiler
+diagnostic, which is what criterion 3.4 asks this document to record. F-03 should treat
+`SecurityConfiguration.java:45-51,86-96` as a known `antMatchers` → `requestMatchers` rename
+independent of what today's compile output shows.
+
+## New do-not-convert entry: `javax.crypto.SecretKey`
+
+Phase 3 introduces `import javax.crypto.SecretKey;` in
+`security/jwt/TokenProvider.java:24` (replacing `java.security.Key`, per jjwt 0.12's
+type-safe `verifyWith(SecretKey)` / `signWith(SecretKey, MacAlgorithm)` API) and in
+`TokenProviderTest.java`. Like `javax.sql.DataSource`, `javax.crypto` is a core JDK package
+(Java Cryptography Extension) — **not** part of Jakarta EE. It must never be converted to a
+`jakarta.crypto` import (no such package exists). Added to the do-not-convert list alongside
+`LiquibaseConfiguration.java:18`'s `javax.sql.DataSource`.
+
+## `javax.*` import counts (static, `src/main` and `src/test`) — changed since Phase 1
 
 Command: `grep -rhoE '^import (javax\.[a-z]+)' src/main/java | sed -E 's/^import //' | sort | uniq -c | sort -rn`
 
-| Namespace | `src/main` | Note |
-| --- | --- | --- |
-| `javax.persistence` | 101 | F-03 |
-| `javax.validation` | 35 | F-03 |
-| `javax.servlet` | 8 | F-03 |
-| `javax.transaction` | 4 | F-03 |
-| `javax.annotation` | 2 | F-03 |
-| `javax.mail` | 1 | F-03 |
-| `javax.sql` | 1 | **JDK-owned — do not convert** (`LiquibaseConfiguration.java:18`) |
-| **total** | **152** | plus 20 in `src/test` |
+| Namespace | `src/main` (Phase 1) | `src/main` (Phase 3, now) | Note |
+| --- | --- | --- | --- |
+| `javax.persistence` | 101 | 101 | F-03 |
+| `javax.validation` | 35 | 35 | F-03 |
+| `javax.servlet` | 8 | 7 | F-03 — Phase 2 removed `ExceptionTranslator.java`'s `javax.servlet.http.HttpServletRequest` import (replaced by `WebRequest`), as the plan explicitly intended |
+| `javax.transaction` | 4 | 4 | F-03 |
+| `javax.annotation` | 2 | 0 | Phase 2 removed both (`Nonnull`/`Nullable` on `ExceptionTranslator.process`, a method that no longer exists) — again explicitly intended by the plan, not a side effect |
+| `javax.mail` | 1 | 1 | F-03 |
+| `javax.sql` | 1 | 1 | **JDK-owned — do not convert** (`LiquibaseConfiguration.java:18`) |
+| `javax.crypto` | 0 | 1 | **JDK-owned — do not convert** (`security/jwt/TokenProvider.java:24`, new in Phase 3) |
+| **total** | **152** | **150** | |
 
-**Do-not-convert entry**: `javax.sql.DataSource` at
-`src/main/java/com/kasztelanic/carcare/config/LiquibaseConfiguration.java:18` is part of the
-JDK, not Jakarta EE. It must never become `jakarta.sql.DataSource`. Excluded from the 152/20
-counts above being handed to F-03 as convertible work.
+`src/test` moved from 20 to 21 (`TokenProviderTest.java` gained the same `javax.crypto`
+import). Of the 150 in `src/main`, 2 (`javax.sql.DataSource`, `javax.crypto.SecretKey`) are
+JDK-owned and must never be converted, leaving **148** genuinely convertible for F-03 — down
+from Phase 1's 151 (152 minus the one pre-existing JDK-owned `javax.sql` entry), because
+Phase 2's `ExceptionTranslator` rewrite already eliminated its 3 `javax.*` imports as a
+deliberate side effect of routing the request URI through `WebRequest` instead of
+`HttpServletRequest`.
 
-## `tech.jhipster.*` references
+## `tech.jhipster.*` references — unchanged since Phase 1
 
-Command: `grep -rl 'tech\.jhipster' src/main/java src/test/java`
+Same 18 files in `src/main`, 6 in `src/test`, listed in the Phase 1 version of this document
+(git history: commit `7cd2e41`). Neither Phase 2 nor Phase 3 touched any of them.
 
-18 files in `src/main`:
+## Zalando and jjwt 0.11 API — fully removed
 
-- `aop/logging/LoggingAspect.java`
-- `CarcareApp.java`
-- `config/ApplicationProperties.java`
-- `config/AsyncConfiguration.java`
-- `config/CacheConfiguration.java`
-- `config/DefaultProfileUtil.java`
-- `config/LiquibaseConfiguration.java`
-- `config/LocaleConfiguration.java`
-- `config/LoggingAspectConfiguration.java`
-- `config/LoggingConfiguration.java`
-- `config/SecurityConfiguration.java`
-- `config/WebConfigurer.java`
-- `security/jwt/TokenProvider.java`
-- `service/AuditEventService.java`
-- `service/MailService.java`
-- `web/rest/AuditResource.java`
-- `web/rest/errors/ExceptionTranslator.java`
-- `web/rest/UserResource.java`
-
-6 files in `src/test`:
-
-- `config/WebConfigurerTest.java`
-- `security/jwt/JwtFilterTest.java`
-- `security/jwt/TokenProviderTest.java`
-- `service/AuditEventServiceIT.java`
-- `service/MailServiceIT.java`
-- `web/rest/AuditResourceIT.java`
-
-None of these are touched by this change. `jhipster-framework` stays on the classpath
-(pinned explicitly at `${jhipster-framework.version}` = `8.0.0` in `pom.xml`) as a stated
-temporary bridge; removing it completes FR-002 in F-03.
-
-## Category attribution (for Phase 3's success criterion)
-
-Not yet applicable — Phases 2 and 3 have not run. This section will be filled in when the
-inventory is refreshed at the end of Phase 3, attributing every remaining `[ERROR]` line to
-one of: (a) an unconverted Jakarta namespace, (b) a Spring Security 6 API removal, (c) a
-`tech.jhipster` symbol.
+- `grep -rc 'org\.zalando' src/ pom.xml`: 0 everywhere (Phase 2).
+- `grep -rc 'SignatureAlgorithm\|parserBuilder\|parseClaimsJws' src/`: 0 everywhere (Phase 3).

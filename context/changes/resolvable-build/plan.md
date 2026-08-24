@@ -689,32 +689,32 @@ and `-Xmaxerrs 10000` makes failing compiles print more output, both negligible.
 
 #### Automated
 
-- [x] 2.1 No `org.zalando` reference in `src/` or `pom.xml`
-- [x] 2.2 No Zalando-attributable compile diagnostic
-- [x] 2.3 `web/rest/errors/` contributes no diagnostic at all
-- [x] 2.4 `AccountResource`, `UserResource`, `UriUtil`, `UserService` unchanged in `git diff --stat`
-- [x] 2.5 `error-contract.md` exists
+- [x] 2.1 No `org.zalando` reference in `src/` or `pom.xml` — fae090b
+- [x] 2.2 No Zalando-attributable compile diagnostic — fae090b
+- [x] 2.3 `web/rest/errors/` contributes no diagnostic at all — fae090b
+- [x] 2.4 `AccountResource`, `UserResource`, `UriUtil`, `UserService` unchanged in `git diff --stat` — fae090b
+- [x] 2.5 `error-contract.md` exists — fae090b
 
 #### Manual
 
-- [x] 2.6 Contract document reviewed against pre-change `ExceptionTranslator` behaviour
-- [x] 2.7 Every divergence from the contract listed and accepted
-- [x] 2.8 All four security handlers and their shared `ProblemDetail` builder reviewed by inspection
-- [x] 2.9 `ErrorConstants.PROBLEM_BASE_URL` unchanged
-- [x] 2.10 `Throwable` catch-all and `@ResponseStatus` branch reviewed; catch-all logs the throwable
+- [x] 2.6 Contract document reviewed against pre-change `ExceptionTranslator` behaviour — fae090b
+- [x] 2.7 Every divergence from the contract listed and accepted — fae090b
+- [x] 2.8 All four security handlers and their shared `ProblemDetail` builder reviewed by inspection — fae090b
+- [x] 2.9 `ErrorConstants.PROBLEM_BASE_URL` unchanged — fae090b
+- [x] 2.10 `Throwable` catch-all and `@ResponseStatus` branch reviewed; catch-all logs the throwable — fae090b
 
 ### Phase 3: jjwt 0.12.3 in `TokenProvider`
 
 #### Automated
 
-- [ ] 3.1 No `SignatureAlgorithm`, `parserBuilder`, or `parseClaimsJws` in `src/`
-- [ ] 3.2 No `io.jsonwebtoken`-attributable compile diagnostic
-- [ ] 3.3 `TokenProvider.java` contributes no diagnostic
-- [ ] 3.4 Every remaining error attributed in `migration-surface.md` to Jakarta, a Spring Security 6 removal, or `tech.jhipster`
-- [ ] 3.5 `migration-surface.md` regenerated with a lower diagnostic count than Phase 1
+- [x] 3.1 No `SignatureAlgorithm`, `parserBuilder`, or `parseClaimsJws` in `src/`
+- [x] 3.2 No `io.jsonwebtoken`-attributable compile diagnostic
+- [x] 3.3 `TokenProvider.java` contributes no diagnostic
+- [x] 3.4 Every remaining error attributed in `migration-surface.md` to Jakarta, a Spring Security 6 removal, or `tech.jhipster`
+- [x] 3.5 `migration-surface.md` regenerated with a lower diagnostic count than Phase 1
 
 #### Manual
 
-- [ ] 3.6 Signing and validation logic reviewed line by line
-- [ ] 3.7 Key derivation confirmed byte-identical; existing tokens still verify
-- [ ] 3.8 Residual diagnostic list accepted as F-03's starting point
+- [x] 3.6 Signing and validation logic reviewed line by line
+- [x] 3.7 Key derivation confirmed byte-identical; existing tokens still verify
+- [x] 3.8 Residual diagnostic list accepted as F-03's starting point
