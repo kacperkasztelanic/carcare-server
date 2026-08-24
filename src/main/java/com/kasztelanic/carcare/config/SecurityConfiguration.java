@@ -19,19 +19,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.filter.CorsFilter;
-import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 import tech.jhipster.config.JHipsterProperties;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@Import(SecurityProblemSupport.class)
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final TokenProvider tokenProvider;
     private final CorsFilter corsFilter;
-    private final SecurityProblemSupport problemSupport;
+    private final ProblemDetailAuthenticationEntryPoint authenticationEntryPoint;
+    private final ProblemDetailAccessDeniedHandler accessDeniedHandler;
     private final JHipsterProperties jHipsterProperties;
 
     @Bean
@@ -59,8 +58,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
-            .authenticationEntryPoint(problemSupport)
-            .accessDeniedHandler(problemSupport)
+            .authenticationEntryPoint(authenticationEntryPoint)
+            .accessDeniedHandler(accessDeniedHandler)
         .and()
             .headers()
             .contentSecurityPolicy(jHipsterProperties.getSecurity().getContentSecurityPolicy())

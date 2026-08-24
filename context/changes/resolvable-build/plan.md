@@ -669,39 +669,39 @@ and `-Xmaxerrs 10000` makes failing compiles print more output, both negligible.
 
 #### Automated
 
-- [x] 1.1 `./mvnw validate` exits 0 with no missing-version errors
-- [x] 1.2 `./mvnw -Pprod validate` exits 0
-- [x] 1.3 `./mvnw -PIDE validate` exits 0
-- [x] 1.4 `./mvnw dependency:resolve` exits 0
-- [x] 1.5 `grep -c 'jhipster-dependencies' pom.xml` returns 0
-- [x] 1.6 `grep -c 'problem-spring-web' pom.xml` returns 0
-- [x] 1.7 `./mvnw compile` first source-location error names a `.java` file, not `pom.xml`
-- [x] 1.8 `-Xmaxerrs` binds: flagged diagnostic count strictly exceeds the un-flagged run's, both recorded
-- [x] 1.9 `migration-surface.md` exists with a non-zero diagnostic count
+- [x] 1.1 `./mvnw validate` exits 0 with no missing-version errors — 7cd2e41
+- [x] 1.2 `./mvnw -Pprod validate` exits 0 — 7cd2e41
+- [x] 1.3 `./mvnw -PIDE validate` exits 0 — 7cd2e41
+- [x] 1.4 `./mvnw dependency:resolve` exits 0 — 7cd2e41
+- [x] 1.5 `grep -c 'jhipster-dependencies' pom.xml` returns 0 — 7cd2e41
+- [x] 1.6 `grep -c 'problem-spring-web' pom.xml` returns 0 — 7cd2e41
+- [x] 1.7 `./mvnw compile` first source-location error names a `.java` file, not `pom.xml` — 7cd2e41
+- [x] 1.8 `-Xmaxerrs` binds: flagged diagnostic count strictly exceeds the un-flagged run's, both recorded — 7cd2e41
+- [x] 1.9 `migration-surface.md` exists with a non-zero diagnostic count — 7cd2e41
 
 #### Manual
 
-- [x] 1.10 Four pinned versions reviewed and accepted
-- [x] 1.11 Only the pre-existing `commons-compress` convergence warning remains
-- [x] 1.12 `jhipster-framework` pin carries an F-03 removal comment
+- [x] 1.10 Four pinned versions reviewed and accepted — 7cd2e41
+- [x] 1.11 Only the pre-existing `commons-compress` convergence warning remains — 7cd2e41
+- [x] 1.12 `jhipster-framework` pin carries an F-03 removal comment — 7cd2e41
 
 ### Phase 2: Error handling on Spring `ProblemDetail`
 
 #### Automated
 
-- [ ] 2.1 No `org.zalando` reference in `src/` or `pom.xml`
-- [ ] 2.2 No Zalando-attributable compile diagnostic
-- [ ] 2.3 `web/rest/errors/` contributes no diagnostic at all
-- [ ] 2.4 `AccountResource`, `UserResource`, `UriUtil`, `UserService` unchanged in `git diff --stat`
-- [ ] 2.5 `error-contract.md` exists
+- [x] 2.1 No `org.zalando` reference in `src/` or `pom.xml`
+- [x] 2.2 No Zalando-attributable compile diagnostic
+- [x] 2.3 `web/rest/errors/` contributes no diagnostic at all
+- [x] 2.4 `AccountResource`, `UserResource`, `UriUtil`, `UserService` unchanged in `git diff --stat`
+- [x] 2.5 `error-contract.md` exists
 
 #### Manual
 
-- [ ] 2.6 Contract document reviewed against pre-change `ExceptionTranslator` behaviour
-- [ ] 2.7 Every divergence from the contract listed and accepted
-- [ ] 2.8 All four security handlers and their shared `ProblemDetail` builder reviewed by inspection
-- [ ] 2.9 `ErrorConstants.PROBLEM_BASE_URL` unchanged
-- [ ] 2.10 `Throwable` catch-all and `@ResponseStatus` branch reviewed; catch-all logs the throwable
+- [x] 2.6 Contract document reviewed against pre-change `ExceptionTranslator` behaviour
+- [x] 2.7 Every divergence from the contract listed and accepted
+- [x] 2.8 All four security handlers and their shared `ProblemDetail` builder reviewed by inspection
+- [x] 2.9 `ErrorConstants.PROBLEM_BASE_URL` unchanged
+- [x] 2.10 `Throwable` catch-all and `@ResponseStatus` branch reviewed; catch-all logs the throwable
 
 ### Phase 3: jjwt 0.12.3 in `TokenProvider`
 

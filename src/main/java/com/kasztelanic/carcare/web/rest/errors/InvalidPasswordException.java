@@ -1,13 +1,19 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
-import org.zalando.problem.AbstractThrowableProblem;
-import org.zalando.problem.Status;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.ErrorResponseException;
 
-public class InvalidPasswordException extends AbstractThrowableProblem {
-
-    private static final long serialVersionUID = 1L;
+public class InvalidPasswordException extends ErrorResponseException {
 
     public InvalidPasswordException() {
-        super(ErrorConstants.INVALID_PASSWORD_TYPE, "Incorrect password", Status.BAD_REQUEST);
+        super(HttpStatus.BAD_REQUEST, problemDetail(), null);
+    }
+
+    private static ProblemDetail problemDetail() {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(ErrorConstants.INVALID_PASSWORD_TYPE);
+        problemDetail.setTitle("Incorrect password");
+        return problemDetail;
     }
 }

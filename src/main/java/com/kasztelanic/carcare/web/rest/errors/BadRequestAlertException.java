@@ -1,14 +1,12 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
-import org.zalando.problem.AbstractThrowableProblem;
-import org.zalando.problem.Status;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.ErrorResponseException;
 
 import java.net.URI;
-import java.util.Map;
 
-public class BadRequestAlertException extends AbstractThrowableProblem {
-
-    private static final long serialVersionUID = 1L;
+public class BadRequestAlertException extends ErrorResponseException {
 
     private final String entityName;
 
@@ -19,7 +17,7 @@ public class BadRequestAlertException extends AbstractThrowableProblem {
     }
 
     public BadRequestAlertException(URI type, String defaultMessage, String entityName, String errorKey) {
-        super(type, defaultMessage, Status.BAD_REQUEST, null, null, null, getAlertParameters(entityName, errorKey));
+        super(HttpStatus.BAD_REQUEST, problemDetail(type, defaultMessage, entityName, errorKey), null);
         this.entityName = entityName;
         this.errorKey = errorKey;
     }
@@ -32,10 +30,12 @@ public class BadRequestAlertException extends AbstractThrowableProblem {
         return errorKey;
     }
 
-    private static Map<String, Object> getAlertParameters(String entityName, String errorKey) {
-        return Map.of(
-            "message", "error." + errorKey,
-            "params", entityName
-        );
+    private static ProblemDetail problemDetail(URI type, String defaultMessage, String entityName, String errorKey) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(type);
+        problemDetail.setTitle(defaultMessage);
+        problemDetail.setProperty("message", "error." + errorKey);
+        problemDetail.setProperty("params", entityName);
+        return problemDetail;
     }
 }

@@ -1,26 +1,29 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.zalando.problem.DefaultProblem;
-import org.zalando.problem.Problem;
-import org.zalando.problem.ProblemBuilder;
-import org.zalando.problem.Status;
-import org.zalando.problem.spring.web.advice.ProblemHandling;
-import org.zalando.problem.spring.web.advice.security.SecurityAdviceTrait;
-import org.zalando.problem.violations.ConstraintViolationProblem;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import tech.jhipster.web.util.HeaderUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -29,116 +32,144 @@ import java.util.stream.Collectors;
  * Controller advice to translate the server side exceptions to client-friendly json structures.
  * The error response follows RFC7807 - Problem Details for HTTP APIs (https://tools.ietf.org/html/rfc7807).
  */
+@Slf4j
 @ControllerAdvice
-public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait {
+public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
-    private static final String FIELD_ERRORS_KEY = "fieldErrors";
     private static final String MESSAGE_KEY = "message";
     private static final String PATH_KEY = "path";
-    private static final String VIOLATIONS_KEY = "violations";
+    private static final URI BLANK_TYPE = URI.create("about:blank");
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     /**
-     * Post-process the Problem payload to add the message key for the front-end if needed.
+     * Post-processes every {@link ProblemDetail} body — built here or by the superclass's
+     * sixteen built-in handlers — to add {@code path}, the {@code message} fallback, and the
+     * {@code about:blank} -> {@link ErrorConstants#DEFAULT_TYPE} substitution. This is the
+     * single hook all of this class's custom handlers route through, so the behaviour cannot
+     * drift between them.
      */
     @Override
-    public ResponseEntity<Problem> process(@Nullable ResponseEntity<Problem> entity, NativeWebRequest request) {
-        if (entity == null) {
-            return entity;
-        }
-        Problem problem = entity.getBody();
-        if (!(problem instanceof ConstraintViolationProblem || problem instanceof DefaultProblem)) {
-            return entity;
-        }
-        ProblemBuilder builder = Problem.builder()
-            .withType(Problem.DEFAULT_TYPE.equals(problem.getType()) ? ErrorConstants.DEFAULT_TYPE : problem.getType())
-            .withStatus(problem.getStatus())
-            .withTitle(problem.getTitle())
-            .with(PATH_KEY, request.getNativeRequest(HttpServletRequest.class).getRequestURI());
-
-        if (problem instanceof ConstraintViolationProblem) {
-            builder
-                .with(VIOLATIONS_KEY, ((ConstraintViolationProblem) problem).getViolations())
-                .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION);
-        } else {
-            builder
-                .withCause(((DefaultProblem) problem).getCause())
-                .withDetail(problem.getDetail())
-                .withInstance(problem.getInstance());
-            problem.getParameters().forEach(builder::with);
-            if (!problem.getParameters().containsKey(MESSAGE_KEY) && problem.getStatus() != null) {
-                builder.with(MESSAGE_KEY, "error.http." + problem.getStatus().getStatusCode());
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body, HttpHeaders headers,
+                                                               HttpStatusCode statusCode, WebRequest request) {
+        ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
+        if (response != null && response.getBody() instanceof ProblemDetail problemDetail) {
+            if (BLANK_TYPE.equals(problemDetail.getType())) {
+                problemDetail.setType(ErrorConstants.DEFAULT_TYPE);
+            }
+            problemDetail.setProperty(PATH_KEY, requestUri(request));
+            if (problemDetail.getProperties() == null || !problemDetail.getProperties().containsKey(MESSAGE_KEY)) {
+                problemDetail.setProperty(MESSAGE_KEY, "error.http." + statusCode.value());
             }
         }
-        return new ResponseEntity<>(builder.build(), entity.getHeaders(), entity.getStatusCode());
+        return response;
     }
 
     @Override
-    public ResponseEntity<Problem> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                @Nonnull NativeWebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
+                                                                    HttpStatusCode status, WebRequest request) {
         BindingResult result = ex.getBindingResult();
-        List<FieldErrorVm> fieldErrors = result.getFieldErrors().stream()//
-            .map(f -> new FieldErrorVm(f.getObjectName().replaceFirst("DTO$", ""), f.getField(), f.getCode()))//
+        List<FieldErrorVm> fieldErrors = result.getFieldErrors().stream()
+            .map(f -> new FieldErrorVm(f.getObjectName().replaceFirst("DTO$", ""), f.getField(), f.getCode()))
             .collect(Collectors.toList());
 
-        Problem problem = Problem.builder()//
-            .withType(ErrorConstants.CONSTRAINT_VIOLATION_TYPE)//
-            .withTitle("Method argument not valid")//
-            .withStatus(defaultConstraintViolationStatus())//
-            .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION)//
-            .with(FIELD_ERRORS_KEY, fieldErrors)//
-            .build();
-        return create(ex, problem, request);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        problemDetail.setTitle("Method argument not valid");
+        problemDetail.setProperty(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION);
+        problemDetail.setProperty("fieldErrors", fieldErrors);
+        return handleExceptionInternal(ex, problemDetail, headers, status, request);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleNoSuchElementException(NoSuchElementException ex, NativeWebRequest request) {
-        Problem problem = Problem.builder()//
-            .withStatus(Status.NOT_FOUND)//
-            .with(MESSAGE_KEY, ErrorConstants.ENTITY_NOT_FOUND_TYPE)//
-            .build();//
-        return create(ex, problem, request);
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setProperty(MESSAGE_KEY, ErrorConstants.ENTITY_NOT_FOUND_TYPE);
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleEmailAreadyUsedException(
-        com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException ex, NativeWebRequest request) {
+    @ExceptionHandler(com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException.class)
+    public ResponseEntity<Object> handleEmailAlreadyUsedException(
+        com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException ex, WebRequest request) {
         EmailAlreadyUsedException problem = new EmailAlreadyUsedException();
-        return create(problem, request, HeaderUtil
-            .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
-                problem.getMessage()));
+        HttpHeaders headers = HeaderUtil.createFailureAlert(applicationName, true, problem.getEntityName(),
+            problem.getErrorKey(), problem.getBody().getTitle());
+        return handleExceptionInternal(ex, problem.getBody(), headers, HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleUsernameAreadyUsedException(
-        UsernameAlreadyUsedException ex, NativeWebRequest request) {
+    @ExceptionHandler(UsernameAlreadyUsedException.class)
+    public ResponseEntity<Object> handleUsernameAlreadyUsedException(UsernameAlreadyUsedException ex, WebRequest request) {
         LoginAlreadyUsedException problem = new LoginAlreadyUsedException();
-        return create(problem, request, HeaderUtil
-            .createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(),
-                problem.getMessage()));
+        HttpHeaders headers = HeaderUtil.createFailureAlert(applicationName, true, problem.getEntityName(),
+            problem.getErrorKey(), problem.getBody().getTitle());
+        return handleExceptionInternal(ex, problem.getBody(), headers, HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleInvalidPasswordException(
-        com.kasztelanic.carcare.service.exception.InvalidPasswordException ex, NativeWebRequest request) {
-        return create(new InvalidPasswordException(), request);
+    @ExceptionHandler(com.kasztelanic.carcare.service.exception.InvalidPasswordException.class)
+    public ResponseEntity<Object> handleInvalidPasswordException(
+        com.kasztelanic.carcare.service.exception.InvalidPasswordException ex, WebRequest request) {
+        InvalidPasswordException problem = new InvalidPasswordException();
+        return handleExceptionInternal(ex, problem.getBody(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex,
-                                                                  NativeWebRequest request) {
-        return create(ex, request, HeaderUtil
-            .createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+    @ExceptionHandler(BadRequestAlertException.class)
+    public ResponseEntity<Object> handleBadRequestAlertException(BadRequestAlertException ex, WebRequest request) {
+        HttpHeaders headers = HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(),
+            ex.getBody().getTitle());
+        return handleExceptionInternal(ex, ex.getBody(), headers, HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
-        Problem problem = Problem.builder()//
-            .withStatus(Status.CONFLICT)//
-            .with(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE)//
-            .build();
-        return create(ex, problem, request);
+    @ExceptionHandler(ConcurrencyFailureException.class)
+    public ResponseEntity<Object> handleConcurrencyFailure(ConcurrencyFailureException ex, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setProperty(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE);
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
+    /**
+     * Advice-level half of the 401/403 handling; {@code config.ProblemDetailAccessDeniedHandler}
+     * is the filter-chain half, since {@link org.springframework.security.web.access.AccessDeniedHandler}
+     * runs before the {@code DispatcherServlet} and never reaches this advice. Both delegate to
+     * {@link SecurityProblemDetails} so the bodies cannot drift apart.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
+        ProblemDetail problemDetail = SecurityProblemDetails.forSecurityError(HttpStatus.FORBIDDEN, ex.getMessage(),
+            requestUri(request));
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+
+    /**
+     * Advice-level half of 401 handling; {@code config.ProblemDetailAuthenticationEntryPoint}
+     * is the filter-chain half. See {@link #handleAccessDenied}.
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Object> handleAuthentication(AuthenticationException ex, WebRequest request) {
+        ProblemDetail problemDetail = SecurityProblemDetails.forSecurityError(HttpStatus.UNAUTHORIZED, ex.getMessage(),
+            requestUri(request));
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+    }
+
+    /**
+     * Catch-all for anything not handled above or by the superclass's sixteen built-in
+     * handlers. Registered for {@link Exception} rather than {@link Throwable} so it can route
+     * through {@link #handleExceptionInternal}, which requires an {@code Exception}; bare
+     * {@link Error}s are not caught, matching how the rest of the stack already treats them.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleUncaught(Exception ex, WebRequest request) {
+        log.error("Unhandled exception", ex);
+        ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
+        HttpStatus status = responseStatus != null ? responseStatus.value() : HttpStatus.INTERNAL_SERVER_ERROR;
+        String title = (responseStatus != null && StringUtils.hasText(responseStatus.reason()))
+            ? responseStatus.reason()
+            : "Internal Server Error";
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
+        problemDetail.setTitle(title);
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), status, request);
+    }
+
+    private static String requestUri(WebRequest request) {
+        return request.getDescription(false).substring(4);
     }
 }

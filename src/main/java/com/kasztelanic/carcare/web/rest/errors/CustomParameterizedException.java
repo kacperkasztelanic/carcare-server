@@ -1,11 +1,11 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
-import org.zalando.problem.AbstractThrowableProblem;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.ErrorResponseException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.zalando.problem.Status.BAD_REQUEST;
 
 /**
  * Custom, parameterized exception, which can be translated on the client side.
@@ -21,9 +21,7 @@ import static org.zalando.problem.Status.BAD_REQUEST;
  * "error.myCustomError" :  "The server says {{param0}} to {{param1}}"
  * </pre>
  */
-public class CustomParameterizedException extends AbstractThrowableProblem {
-
-    private static final long serialVersionUID = 1L;
+public class CustomParameterizedException extends ErrorResponseException {
 
     private static final String PARAM = "param";
 
@@ -32,7 +30,7 @@ public class CustomParameterizedException extends AbstractThrowableProblem {
     }
 
     public CustomParameterizedException(String message, Map<String, Object> paramMap) {
-        super(ErrorConstants.PARAMETERIZED_TYPE, "Parameterized Exception", BAD_REQUEST, null, null, null, toProblemParameters(message, paramMap));
+        super(HttpStatus.BAD_REQUEST, problemDetail(message, paramMap), null);
     }
 
     public static Map<String, Object> toParamMap(String... params) {
@@ -45,10 +43,12 @@ public class CustomParameterizedException extends AbstractThrowableProblem {
         return paramMap;
     }
 
-    public static Map<String, Object> toProblemParameters(String message, Map<String, Object> paramMap) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("message", message);
-        parameters.put("params", paramMap);
-        return parameters;
+    private static ProblemDetail problemDetail(String message, Map<String, Object> paramMap) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(ErrorConstants.PARAMETERIZED_TYPE);
+        problemDetail.setTitle("Parameterized Exception");
+        problemDetail.setProperty("message", message);
+        problemDetail.setProperty("params", paramMap);
+        return problemDetail;
     }
 }
