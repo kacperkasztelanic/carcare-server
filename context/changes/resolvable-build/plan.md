@@ -669,21 +669,21 @@ and `-Xmaxerrs 10000` makes failing compiles print more output, both negligible.
 
 #### Automated
 
-- [ ] 1.1 `./mvnw validate` exits 0 with no missing-version errors
-- [ ] 1.2 `./mvnw -Pprod validate` exits 0
-- [ ] 1.3 `./mvnw -PIDE validate` exits 0
-- [ ] 1.4 `./mvnw dependency:resolve` exits 0
-- [ ] 1.5 `grep -c 'jhipster-dependencies' pom.xml` returns 0
-- [ ] 1.6 `grep -c 'problem-spring-web' pom.xml` returns 0
-- [ ] 1.7 `./mvnw compile` first source-location error names a `.java` file, not `pom.xml`
-- [ ] 1.8 `-Xmaxerrs` binds: flagged diagnostic count strictly exceeds the un-flagged run's, both recorded
-- [ ] 1.9 `migration-surface.md` exists with a non-zero diagnostic count
+- [x] 1.1 `./mvnw validate` exits 0 with no missing-version errors
+- [x] 1.2 `./mvnw -Pprod validate` exits 0
+- [x] 1.3 `./mvnw -PIDE validate` exits 0
+- [x] 1.4 `./mvnw dependency:resolve` exits 0
+- [x] 1.5 `grep -c 'jhipster-dependencies' pom.xml` returns 0
+- [x] 1.6 `grep -c 'problem-spring-web' pom.xml` returns 0
+- [x] 1.7 `./mvnw compile` first source-location error names a `.java` file, not `pom.xml`
+- [x] 1.8 `-Xmaxerrs` binds: flagged diagnostic count strictly exceeds the un-flagged run's, both recorded
+- [x] 1.9 `migration-surface.md` exists with a non-zero diagnostic count
 
 #### Manual
 
-- [ ] 1.10 Four pinned versions reviewed and accepted
-- [ ] 1.11 Only the pre-existing `commons-compress` convergence warning remains
-- [ ] 1.12 `jhipster-framework` pin carries an F-03 removal comment
+- [x] 1.10 Four pinned versions reviewed and accepted
+- [x] 1.11 Only the pre-existing `commons-compress` convergence warning remains
+- [x] 1.12 `jhipster-framework` pin carries an F-03 removal comment
 
 ### Phase 2: Error handling on Spring `ProblemDetail`
 

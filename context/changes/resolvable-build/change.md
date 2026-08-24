@@ -1,7 +1,7 @@
 ---
 change_id: resolvable-build
 title: "Resolvable dependency graph"
-status: plan_reviewed
+status: implementing
 created: 2026-08-24
 updated: 2026-08-25
 roadmap_item: F-01

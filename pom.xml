@@ -30,8 +30,6 @@
         <profile.tls />
 
         <!-- Dependency versions -->
-        <jhipster-dependencies.version>8.0.0</jhipster-dependencies.version>
-        <!-- The spring-boot version should match the one managed by https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
         <spring-boot.version>3.1.5</spring-boot.version>
         <!-- The hibernate version should match the one managed by https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
         <hibernate.version>6.2.13.Final</hibernate.version>
@@ -46,7 +44,14 @@
         <guava.version>31.1-jre</guava.version>
         <poi-ooxml.version>5.2.5</poi-ooxml.version>
         <tika-core.version>2.7.0</tika-core.version>
-        <springdocs.version>1.6.15</springdocs.version>
+        <springdocs.version>2.2.0</springdocs.version>
+        <!-- Not managed by spring-boot-dependencies; matches the version poi-ooxml pulls transitively -->
+        <commons-io.version>2.15.0</commons-io.version>
+        <!-- Not managed by spring-boot-dependencies; matches the value the former JHipster BOM pinned -->
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
+        <!-- Temporary bridge dependency; remove when F-03 drops all tech.jhipster.* usages -->
+        <jhipster-framework.version>8.0.0</jhipster-framework.version>
+        <jjwt.version>0.12.3</jjwt.version>
         <archunit-junit5-engine.version>1.0.1</archunit-junit5-engine.version>
 
         <!-- Plugin versions -->
@@ -103,11 +108,19 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-                <groupId>tech.jhipster</groupId>
-				<artifactId>jhipster-dependencies</artifactId>
-                <version>${jhipster-dependencies.version}</version>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<!-- Not managed by spring-boot-dependencies; managed here (not just on the direct
+			     dependency below) so it also overrides the version tika-core declares
+			     transitively, converging on the version poi-ooxml already pulls -->
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -150,9 +163,11 @@
 			<version>${tika-core.version}</version>
 		</dependency>
 
+        <!-- Temporary bridge dependency; remove when F-03 drops all tech.jhipster.* usages -->
         <dependency>
             <groupId>tech.jhipster</groupId>
             <artifactId>jhipster-framework</artifactId>
+            <version>${jhipster-framework.version}</version>
         </dependency>
 
         <dependency>
@@ -181,11 +196,7 @@
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webmvc-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdocs.version}</version>
         </dependency>
         <dependency>
@@ -207,9 +218,10 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.cache</groupId>
+            <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>
         <dependency>
@@ -217,16 +229,16 @@
             <artifactId>ehcache</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jcache</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
@@ -288,25 +300,24 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>problem-spring-web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -360,21 +371,17 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-envers</artifactId>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-        <!-- Spring Cloud -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -398,6 +405,9 @@
                     <target>${java.version}</target>
 					<compilerArgs>
 						<arg>-parameters</arg>
+						<!-- Remove once the tree compiles; raised so this change measures the full migration surface -->
+						<arg>-Xmaxerrs</arg>
+						<arg>10000</arg>
 					</compilerArgs>
 					<annotationProcessorPaths>
 						<path>
@@ -417,7 +427,7 @@
                         </path>
                         <!-- For JPA static metamodel generation -->
                         <path>
-                            <groupId>org.hibernate</groupId>
+                            <groupId>org.hibernate.orm</groupId>
                             <artifactId>hibernate-jpamodelgen</artifactId>
                             <version>${hibernate.version}</version>
                         </path>
@@ -959,9 +969,10 @@
 				<dependency>
 					<groupId>org.mapstruct</groupId>
 					<artifactId>mapstruct-processor</artifactId>
+					<version>${mapstruct.version}</version>
 				</dependency>
 				<dependency>
-					<groupId>org.hibernate</groupId>
+					<groupId>org.hibernate.orm</groupId>
 					<artifactId>hibernate-jpamodelgen</artifactId>
 				</dependency>
 			</dependencies>
