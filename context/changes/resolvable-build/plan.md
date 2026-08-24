@@ -707,14 +707,14 @@ and `-Xmaxerrs 10000` makes failing compiles print more output, both negligible.
 
 #### Automated
 
-- [x] 3.1 No `SignatureAlgorithm`, `parserBuilder`, or `parseClaimsJws` in `src/`
-- [x] 3.2 No `io.jsonwebtoken`-attributable compile diagnostic
-- [x] 3.3 `TokenProvider.java` contributes no diagnostic
-- [x] 3.4 Every remaining error attributed in `migration-surface.md` to Jakarta, a Spring Security 6 removal, or `tech.jhipster`
-- [x] 3.5 `migration-surface.md` regenerated with a lower diagnostic count than Phase 1
+- [x] 3.1 No `SignatureAlgorithm`, `parserBuilder`, or `parseClaimsJws` in `src/` — b8b191e
+- [x] 3.2 No `io.jsonwebtoken`-attributable compile diagnostic — b8b191e
+- [x] 3.3 `TokenProvider.java` contributes no diagnostic — b8b191e
+- [x] 3.4 Every remaining error attributed in `migration-surface.md` to Jakarta, a Spring Security 6 removal, or `tech.jhipster` — b8b191e
+- [x] 3.5 `migration-surface.md` regenerated with a lower diagnostic count than Phase 1 — b8b191e
 
 #### Manual
 
-- [x] 3.6 Signing and validation logic reviewed line by line
-- [x] 3.7 Key derivation confirmed byte-identical; existing tokens still verify
-- [x] 3.8 Residual diagnostic list accepted as F-03's starting point
+- [x] 3.6 Signing and validation logic reviewed line by line — b8b191e
+- [x] 3.7 Key derivation confirmed byte-identical; existing tokens still verify — b8b191e
+- [x] 3.8 Residual diagnostic list accepted as F-03's starting point — b8b191e
