@@ -3,7 +3,7 @@ project: "CarCare Server"
 version: 1
 status: draft
 created: 2026-08-24
-updated: 2026-08-24
+updated: 2026-08-25
 prd_version: 1
 main_goal: speed
 top_blocker: decisions
@@ -43,7 +43,7 @@ event types against the same paths, payloads, and status codes as before.
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 | --- | --- | --- | --- | --- | --- |
-| F-01 | `resolvable-build` | (foundation) Maven resolves every dependency; the compiler runs | — | FR-001, FR-002 | ready |
+| F-01 | `resolvable-build` | (foundation) Maven resolves every dependency; the compiler runs | — | FR-001, FR-002 | done |
 | F-02 | `golden-baseline-capture` | (foundation) reference output exists from the last runnable commit | — | FR-016 | ready |
 | F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | blocked |
 | F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | proposed |
@@ -122,7 +122,20 @@ never written.
   the cheapest step that converts guesswork into compiler output. Build health also depends
   on the private GitLab registry continuing to serve `client:1.2.5` — a dependency outside
   this repository, currently working.
-- **Status:** ready
+  **Measured during implementation: the risk was overstated.** Swapping in
+  `spring-boot-dependencies` 3.1.5 left only **three** additional dependencies unversioned
+  (`logstash-logback-encoder`, `spring-cloud-starter-bootstrap`, `jhipster-framework`), not
+  forty — Boot's nested BOMs cover the rest. Total hand-managed surface is 14.
+- **Status:** done
+- **Delivered:** commits `7cd2e41` (p1), `fae090b` (p2), `b8b191e` (p3), `d7985d7` (epilogue),
+  `e626a7f` (review triage fixes). Scope was widened at the owner's direction beyond the
+  pom-only framing above: `org.zalando:problem-spring-web` was removed and error handling
+  rewritten onto Spring 6 `ProblemDetail`, and jjwt moved to 0.12.3 with the corresponding
+  `TokenProvider` rewrite. `./mvnw validate` now exits 0 on the default, `prod`, and `IDE`
+  profiles, and `./mvnw compile` reaches javac and reports **398 unique diagnostics** — the
+  measured migration surface F-03 starts from. Handoff:
+  `context/changes/resolvable-build/migration-surface.md`; wire contract:
+  `error-contract.md`; review: `reviews/impl-review.md`.
 
 ### F-02: Golden reference output captured
 
@@ -148,8 +161,10 @@ never written.
 
 ### F-03: `src/main` compiles on the declared platform
 
-- **Outcome:** (foundation) `./mvnw compile` runs green — 152 `javax.*` imports in `src/main`
-  are on Jakarta EE 9+ namespaces, security is configured through a bean-based
+- **Outcome:** (foundation) `./mvnw compile` runs green — the `javax.*` imports in `src/main`
+  are on Jakarta EE 9+ namespaces (150 as of F-01's close, of which 148 are convertible and 2
+  are JDK-owned; was 152 before F-01's `ExceptionTranslator` rewrite), security is configured
+  through a bean-based
   `SecurityFilterChain` with `requestMatchers`, and no `tech.jhipster.*` class remains in
   main sources. No compatibility shims.
 - **Change ID:** `jakarta-platform-migration`
@@ -157,24 +172,50 @@ never written.
 - **Unlocks:** `F-04`, and through it every slice — nothing can be written, run, or verified
   until the tree compiles. Also closes both failing quality criteria and the partial recorded
   in `stack-assessment.md`, all three of which trace to the JHipster layer.
-- **Prerequisites:** F-01
+- **Prerequisites:** F-01 — **satisfied** (F-01 delivered 2026-08-25)
 - **Parallel with:** F-02
-- **Blockers:** —
+- **Blockers:** Open Roadmap Question 1 (frame-options policy) — the only thing still holding
+  this item now that F-01 has landed.
 - **Unknowns:**
   - Frame-options policy. The current configuration calls a deny and then a disable in
     sequence with no coherent intent, so the second wins and clickjacking protection is
     effectively off today. Deduplicating the header blocks forces a deliberate choice, and
     it cannot be deferred to the separate security pass while the deduplication is in scope.
-    Owner: user. Block: yes.
+    Owner: user. Block: yes. Exact sites, confirmed during F-01:
+    `SecurityConfiguration.java:71-72` (`.frameOptions().deny()`) and `:77-79`
+    (`.headers().frameOptions().disable()`); the same block also declares
+    `sessionManagement().sessionCreationPolicy(STATELESS)` twice, at `:74-75` and `:81-82`.
+- **Scope discovered during F-01** — measured against the now-working compiler, so these are
+  observations rather than estimates. Full attribution in
+  `context/changes/resolvable-build/migration-surface.md`:
+  - The residual diagnostic set is **398 unique errors**, of which 393 are the unconverted
+    Jakarta namespace and 2 are `WebSecurityConfigurerAdapter`.
+  - **A fourth error category the original framing missed**: `MailService.java:16,30,39`
+    imports `org.thymeleaf.spring5.SpringTemplateEngine`, which does not exist for Spring 6.
+    A one-line import change to `org.thymeleaf.spring6` —
+    `spring-boot-starter-thymeleaf` already pulls the correct jar transitively.
+  - **`jackson-datatype-hibernate5` is a live runtime incompatibility**, not just a tidy-up.
+    `pom.xml:186-188` and `JacksonConfiguration.hibernate5Module()` target Hibernate 5 /
+    `javax.persistence` while the pom now resolves `org.hibernate.orm:hibernate-core` 6.2.13.
+    It compiles and then fails at first context load, so it must land inside F-03 rather than
+    after it.
+  - `antMatchers(...)` at `SecurityConfiguration.java:45-51,86-96` is confirmed removed in
+    Spring Security 6 (verified by `javap` on `spring-security-config-6.1.5`) but produces
+    **no diagnostic today** — javac's error recovery suppresses member-level checking once
+    the `WebSecurityConfigurerAdapter` supertype fails to resolve. Treat it as a known rename
+    independent of what the compile output shows.
+  - Two JDK-owned imports must **never** be converted: `javax.sql.DataSource`
+    (`LiquibaseConfiguration.java:18`) and `javax.crypto.SecretKey`
+    (`TokenProvider.java:24`, introduced by F-01's jjwt migration).
 - **Risk:** This is the single largest item on the roadmap and it cannot be split further —
   a partially converted namespace does not compile, and `WebSecurityConfigurerAdapter` no
   longer exists in Spring Security 6, so FR-003 and FR-004 must land together. Removing
   `tech.jhipster.*` is folded in rather than sequenced separately because 12 of its 28 files
   are in `config/`, the same files both other changes edit; splitting them means touching
-  `SecurityConfiguration`, `WebConfigurer`, and `CacheConfiguration` twice. Two named traps:
-  `javax.sql.DataSource` at `LiquibaseConfiguration.java:18` is JDK-owned and must not be
-  rewritten, and Spring Security 6 authorization defaults genuinely differ, so FR-004 asks
-  for deliberate and documented outcomes rather than identical ones.
+  `SecurityConfiguration`, `WebConfigurer`, and `CacheConfiguration` twice. Named traps: the
+  two JDK-owned imports listed under "Scope discovered during F-01" must not be rewritten, and
+  Spring Security 6 authorization defaults genuinely differ, so FR-004 asks for deliberate and
+  documented outcomes rather than identical ones.
 - **Status:** blocked
 
 ### F-04: Test context loads and the suite executes
@@ -341,9 +382,9 @@ never written.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 | --- | --- | --- | --- | --- |
-| F-01 | `resolvable-build` | Restore Maven dependency resolution and drop the JHipster BOM | yes | Run `/10x-plan resolvable-build` |
+| F-01 | `resolvable-build` | Restore Maven dependency resolution and drop the JHipster BOM | done | Delivered 2026-08-25; see `context/changes/resolvable-build/` |
 | F-02 | `golden-baseline-capture` | Capture golden reference output from commit `6e19b96` | yes | Run `/10x-plan golden-baseline-capture`; independent of the broken build |
-| F-03 | `jakarta-platform-migration` | Migrate `src/main` to Jakarta EE 9+ and Spring Security 6, remove JHipster | no | Blocked on the frame-options policy decision |
+| F-03 | `jakarta-platform-migration` | Migrate `src/main` to Jakarta EE 9+ and Spring Security 6, remove JHipster | no | Prerequisite F-01 satisfied; blocked only on the frame-options policy decision. Start from `context/changes/resolvable-build/migration-surface.md` |
 | F-04 | `test-context-restored` | Restore the integration-test Spring context under H2 | no | Waits on F-03 |
 | S-01 | `session-parity` | Prove a full user session is unchanged through client 1.2.5 | no | Waits on F-04 |
 | S-02 | `admin-surface-parity` | Prove the administrator surface is unchanged | no | Waits on F-04 |
@@ -359,6 +400,9 @@ never written.
    today. Deduplicating the header blocks forces a deliberate choice and cannot be deferred
    to the separate security pass while the deduplication is in scope. Owner: user.
    **Blocks:** F-03 — and transitively F-04 and every slice.
+   **Now the critical path.** F-01 closed on 2026-08-25, so this is the only unresolved item
+   standing between the current state and F-03. Sites confirmed:
+   `SecurityConfiguration.java:71-72` and `:77-79`.
 2. **Production JWT signing key.** The PRD defers rotation to a separate security pass and
    records it as not blocking. Two facts established after that decision change the picture:
    the key in `application-prod.yml` is byte-identical to the one in `application-dev.yml`,
