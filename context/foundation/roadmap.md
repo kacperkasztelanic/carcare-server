@@ -6,7 +6,7 @@ created: 2026-08-24
 updated: 2026-08-25
 prd_version: 1
 main_goal: speed
-top_blocker: decisions
+top_blocker: none
 ---
 
 # Roadmap: CarCare Server — Platform Foundation Change
@@ -45,7 +45,7 @@ event types against the same paths, payloads, and status codes as before.
 | --- | --- | --- | --- | --- | --- |
 | F-01 | `resolvable-build` | (foundation) Maven resolves every dependency; the compiler runs | — | FR-001, FR-002 | done |
 | F-02 | `golden-baseline-capture` | (foundation) reference output exists from the last runnable commit | — | FR-016 | ready |
-| F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | blocked |
+| F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | ready |
 | F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | proposed |
 | S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | proposed |
 | S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch, unchanged | F-04 | FR-002, FR-007, FR-015 | proposed |
@@ -62,7 +62,7 @@ parallel tracks.
 
 | Stream | Theme | Chain | Note |
 | --- | --- | --- | --- |
-| A | Platform restoration | `F-01` → `F-03` → `F-04` | The critical path. Every slice waits on it, and `F-03` is where the single blocking decision sits. |
+| A | Platform restoration | `F-01` → `F-03` → `F-04` | The critical path. Every slice waits on it. `F-01` is delivered and the frame-options decision that gated `F-03` is made, so the whole stream is now unblocked; `F-03` is the next item. |
 | B | Reference capture | `F-02` | Runs entirely on commit `6e19b96`, so it is unaffected by the broken build and parallel with all of Stream A. Feeds `S-03` and `S-04`. |
 | C | Parity proof | `S-01` / `S-02` / `S-03` / `S-04`, all four parallel | Joins Stream A at `F-04`; `S-03` and `S-04` also consume Stream B. Proving nothing moved is the bulk of the user-visible work. |
 | D | New behaviour and feedback | `S-05` / `S-06`, parallel | Joins Stream C. The only two items that change what anyone sees; both deliberately last. |
@@ -134,7 +134,7 @@ never written.
   `TokenProvider` rewrite. `./mvnw validate` now exits 0 on the default, `prod`, and `IDE`
   profiles, and `./mvnw compile` reaches javac and reports **398 unique diagnostics** — the
   measured migration surface F-03 starts from. Handoff:
-  `context/changes/resolvable-build/migration-surface.md`; wire contract:
+  `context/archive/resolvable-build/migration-surface.md`; wire contract:
   `error-contract.md`; review: `reviews/impl-review.md`.
 
 ### F-02: Golden reference output captured
@@ -174,20 +174,20 @@ never written.
   in `stack-assessment.md`, all three of which trace to the JHipster layer.
 - **Prerequisites:** F-01 — **satisfied** (F-01 delivered 2026-08-25)
 - **Parallel with:** F-02
-- **Blockers:** Open Roadmap Question 1 (frame-options policy) — the only thing still holding
-  this item now that F-01 has landed.
-- **Unknowns:**
-  - Frame-options policy. The current configuration calls a deny and then a disable in
-    sequence with no coherent intent, so the second wins and clickjacking protection is
-    effectively off today. Deduplicating the header blocks forces a deliberate choice, and
-    it cannot be deferred to the separate security pass while the deduplication is in scope.
-    Owner: user. Block: yes. Exact sites, confirmed during F-01:
-    `SecurityConfiguration.java:71-72` (`.frameOptions().deny()`) and `:77-79`
-    (`.headers().frameOptions().disable()`); the same block also declares
-    `sessionManagement().sessionCreationPolicy(STATELESS)` twice, at `:74-75` and `:81-82`.
+- **Blockers:** — (Open Roadmap Question 1 resolved 2026-08-25)
+- **Unknowns:** — (the frame-options policy was the only one; see "Decided inputs" below)
+- **Decided inputs:**
+  - **Frame options: `DENY`.** Owner decision, 2026-08-25 (Open Roadmap Question 1). Keep the
+    `.deny()` intent at `SecurityConfiguration.java:71-72` and drop the vestigial
+    `.headers().frameOptions().disable()` at `:77-79`. The H2 console that normally justifies
+    disabling is not enabled anywhere in this project. Fallback is `SAMEORIGIN` only if the
+    client turns out to iframe its own views.
+  - While deduplicating that block, also remove the `sessionManagement()
+    .sessionCreationPolicy(STATELESS)` declared twice (`:74-75` and `:81-82`) and the stale
+    `antMatchers("/h2-console/**")` ignore rule at `:49`.
 - **Scope discovered during F-01** — measured against the now-working compiler, so these are
   observations rather than estimates. Full attribution in
-  `context/changes/resolvable-build/migration-surface.md`:
+  `context/archive/resolvable-build/migration-surface.md`:
   - The residual diagnostic set is **398 unique errors**, of which 393 are the unconverted
     Jakarta namespace and 2 are `WebSecurityConfigurerAdapter`.
   - **A fourth error category the original framing missed**: `MailService.java:16,30,39`
@@ -216,7 +216,7 @@ never written.
   two JDK-owned imports listed under "Scope discovered during F-01" must not be rewritten, and
   Spring Security 6 authorization defaults genuinely differ, so FR-004 asks for deliberate and
   documented outcomes rather than identical ones.
-- **Status:** blocked
+- **Status:** ready
 
 ### F-04: Test context loads and the suite executes
 
@@ -382,9 +382,9 @@ never written.
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 | --- | --- | --- | --- | --- |
-| F-01 | `resolvable-build` | Restore Maven dependency resolution and drop the JHipster BOM | done | Delivered 2026-08-25; see `context/changes/resolvable-build/` |
+| F-01 | `resolvable-build` | Restore Maven dependency resolution and drop the JHipster BOM | done | Delivered 2026-08-25; see `context/archive/resolvable-build/` |
 | F-02 | `golden-baseline-capture` | Capture golden reference output from commit `6e19b96` | yes | Run `/10x-plan golden-baseline-capture`; independent of the broken build |
-| F-03 | `jakarta-platform-migration` | Migrate `src/main` to Jakarta EE 9+ and Spring Security 6, remove JHipster | no | Prerequisite F-01 satisfied; blocked only on the frame-options policy decision. Start from `context/changes/resolvable-build/migration-surface.md` |
+| F-03 | `jakarta-platform-migration` | Migrate `src/main` to Jakarta EE 9+ and Spring Security 6, remove JHipster | yes | Unblocked 2026-08-25 — F-01 delivered and the frame-options decision is made (`DENY`). Run `/10x-plan jakarta-platform-migration`; start from `context/archive/resolvable-build/migration-surface.md` |
 | F-04 | `test-context-restored` | Restore the integration-test Spring context under H2 | no | Waits on F-03 |
 | S-01 | `session-parity` | Prove a full user session is unchanged through client 1.2.5 | no | Waits on F-04 |
 | S-02 | `admin-surface-parity` | Prove the administrator surface is unchanged | no | Waits on F-04 |
@@ -395,14 +395,27 @@ never written.
 
 ## Open Roadmap Questions
 
-1. **Frame-options policy.** The current configuration denies and then disables in sequence
-   with no coherent intent; the second wins, so clickjacking protection is effectively off
-   today. Deduplicating the header blocks forces a deliberate choice and cannot be deferred
-   to the separate security pass while the deduplication is in scope. Owner: user.
-   **Blocks:** F-03 — and transitively F-04 and every slice.
-   **Now the critical path.** F-01 closed on 2026-08-25, so this is the only unresolved item
-   standing between the current state and F-03. Sites confirmed:
-   `SecurityConfiguration.java:71-72` and `:77-79`.
+1. ~~**Frame-options policy.**~~ **RESOLVED 2026-08-25 — `DENY`.** Owner decision.
+   **No longer blocks F-03.**
+
+   The current configuration denies at `SecurityConfiguration.java:71-72` and then disables at
+   `:77-79`; the second wins, so clickjacking protection is effectively off today.
+   F-03's deduplicated `SecurityFilterChain` must emit **`X-Frame-Options: DENY`** — i.e. keep
+   the `.deny()` intent and drop the `.disable()` call, which is vestigial.
+
+   **Basis for the decision.** The usual reason a JHipster application disables frame options
+   is the H2 console, which renders in frames. This project never enables it: there is no
+   `spring.h2.console` key in any file under `src/main/resources/config/`, no
+   `H2ConfigurationHelper` usage, and the only trace is a stale
+   `antMatchers("/h2-console/**")` ignore rule at `SecurityConfiguration.java:49`. Dev runs on
+   MariaDB and H2 is test-only and headless. No other framing requirement exists server-side —
+   the reports are XLSX/PDF downloads, not embedded views.
+
+   **Carried into F-03:** emit `DENY`; delete the duplicated
+   `sessionManagement().sessionCreationPolicy(STATELESS)` (declared twice, at `:74-75` and
+   `:81-82`); and drop the stale `/h2-console/**` ignore rule at `:49` along with it. If the
+   client at `../client` turns out to iframe its own views, `SAMEORIGIN` is the fallback — but
+   nothing found server-side suggests it does.
 2. **Production JWT signing key.** The PRD defers rotation to a separate security pass and
    records it as not blocking. Two facts established after that decision change the picture:
    the key in `application-prod.yml` is byte-identical to the one in `application-dev.yml`,
