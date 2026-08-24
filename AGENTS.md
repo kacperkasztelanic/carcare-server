@@ -112,3 +112,101 @@ images to the GitLab registry. Compose-style runtime files: `src/main/docker/app
 - Heavy use of **Lombok**, plus **Vavr**, **Guava**, and Apache Commons in the service layer.
 - `ArchTest` (ArchUnit) enforces that the `service` and `repository` layers must not depend on the
   `web` layer — keep layering clean or it will fail.
+
+## Toolchain
+
+Java 17 is required, **exactly**. The Maven enforcer rule fails the build on anything newer
+("JHipster supports JDK 8 to 17"), and Lombok versions before 1.18.30 break on JDK 21+ with
+`NoSuchFieldError: ... JCTree$JCImport ... qualid`. Do not work around this by skipping the
+enforcer — the compile will fail immediately afterwards anyway.
+
+A JDK 17 is installed via SDKMAN as `17.0.20-tem`, but **the SDKMAN default is a newer JDK**, so
+a bare `./mvnw` will hit the enforcer. Set it explicitly for the build:
+
+```bash
+export JAVA_HOME=~/.sdkman/candidates/java/17.0.20-tem
+```
+
+## Known-good baseline
+
+Commit `6e19b96` (2022-05-20, Spring Boot 2.7.0 / JHipster 7.8.1) is the newest commit that builds
+and runs: 22/22 unit tests and 94/102 integration tests pass. Use it to capture reference behaviour
+before changing anything.
+
+Critically, `src/main/java` and `src/main/resources/config/liquibase` are **byte-identical** between
+`3e91ed4` (2022-05-17) and HEAD — every commit since has touched only the POM, Docker files, or
+documentation. Any behavioural difference observed after the platform migration is therefore
+attributable to the migration alone, not to intervening feature work.
+
+Commits older than `6e19b96` cannot be built: they require client artifact versions below 1.2.3,
+which are no longer retrievable from the private registry.
+
+## Why the build currently fails
+
+`./mvnw` fails during Maven model construction — before compilation, before the enforcer — because
+**11 dependencies receive no version** from the declared `jhipster-dependencies` 8.0.0 BOM:
+
+```
+commons-io:commons-io                    org.hibernate:hibernate-envers
+io.jsonwebtoken:jjwt-api                 org.hibernate:hibernate-jcache
+io.jsonwebtoken:jjwt-impl                org.hibernate:hibernate-jpamodelgen
+io.jsonwebtoken:jjwt-jackson             org.springdoc:springdoc-openapi-webmvc-core
+jakarta.cache:cache-api                  org.zalando:problem-spring-web
+org.hibernate:hibernate-core
+```
+
+Fix dependency resolution **before** touching any `javax.*` import. An unresolvable dependency graph
+means the compiler cannot give trustworthy feedback, so the real migration surface stays hidden.
+
+## Why the tests currently fail
+
+`src/test/resources/config/application.yml` sets
+`database-platform: tech.jhipster.domain.util.FixedH2Dialect`. That class was **removed from
+`jhipster-framework` in version 7.9.0** — it exists in 7.8.1 and earlier, and is absent from 7.9.0,
+7.9.1, 7.9.2, 7.9.3, and 8.0.0. This was verified by inspecting the published jars; no changelog or
+upgrade note mentions it.
+
+Consequently every commit from `63d72ef` (2022-08-01) onward fails to load a Spring context, and all
+102 integration tests error before executing. **Do not interpret existing test results as evidence
+of anything** — effective integration coverage of business behaviour is zero, and has been for years.
+
+Substituting a stock `org.hibernate.dialect.H2Dialect` is not sufficient: a schema-validation
+mismatch on `inspections.details` (CLOB vs CHARACTER) surfaces underneath it.
+
+## Replacing tech.jhipster.* usages
+
+The project is mid-migration from JHipster-generated Spring Boot 2 sources onto a declared Spring
+Boot 3 platform. **Do not pattern-match on either era wholesale** — the tree is in a state that
+matches neither, and that state is essentially absent from training data.
+
+When removing a `tech.jhipster.*` usage, replace it with the Spring Boot 3 equivalent and verify
+against the Spring Boot reference for the declared version, not against JHipster documentation.
+JHipster documents generating a fresh application; it does not document upgrading a hand-maintained
+one, so its guides will not describe this project's situation.
+
+## Generated code — do not reason from source alone
+
+Lombok, MapStruct, and the Hibernate JPA metamodel generator run as annotation processors, so the
+type surface the compiler sees is **not** what the source shows.
+
+- Entities use `@Getter`/`@Setter`/`@Builder` with a private `@PersistenceConstructor`; value objects
+  use `@Value(staticConstructor = "of")`, which generates a **private** all-args constructor.
+- MapStruct mappers and `*_` metamodel classes are produced only under the `IDE` Maven profile.
+  Without it they do not exist on disk.
+
+Never conclude that a member is missing because it is absent from the source file. Verify against
+compiled output (`javap -p`) or against runtime behaviour. A source-only reading of `LoginVm`
+previously produced the false conclusion that `/api/authenticate` could not deserialize its request
+body — the application's configured `ObjectMapper` resolves the generated constructor correctly, via
+`jackson-module-parameter-names` plus the `-parameters` compiler flag.
+
+## Integration tests use a standalone harness
+
+Several integration tests build MockMvc with `MockMvcBuilders.standaloneSetup(...)`, which does
+**not** use the application's configured `ObjectMapper`. They assert against a serialization
+configuration the application never uses, and can fail on code that works correctly in production.
+All 8 known failures at the baseline commit occur in `standaloneSetup`-based classes
+(`UserJwtControllerIT`, `UserResourceIT`, `AccountResourceIT`, `AuditResourceIT`); 3 were traced
+directly to the harness via `LoginVm` deserialization, and a `application/json` vs
+`application/json;charset=UTF-8` mismatch is characteristic of it. The remaining failures were not
+individually root-caused. Prefer full-context MockMvc for new tests.

@@ -146,3 +146,8 @@ Desktop.ini
 # ESLint
 ######################
 .eslintcache
+
+######################
+# codebase-memory-mcp
+######################
+.codebase-memory/
