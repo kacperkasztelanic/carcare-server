@@ -84,11 +84,11 @@ public class ApplicationProperties {
 
                 @Getter
                 @Setter
-                private long tokenValidityInSeconds;
+                private long tokenValidityInSeconds = 1800;
 
                 @Getter
                 @Setter
-                private long tokenValidityInSecondsForRememberMe;
+                private long tokenValidityInSecondsForRememberMe = 2592000;
             }
         }
     }

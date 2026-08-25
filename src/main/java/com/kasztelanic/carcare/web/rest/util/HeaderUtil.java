@@ -22,6 +22,15 @@ public final class HeaderUtil {
 
     private static volatile String applicationName = "carcare";
 
+    /**
+     * Namespace for the i18n message keys carried in alert headers. This is a <em>client
+     * translation namespace</em>, not the application name: the client's per-language
+     * {@code carcare.json} bundles are rooted at {@code carcareApp}, so this is deliberately
+     * independent of {@code spring.application.name} and must not be folded into
+     * {@link #applicationName}. Renaming it silently breaks every alert toast on the client.
+     */
+    private static final String TRANSLATION_KEY_NAMESPACE = "carcareApp";
+
     public static void setApplicationName(String name) {
         applicationName = name;
     }
@@ -55,15 +64,15 @@ public final class HeaderUtil {
     }
 
     public static HttpHeaders createEntityCreationAlert(String entityName, String param) {
-        return createAlert(applicationName + "." + entityName + ".created", param);
+        return createAlert(TRANSLATION_KEY_NAMESPACE + "." + entityName + ".created", param);
     }
 
     public static HttpHeaders createEntityUpdateAlert(String entityName, String param) {
-        return createAlert(applicationName + "." + entityName + ".updated", param);
+        return createAlert(TRANSLATION_KEY_NAMESPACE + "." + entityName + ".updated", param);
     }
 
     public static HttpHeaders createEntityDeletionAlert(String entityName, String param) {
-        return createAlert(applicationName + "." + entityName + ".deleted", param);
+        return createAlert(TRANSLATION_KEY_NAMESPACE + "." + entityName + ".deleted", param);
     }
 
     public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {

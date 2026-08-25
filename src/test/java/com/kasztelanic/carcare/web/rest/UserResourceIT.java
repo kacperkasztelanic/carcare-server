@@ -93,7 +93,7 @@ class UserResourceIT {
     @Autowired
     private CacheManager cacheManager;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${spring.application.name}")
     private String applicationName;
 
     private MockMvc restUserMockMvc;

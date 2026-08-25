@@ -49,8 +49,7 @@ public class SecurityConfiguration {
             .requestMatchers(new AntPathRequestMatcher("/app/**/*.{js,html}"))
             .requestMatchers(new AntPathRequestMatcher("/i18n/**"))
             .requestMatchers(new AntPathRequestMatcher("/content/**"))
-            .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"))
-            .requestMatchers(new AntPathRequestMatcher("/test/**"));
+            .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"));
     }
 
     @Bean
@@ -83,6 +82,11 @@ public class SecurityConfiguration {
                 .requestMatchers(new AntPathRequestMatcher("/management/info")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/management/prometheus")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
+                // Static SPA assets served from the client jar's root (index.html, service-worker.js,
+                // manifest.webapp, robots.txt, favicon.ico, precache-manifest.*.js). Spring Security 5
+                // permitted unmatched requests; Spring Security 6 denies them, so this rule is required
+                // to preserve the pre-migration behaviour.
+                .anyRequest().permitAll()
             )
             .httpBasic(Customizer.withDefaults());
         // @formatter:on

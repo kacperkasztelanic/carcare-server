@@ -30,7 +30,7 @@ public final class PaginationUtil {
         if (pageNumber > 0) {
             link.append(prepareLink(uriBuilder, pageNumber - 1, pageSize, "prev")).append(",");
         }
-        link.append(prepareLink(uriBuilder, page.getTotalPages() - 1, pageSize, "last")).append(",")
+        link.append(prepareLink(uriBuilder, Math.max(0, page.getTotalPages() - 1), pageSize, "last")).append(",")
             .append(prepareLink(uriBuilder, 0, pageSize, "first"));
         headers.add(HttpHeaders.LINK, link.toString());
         return headers;

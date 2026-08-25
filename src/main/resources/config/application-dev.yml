@@ -81,6 +81,9 @@ application:
     security:
         authentication:
             jwt:
+                # Legacy plain-text secret. Empty by default so `base64-secret` below is used; kept as a
+                # compatibility alias for deployments still setting JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET.
+                secret: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET:}
                 # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
                 base64-secret: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET:MzYyMjBiMTc3NGEwZmM5MmZlN2UzNTNmYTY0NWQxMzQ0ZmNjN2UyNjAyMmJiMmIzNTQ4NjRiNGEzNWVlNjQ5NGM1ODVmNmViNjE4MzcxMDA5OGFjNjI2MmYzZTJhZGZkZDFkYzIzYzQ0Njk2NWIwNmIyMWQyNWJiMTNmMGY5MDI=}
                 # Token is valid 24 hours
