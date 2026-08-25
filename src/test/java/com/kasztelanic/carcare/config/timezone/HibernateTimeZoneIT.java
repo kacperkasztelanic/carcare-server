@@ -134,11 +134,13 @@ class HibernateTimeZoneIT {
 
         String request = generateSqlRequest("offset_time", dateTimeWrapper.getId());
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(request);
+        // Hibernate 5 stored the wall-clock digits verbatim, ignoring the offset; Hibernate 6's
+        // plain-TIME binding (see TestH2Dialect/DateTimeWrapper.offsetTime) converts to the real
+        // UTC-equivalent time-of-day instead, so the expectation is computed the same way.
         String expectedValue = dateTimeWrapper
             .getOffsetTime()
+            .withOffsetSameInstant(ZoneOffset.UTC)
             .toLocalTime()
-            .atDate(LocalDate.of(1970, Month.JANUARY, 1))
-            .atZone(ZoneId.systemDefault())
             .format(timeFormatter);
 
         assertThatDateStoredValueIsEqualToInsertDateValueOnGMTTimeZone(resultSet, expectedValue);

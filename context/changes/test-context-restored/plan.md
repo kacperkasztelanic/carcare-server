@@ -462,14 +462,14 @@ untouched because wiring or deleting it is independent of restoring the test con
 
 #### Automated
 
-- [ ] 1.1 Test compilation passes on Java 17
-- [ ] 1.2 The sole remaining `javax.*` test import is `javax.crypto.SecretKey`
-- [ ] 1.3 Generated test resources contain only the layered profile contract
-- [ ] 1.4 Focused configuration and Hibernate context tests pass
+- [x] 1.1 Test compilation passes on Java 17
+- [x] 1.2 The sole remaining `javax.*` test import is `javax.crypto.SecretKey`
+- [x] 1.3 Generated test resources contain only the layered profile contract
+- [x] 1.4 Focused configuration and Hibernate context tests pass
 
 #### Manual
 
-- [ ] 1.5 Test-profile review confirms shared defaults are inherited, environment-sensitive SMTP values are neutralized, and strict schema validation remains enabled
+- [x] 1.5 Test-profile review confirms shared defaults are inherited, environment-sensitive SMTP values are neutralized, and strict schema validation remains enabled
 
 ### Phase 2: Convert Foundational REST and Security Tests
 

@@ -9,16 +9,18 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZonedDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -48,7 +50,12 @@ public class DateTimeWrapper implements Serializable {
     @Column(name = "local_time")
     private LocalTime localTime;
 
+    // The test-only jhi_date_time_wrapper.offset_time column is created as a plain H2 TIME
+    // (context="test" changeset in 00000000000000_initial_schema.xml), but Hibernate 6 defaults
+    // OffsetTime to TIME_WITH_TIMEZONE. Force the pre-existing plain-TIME mapping instead of
+    // touching the changelog.
     @Column(name = "offset_time")
+    @JdbcTypeCode(SqlTypes.TIME)
     private OffsetTime offsetTime;
 
     @Column(name = "local_date")

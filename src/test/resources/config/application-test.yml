@@ -1,22 +1,15 @@
 # ===================================================================
-# Spring Boot configuration.
+# Spring Boot configuration — `test` profile.
+#
+# This file is layered on top of src/main/resources/config/application.yml
+# (activated via config/application.properties) rather than replacing it.
+# Only settings that must differ from the shared main configuration belong
+# here — see AGENTS.md for the shadowing defect this replaces.
 #
 # This configuration is used for unit/integration tests.
-#
-# More information on profiles: https://www.jhipster.tech/profiles/
-# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
 # ===================================================================
-
-# ===================================================================
-# Standard Spring Boot properties.
-# Full reference is available at:
-# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
-# ===================================================================
-
 
 spring:
-    application:
-        name: carcare
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:h2:mem:carcare;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -26,45 +19,39 @@ spring:
         hikari:
             auto-commit: false
     jpa:
-        database-platform: tech.jhipster.domain.util.FixedH2Dialect
+        database-platform: com.kasztelanic.carcare.config.TestH2Dialect
         database: H2
-        open-in-view: false
         show-sql: false
-        hibernate:
-            ddl-auto: none
-            naming:
-                physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-                implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         properties:
-            hibernate.id.new_generator_mappings: true
+            # Hibernate 6 defaults OffsetDateTime/ZonedDateTime storage to AUTO, which falls back
+            # to a database-native TIMESTAMP WITH TIME ZONE column. Liquibase's plain TIMESTAMP
+            # columns (see 00000000000000_initial_schema.xml) never carried that, so normalize to
+            # UTC instead of preserving the offset in the column type.
+            hibernate.timezone.default_storage: NORMALIZE
             hibernate.connection.provider_disables_autocommit: true
             hibernate.cache.use_second_level_cache: false
             hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: true
             hibernate.hbm2ddl.auto: validate
-            hibernate.jdbc.time_zone: UTC
     liquibase:
         contexts: test
     mail:
         host: localhost
-    main:
-            allow-bean-definition-overriding: true
-    messages:
-        basename: i18n/messages
+        port: 25
+        username:
+        password:
+        tls: false
+        properties.mail.smtp:
+            auth: false
+            starttls.enable: false
+            ssl.trust:
     task:
         execution:
-            thread-name-prefix: carcare-task-
             pool:
                 core-size: 1
-                max-size: 50
-                queue-capacity: 10000
         scheduling:
-            thread-name-prefix: carcare-scheduling-
             pool:
                 size: 1
-    thymeleaf:
-        mode: HTML
-
 
 server:
     port: 10344
