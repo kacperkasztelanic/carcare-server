@@ -475,25 +475,25 @@ untouched because wiring or deleting it is independent of restoring the test con
 
 #### Automated
 
-- [x] 2.1 Foundational REST and security ITs pass
-- [x] 2.2 Converted foundational ITs no longer build standalone MockMvc
-- [x] 2.3 Security smoke assertions cover SPA headers, private-api `401`, audit USER `403`, audit ADMIN success, and public management health
+- [x] 2.1 Foundational REST and security ITs pass — 23802d8
+- [x] 2.2 Converted foundational ITs no longer build standalone MockMvc — 23802d8
+- [x] 2.3 Security smoke assertions cover SPA headers, private-api `401`, audit USER `403`, audit ADMIN success, and public management health — 23802d8
 
 #### Manual
 
-- [x] 2.4 Security-contract review confirms filter-level Problem Details are not confused with exceptions handled inside `DispatcherServlet`, and matcher outcomes match `SecurityConfiguration`
+- [x] 2.4 Security-contract review confirms filter-level Problem Details are not confused with exceptions handled inside `DispatcherServlet`, and matcher outcomes match `SecurityConfiguration` — 23802d8
 
 ### Phase 3: Convert Stateful Account and User Tests
 
 #### Automated
 
-- [ ] 3.1 Stateful account and user ITs pass
-- [ ] 3.2 All five migrated REST ITs are free of standalone MockMvc while `WebConfigurerTest` remains unchanged
-- [ ] 3.3 Representative role assertions prove anonymous `401`, USER read success, USER-on-admin `403`, and ADMIN mutation success
+- [x] 3.1 Stateful account and user ITs pass
+- [x] 3.2 All five migrated REST ITs are free of standalone MockMvc while `WebConfigurerTest` remains unchanged
+- [x] 3.3 Representative role assertions prove anonymous `401`, USER read success, USER-on-admin `403`, and ADMIN mutation success
 
 #### Manual
 
-- [ ] 3.4 Fixture review confirms tests use persisted users and the real `UserService`, mock only outbound mail, and preserve the password-reset anti-enumeration behavior
+- [x] 3.4 Fixture review confirms tests use persisted users and the real `UserService`, mock only outbound mail, and preserve the password-reset anti-enumeration behavior
 
 ### Phase 4: Stabilize and Gate the Complete Suite
 
