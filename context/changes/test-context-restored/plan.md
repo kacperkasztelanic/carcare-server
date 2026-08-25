@@ -137,7 +137,10 @@ Maven, IDE, and focused integration-test runs.
 resource `application.properties`. Retain H2, Liquibase `contexts: test`, strict schema validation,
 test JWT, task-pool, and application mail overrides. Inherit the shared Liquibase master path, CSP,
 management settings, and server defaults. Explicitly set SMTP to localhost:25 with blank
-credentials and disabled auth/STARTTLS. Remove the dead
+credentials and disabled auth/STARTTLS, and neutralize the Gmail-specific values that survive
+layering by also overriding `spring.mail.tls` to `false` and
+`spring.mail.properties.mail.smtp.ssl.trust` to empty (main sets them to `true` and
+`smtp.gmail.com`; they are inert with STARTTLS off but contradict the neutralization contract). Remove the dead
 `hibernate.id.new_generator_mappings` and vestigial bean-overriding setting.
 
 #### 3. Hibernate 6 H2 compatibility fixture
@@ -162,8 +165,8 @@ startup as an indirect signal.
 
 **Contract**: Assert that `test` is active and `dev` is not; the datasource is H2; Liquibase uses
 `classpath:config/liquibase/master.xml` with the `test` context; management remains under
-`/management` with mail health disabled; SMTP is localhost:25 without auth/STARTTLS; and CSP is
-nonblank. The focused test must boot the same `CarcareApp` context as the suite.
+`/management` with mail health disabled; SMTP is localhost:25 without auth/STARTTLS and retains no
+inherited Gmail TLS or `ssl.trust` value; and CSP is nonblank. The focused test must boot the same `CarcareApp` context as the suite.
 
 ### Success Criteria
 
@@ -301,7 +304,11 @@ keep the role contract visible and compact.
 **Intent**: Prevent context mocks, caches, or security state from leaking between test methods or
 classes.
 
-**Contract**: Limit context mocking to `MailService` in `AccountResourceIT`; rely on Spring's
+**Contract**: Limit context mocking to `MailService`, declared identically in both
+`AccountResourceIT` and `UserResourceIT` so the two classes share one context-cache variant. The
+mock is required in both: `UserResource.createUser()` dispatches asynchronous
+`MailService.sendCreationEmail()`, so an unmocked successful-create test in `UserResourceIT`
+attempts real SMTP and leaves asynchronous work running past its transaction. Rely on Spring's
 automatic Mockito reset between methods and transactional database rollback. Keep existing user
 cache cleanup in `UserResourceIT`. Do not use `@DirtiesContext` or create a mocked `UserService`
 context variant.
@@ -357,6 +364,23 @@ it.
 and the explicit absence of vehicle/event/report/statistics/reminder coverage. Do not claim
 production schema validation or product parity.
 
+#### 3. Repository instruction refresh
+
+**File**: `AGENTS.md`
+
+**Intent**: Prevent this change from leaving future agents with a dead file path and a test-status
+narrative that the delivered suite contradicts.
+
+**Contract**: After the final green `verify`, update three places. `AGENTS.md:50` names
+`src/test/resources/config/application.yml`, the file Phase 1 renames — point it at the layered
+`application.properties` + `application-test.yml` pair. Replace the "Why the tests currently fail"
+section (`AGENTS.md:161–175`), which attributes every context failure to the removed
+`FixedH2Dialect`, with the actual resolution: profile layering, the shared Liquibase changelog path
+and CSP default, and the test-only `TestH2Dialect` CLOB boundary. Correct the "Integration tests
+use a standalone harness" section (`AGENTS.md:203`) to record that the five listed REST ITs now use
+application `MockMvc` and that only `WebConfigurerTest` remains standalone. Report real counts; do
+not restate coverage the suite does not have.
+
 ### Success Criteria
 
 #### Automated Verification
@@ -370,6 +394,7 @@ production schema validation or product parity.
 
 - Final failure-triage review confirms every additional repair is migration-scoped and evidence-backed.
 - Final scope review confirms no production entity, Liquibase schema, API behavior, client, or deferred business-test slice was changed.
+- `AGENTS.md` review confirms the test-configuration path, the failure explanation, the standalone-harness note, and the reported suite status all match the delivered suite.
 
 **Implementation Note**: Completion requires all automated checks plus human confirmation of the
 scope review. A red `verify` is not an acceptable F-04 end state under the planning decision.
@@ -483,3 +508,4 @@ untouched because wiring or deleting it is independent of restoring the test con
 
 - [ ] 4.5 Final failure-triage review confirms every additional repair is migration-scoped and evidence-backed
 - [ ] 4.6 Final scope review confirms no production entity, Liquibase schema, API behavior, client, or deferred business-test slice was changed
+- [ ] 4.7 `AGENTS.md` review confirms the test-configuration path, the failure explanation, the standalone-harness note, and the reported suite status all match the delivered suite
