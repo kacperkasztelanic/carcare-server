@@ -487,25 +487,25 @@ untouched because wiring or deleting it is independent of restoring the test con
 
 #### Automated
 
-- [x] 3.1 Stateful account and user ITs pass
-- [x] 3.2 All five migrated REST ITs are free of standalone MockMvc while `WebConfigurerTest` remains unchanged
-- [x] 3.3 Representative role assertions prove anonymous `401`, USER read success, USER-on-admin `403`, and ADMIN mutation success
+- [x] 3.1 Stateful account and user ITs pass — 2dc4191
+- [x] 3.2 All five migrated REST ITs are free of standalone MockMvc while `WebConfigurerTest` remains unchanged — 2dc4191
+- [x] 3.3 Representative role assertions prove anonymous `401`, USER read success, USER-on-admin `403`, and ADMIN mutation success — 2dc4191
 
 #### Manual
 
-- [x] 3.4 Fixture review confirms tests use persisted users and the real `UserService`, mock only outbound mail, and preserve the password-reset anti-enumeration behavior
+- [x] 3.4 Fixture review confirms tests use persisted users and the real `UserService`, mock only outbound mail, and preserve the password-reset anti-enumeration behavior — 2dc4191
 
 ### Phase 4: Stabilize and Gate the Complete Suite
 
 #### Automated
 
-- [ ] 4.1 Surefire unit tests pass
-- [ ] 4.2 The complete unit and integration suite passes
-- [ ] 4.3 The Jakarta migration guard still leaves only the JDK-owned test import
-- [ ] 4.4 Changed files pass whitespace validation
+- [x] 4.1 Surefire unit tests pass
+- [x] 4.2 The complete unit and integration suite passes
+- [x] 4.3 The Jakarta migration guard still leaves only the JDK-owned test import
+- [x] 4.4 Changed files pass whitespace validation
 
 #### Manual
 
-- [ ] 4.5 Final failure-triage review confirms every additional repair is migration-scoped and evidence-backed
-- [ ] 4.6 Final scope review confirms no production entity, Liquibase schema, API behavior, client, or deferred business-test slice was changed
-- [ ] 4.7 `AGENTS.md` review confirms the test-configuration path, the failure explanation, the standalone-harness note, and the reported suite status all match the delivered suite
+- [x] 4.5 Final failure-triage review confirms every additional repair is migration-scoped and evidence-backed
+- [x] 4.6 Final scope review confirms no production entity, Liquibase schema, API behavior, client, or deferred business-test slice was changed
+- [x] 4.7 `AGENTS.md` review confirms the test-configuration path, the failure explanation, the standalone-harness note, and the reported suite status all match the delivered suite

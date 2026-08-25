@@ -47,8 +47,10 @@ App serves on port **8080**; REST API is under `/api`, Spring Boot Actuator unde
 - `IDE`: pulls in MapStruct processor + Hibernate JPA metamodel generator — **enable this profile in
   the IDE** or generated mappers / `*_` metamodel classes won't be produced.
 
-Tests run against **H2 in-memory** (`src/test/resources/config/application.yml`); only running the
-app in `dev` needs a real MariaDB.
+Tests run against **H2 in-memory**, configured by the layered pair
+`src/test/resources/config/application.properties` (activates the `test` profile) and
+`src/test/resources/config/application-test.yml` (H2, Liquibase `test` context, strict schema
+validation, test JWT/SMTP overrides); only running the app in `dev` needs a real MariaDB.
 
 ## Architecture
 
@@ -158,20 +160,40 @@ org.hibernate:hibernate-core
 Fix dependency resolution **before** touching any `javax.*` import. An unresolvable dependency graph
 means the compiler cannot give trustworthy feedback, so the real migration surface stays hidden.
 
-## Why the tests currently fail
+## Test context restoration (F-04)
 
-`src/test/resources/config/application.yml` sets
-`database-platform: tech.jhipster.domain.util.FixedH2Dialect`. That class was **removed from
-`jhipster-framework` in version 7.9.0** — it exists in 7.8.1 and earlier, and is absent from 7.9.0,
-7.9.1, 7.9.2, 7.9.3, and 8.0.0. This was verified by inspecting the published jars; no changelog or
-upgrade note mentions it.
+The test context used to fail to load at all: `src/test/resources/config/application.yml` had the
+same classpath location as the main resource, so it *shadowed* main's configuration instead of
+layering on it, and F-03 had moved the Liquibase changelog path and the CSP default into main's YAML
+only. F-04 resolved this by replacing the shadowing file with a layered pair —
+`src/test/resources/config/application.properties` activates the `test` profile, and
+`src/test/resources/config/application-test.yml` holds only the test-specific overrides (H2,
+Liquibase `contexts: test`, JWT, task-pool, mail) — so the shared Liquibase master path, CSP,
+management settings, and server defaults are inherited from main rather than duplicated. `dev`'s
+Gmail SMTP settings are explicitly neutralized to localhost:25 with auth/STARTTLS disabled.
 
-Consequently every commit from `63d72ef` (2022-08-01) onward fails to load a Spring context, and all
-102 integration tests error before executing. **Do not interpret existing test results as evidence
-of anything** — effective integration coverage of business behaviour is zero, and has been for years.
+Separately, Hibernate 6 classifies `String(length = 65535)` as VARCHAR rather than CLOB under stock
+H2 (`H2Dialect.getMaxVarcharLength()` returns 1,048,576), which broke schema validation for the five
+long-text columns (including `vehicles.notes`, embedded from `VehicleDetails`). A test-only
+`com.kasztelanic.carcare.config.TestH2Dialect` (in `src/test/java`) lowers that boundary below 65,535
+so those columns validate as CLOB; no production entity or Liquibase changelog changed.
+`TestConfigurationIT` guards the resource-layering fix, and `HibernateTimeZoneIT` is the first
+schema-validating context checkpoint.
 
-Substituting a stock `org.hibernate.dialect.H2Dialect` is not sufficient: a schema-validation
-mismatch on `inspections.details` (CLOB vs CHARACTER) surfaces underneath it.
+The full suite is green: `./mvnw test` runs 22 unit tests (1 intentionally `@Disabled` in
+`WebConfigurerTest`), and `./mvnw verify` additionally runs 115 integration tests, all passing. This
+restores JHipster scaffolding coverage only — no vehicle, event, report, statistics, or reminder
+business behavior is tested; that is deferred to the S-01–S-04 roadmap slices.
+
+One pre-existing (JHipster-original) bug surfaced and was fixed along the way:
+`CacheConfiguration.createCache()` used to unconditionally `destroyCache()` + `createCache()` on
+every boot. Because JSR-107's `CachingProvider` returns the same `javax.cache.CacheManager` instance
+to every Spring context in a JVM by default, booting a second test context (e.g. the
+`@MockBean MailService` variant shared by `AccountResourceIT`/`UserResourceIT`) destroyed caches a
+previously-cached context was still holding references to, intermittently breaking
+`UserJwtControllerIT` with "Cache[usersByLogin] is closed". `createCache()` is now idempotent
+(skips creation if the cache already exists); production behavior is unchanged since a single-context
+JVM never re-enters that branch.
 
 ## Replacing tech.jhipster.* usages
 
@@ -200,13 +222,12 @@ previously produced the false conclusion that `/api/authenticate` could not dese
 body — the application's configured `ObjectMapper` resolves the generated constructor correctly, via
 `jackson-module-parameter-names` plus the `-parameters` compiler flag.
 
-## Integration tests use a standalone harness
+## Integration tests use the application MockMvc
 
-Several integration tests build MockMvc with `MockMvcBuilders.standaloneSetup(...)`, which does
-**not** use the application's configured `ObjectMapper`. They assert against a serialization
-configuration the application never uses, and can fail on code that works correctly in production.
-All 8 known failures at the baseline commit occur in `standaloneSetup`-based classes
-(`UserJwtControllerIT`, `UserResourceIT`, `AccountResourceIT`, `AuditResourceIT`); 3 were traced
-directly to the harness via `LoginVm` deserialization, and a `application/json` vs
-`application/json;charset=UTF-8` mismatch is characteristic of it. The remaining failures were not
-individually root-caused. Prefer full-context MockMvc for new tests.
+F-04 converted the five REST ITs that used to build MockMvc with `MockMvcBuilders.standaloneSetup(...)`
+— `UserJwtControllerIT`, `AuditResourceIT`, `ExceptionTranslatorIT`, `AccountResourceIT`, and
+`UserResourceIT` — onto `@SpringBootTest` + `@AutoConfigureMockMvc`. They now exercise the real
+filter chain, the application's configured `ObjectMapper`, controller advice, and (for
+`UserResourceIT`) the Spring proxy enforcing `@PreAuthorize`. `WebConfigurerTest` remains standalone
+by design — it is a focused filter-unit harness, not a REST IT. Prefer full-context MockMvc for new
+tests; there is no longer a standalone-harness class to pattern-match against.

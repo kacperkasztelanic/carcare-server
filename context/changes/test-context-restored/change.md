@@ -55,3 +55,31 @@ Planning decisions (2026-08-25):
 - Add representative anonymous, USER, and ADMIN authorization coverage plus a targeted runtime
   security smoke matrix.
 - Require a migration-scoped green `./mvnw verify`; defer CarCare business coverage to S-01–S-04.
+
+Phase 4 close-out (2026-08-26):
+
+- `./mvnw test` passes: 22 unit tests, 0 failures, 1 intentional `@Disabled` skip
+  (`WebConfigurerTest`). `./mvnw verify` passes: the same 22 plus 115 integration tests, 0 failures,
+  reproduced across three consecutive runs. The Jakarta import guard and whitespace checks both pass.
+- One migration-scoped repair beyond Phases 1–3: `CacheConfiguration.createCache()`
+  (`src/main/java/com/kasztelanic/carcare/config/CacheConfiguration.java`) unconditionally destroyed
+  and recreated every JCache cache on each Spring context boot. Because JSR-107's `CachingProvider`
+  hands out the same `javax.cache.CacheManager` singleton to every context in the JVM,
+  `AccountResourceIT`/`UserResourceIT`'s second (`@MockBean MailService`) context booting mid-suite
+  destroyed caches an already-running first context still held references to, intermittently failing
+  `UserJwtControllerIT` with `"Cache[usersByLogin] is closed"`. Fixed with a one-line idempotency
+  guard (skip creation if the cache already exists); this is dead-code-in-production behavior
+  (a single-context JVM never re-enters that branch) and pre-dates this change (original JHipster
+  scaffolding, unmodified since the initial commit). No other repairs were needed — no test defect
+  traced to `standaloneSetup`, `LoginVm` deserialization, or the account-enumeration `400`→`200`
+  expectation reopened after Phases 2–3 landed them.
+- What this suite proves: Jakarta/Spring 6 test compilation, a layered `test` profile that cannot
+  leak `dev`/MariaDB, strict Hibernate schema validation (including the five CLOB columns) against
+  Liquibase's real changelog, and the five REST ITs plus `SecurityConfigurationIT` exercising the
+  real filter chain, application `ObjectMapper`, controller advice, and `@PreAuthorize` method
+  security through anonymous/USER/ADMIN cases.
+- What it does not prove: any CarCare business behavior. 14 of 19 controllers remain untested; no
+  vehicle, event (repair/service/inspection/insurance/refuel), report, statistics, or reminder
+  coverage exists. No production entity, Liquibase changelog, or client code changed. `AGENTS.md`'s
+  test-configuration path, failure history, and standalone-harness notes are updated to match this
+  delivered state.
