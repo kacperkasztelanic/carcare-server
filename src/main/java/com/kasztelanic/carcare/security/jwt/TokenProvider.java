@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.security.jwt;
 
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.management.SecurityMetersService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,7 +20,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import tech.jhipster.config.JHipsterProperties;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +36,7 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
 
     private final SecurityMetersService securityMetersService;
-    private final JHipsterProperties jHipsterProperties;
+    private final ApplicationProperties applicationProperties;
 
     private SecretKey key;
     private long tokenValidityInMilliseconds;
@@ -45,20 +45,20 @@ public class TokenProvider implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         byte[] keyBytes;
-        String secret = jHipsterProperties.getSecurity().getAuthentication().getJwt().getSecret();
+        String secret = applicationProperties.getSecurity().getAuthentication().getJwt().getSecret();
         if (!StringUtils.isEmpty(secret)) {
             log.warn("Warning: the JWT key used is not Base64-encoded. " +
-                "We recommend using the `jhipster.security.authentication.jwt.base64-secret` key for optimum security.");
+                "We recommend using the `application.security.authentication.jwt.base64-secret` key for optimum security.");
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         } else {
             log.debug("Using a Base64-encoded JWT secret key");
-            keyBytes = Decoders.BASE64.decode(jHipsterProperties.getSecurity().getAuthentication().getJwt().getBase64Secret());
+            keyBytes = Decoders.BASE64.decode(applicationProperties.getSecurity().getAuthentication().getJwt().getBase64Secret());
         }
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.tokenValidityInMilliseconds =
-            1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSeconds();
+            1000 * applicationProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSeconds();
         this.tokenValidityInMillisecondsForRememberMe =
-            1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt()
+            1000 * applicationProperties.getSecurity().getAuthentication().getJwt()
                 .getTokenValidityInSecondsForRememberMe();
     }
 

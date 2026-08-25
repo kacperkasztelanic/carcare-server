@@ -1,9 +1,9 @@
 package com.kasztelanic.carcare.service;
 
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.domain.PersistentAuditEvent;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
 import com.kasztelanic.carcare.CarcareApp;
-import tech.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ class AuditEventServiceIT {
     @Autowired
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
     @Autowired
-    private JHipsterProperties jHipsterProperties;
+    private ApplicationProperties applicationProperties;
 
     private PersistentAuditEvent auditEventOld;
     private PersistentAuditEvent auditEventWithinRetention;
@@ -35,12 +35,12 @@ class AuditEventServiceIT {
     @BeforeEach
     void init() {
         auditEventOld = new PersistentAuditEvent();
-        auditEventOld.setAuditEventDate(Instant.now().minus(jHipsterProperties.getAuditEvents().getRetentionPeriod() + 1, ChronoUnit.DAYS));
+        auditEventOld.setAuditEventDate(Instant.now().minus(applicationProperties.getAuditEvents().getRetentionPeriod() + 1, ChronoUnit.DAYS));
         auditEventOld.setPrincipal("test-user-old");
         auditEventOld.setAuditEventType("test-type");
 
         auditEventWithinRetention = new PersistentAuditEvent();
-        auditEventWithinRetention.setAuditEventDate(Instant.now().minus(jHipsterProperties.getAuditEvents().getRetentionPeriod() - 1, ChronoUnit.DAYS));
+        auditEventWithinRetention.setAuditEventDate(Instant.now().minus(applicationProperties.getAuditEvents().getRetentionPeriod() - 1, ChronoUnit.DAYS));
         auditEventWithinRetention.setPrincipal("test-user-retention");
         auditEventWithinRetention.setAuditEventType("test-type");;
 

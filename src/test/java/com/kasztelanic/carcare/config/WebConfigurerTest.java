@@ -1,8 +1,7 @@
 package com.kasztelanic.carcare.config;
 
 import org.junit.jupiter.api.Disabled;
-import tech.jhipster.config.JHipsterConstants;
-import tech.jhipster.config.JHipsterProperties;
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +10,7 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import javax.servlet.*;
+import jakarta.servlet.*;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -30,7 +29,7 @@ class WebConfigurerTest {
     private WebConfigurer webConfigurer;
     private MockServletContext servletContext;
     private MockEnvironment env;
-    private JHipsterProperties props;
+    private ApplicationProperties props;
 
     @BeforeEach
     void setup() {
@@ -41,21 +40,21 @@ class WebConfigurerTest {
             .when(servletContext).addServlet(anyString(), any(Servlet.class));
 
         env = new MockEnvironment();
-        props = new JHipsterProperties();
+        props = new ApplicationProperties();
 
         webConfigurer = new WebConfigurer(env, props);
     }
 
     @Test
     void testStartUpProdServletContext() throws ServletException {
-        env.setActiveProfiles(JHipsterConstants.SPRING_PROFILE_PRODUCTION);
+        env.setActiveProfiles("prod");
         webConfigurer.onStartup(servletContext);
 
     }
 
     @Test
     void testStartUpDevServletContext() throws ServletException {
-        env.setActiveProfiles(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT);
+        env.setActiveProfiles("dev");
         webConfigurer.onStartup(servletContext);
 
     }

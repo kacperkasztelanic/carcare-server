@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.security.jwt;
 
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.management.SecurityMetersService;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import io.jsonwebtoken.Jwts;
@@ -13,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
-import tech.jhipster.config.JHipsterProperties;
 
 import javax.crypto.SecretKey;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ class TokenProviderTest {
     @BeforeEach
     void setup() {
         SecurityMetersService securityMetersService = new SecurityMetersService(new SimpleMeterRegistry());
-        tokenProvider = new TokenProvider(securityMetersService, new JHipsterProperties());
+        tokenProvider = new TokenProvider(securityMetersService, new ApplicationProperties());
         key = Keys.hmacShaKeyFor(Decoders.BASE64
             .decode("fd54a45s65fds737b9aafcb3412e07ed99b267f33413274720ddbb7f6c5e64e9f14075f2d7ed041592f0b7657baf8"));
 

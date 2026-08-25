@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
-import tech.jhipster.config.JHipsterConstants;
 
 import java.util.Arrays;
 
@@ -23,6 +22,8 @@ import java.util.Arrays;
 @Aspect
 @RequiredArgsConstructor
 public class LoggingAspect {
+
+    private static final String SPRING_PROFILE_DEVELOPMENT = "dev";
 
     private final Environment env;
 
@@ -54,7 +55,7 @@ public class LoggingAspect {
      */
     @AfterThrowing(pointcut = "applicationPackagePointcut() && springBeanPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))) {
+        if (env.acceptsProfiles(Profiles.of(SPRING_PROFILE_DEVELOPMENT))) {
             logger(joinPoint)
                 .error(
                     "Exception in {}() with cause = '{}' and exception = '{}'",

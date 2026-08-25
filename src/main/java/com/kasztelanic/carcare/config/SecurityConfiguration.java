@@ -24,7 +24,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.CorsFilter;
-import tech.jhipster.config.JHipsterProperties;
 
 @Configuration
 @EnableWebSecurity
@@ -36,7 +35,7 @@ public class SecurityConfiguration {
     private final CorsFilter corsFilter;
     private final ProblemDetailAuthenticationEntryPoint authenticationEntryPoint;
     private final ProblemDetailAccessDeniedHandler accessDeniedHandler;
-    private final JHipsterProperties jHipsterProperties;
+    private final ApplicationProperties applicationProperties;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -66,7 +65,7 @@ public class SecurityConfiguration {
                 .accessDeniedHandler(accessDeniedHandler)
             )
             .headers(headers -> {
-                headers.contentSecurityPolicy(csp -> csp.policyDirectives(jHipsterProperties.getSecurity().getContentSecurityPolicy()));
+                headers.contentSecurityPolicy(csp -> csp.policyDirectives(applicationProperties.getSecurity().getContentSecurityPolicy()));
                 headers.referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
                 headers.permissionsPolicy(permissions -> permissions.policy("camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()"));
                 headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny);

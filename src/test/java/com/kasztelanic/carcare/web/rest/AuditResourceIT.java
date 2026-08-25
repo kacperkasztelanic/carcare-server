@@ -1,7 +1,7 @@
 package com.kasztelanic.carcare.web.rest;
 
 import com.kasztelanic.carcare.CarcareApp;
-import tech.jhipster.config.JHipsterProperties;
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.config.audit.AuditEventConverter;
 import com.kasztelanic.carcare.domain.PersistentAuditEvent;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
@@ -45,7 +45,7 @@ class AuditResourceIT {
     @Autowired
     private AuditEventConverter auditEventConverter;
     @Autowired
-    private JHipsterProperties jhipsterProperties;
+    private ApplicationProperties applicationProperties;
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
     @Autowired
@@ -61,7 +61,7 @@ class AuditResourceIT {
     void setup() {
         MockitoAnnotations.initMocks(this);
         AuditEventService auditEventService =
-            new AuditEventService(auditEventRepository, auditEventConverter, jhipsterProperties);
+            new AuditEventService(auditEventRepository, auditEventConverter, applicationProperties);
         AuditResource auditResource = new AuditResource(auditEventService);
         this.restAuditMockMvc = MockMvcBuilders.standaloneSetup(auditResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)

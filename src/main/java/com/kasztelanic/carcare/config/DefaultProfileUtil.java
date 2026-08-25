@@ -3,7 +3,6 @@ package com.kasztelanic.carcare.config;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.SpringApplication;
-import tech.jhipster.config.JHipsterConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +16,7 @@ import java.util.Map;
 public final class DefaultProfileUtil {
 
     private static final String SPRING_PROFILE_DEFAULT = "spring.profiles.default";
+    private static final String SPRING_PROFILE_DEVELOPMENT = "dev";
 
     /**
      * Set a default to use when no profile is configured.
@@ -30,7 +30,7 @@ public final class DefaultProfileUtil {
          * This cannot be set in the application.yml file.
          * See https://github.com/spring-projects/spring-boot/issues/1219
          */
-        defProperties.put(SPRING_PROFILE_DEFAULT, JHipsterConstants.SPRING_PROFILE_DEVELOPMENT);
+        defProperties.put(SPRING_PROFILE_DEFAULT, SPRING_PROFILE_DEVELOPMENT);
         app.setDefaultProperties(defProperties);
     }
 }

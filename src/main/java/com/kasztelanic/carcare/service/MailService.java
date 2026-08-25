@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.service;
 
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.domain.Inspection;
 import com.kasztelanic.carcare.domain.Insurance;
 import com.kasztelanic.carcare.domain.RoutineService;
@@ -14,7 +15,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import tech.jhipster.config.JHipsterProperties;
 
 import jakarta.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +33,7 @@ public class MailService {
     private static final String USER = "user";
     private static final String BASE_URL = "baseUrl";
 
-    private final JHipsterProperties jHipsterProperties;
+    private final ApplicationProperties applicationProperties;
     private final JavaMailSender javaMailSender;
     private final MessageSource messageSource;
     private final SpringTemplateEngine templateEngine;
@@ -48,7 +48,7 @@ public class MailService {
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart, StandardCharsets.UTF_8.name());
             message.setTo(to);
-            message.setFrom(jHipsterProperties.getMail().getFrom());
+            message.setFrom(applicationProperties.getMail().getFrom());
             message.setSubject(subject);
             message.setText(content, isHtml);
             javaMailSender.send(mimeMessage);
@@ -67,7 +67,7 @@ public class MailService {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Context context = new Context(locale);
         context.setVariable(USER, user);
-        context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+        context.setVariable(BASE_URL, applicationProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, null, locale);
         sendEmail(user.getEmail(), subject, content, false, true);

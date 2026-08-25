@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.PaginationUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 
 import java.time.LocalDate;
 import java.time.ZoneId;

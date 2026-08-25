@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import tech.jhipster.web.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 
 import java.net.URI;
 import java.util.List;
@@ -41,7 +41,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     private static final String PATH_KEY = ErrorConstants.PATH_KEY;
     private static final URI BLANK_TYPE = URI.create("about:blank");
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${spring.application.name}")
     private String applicationName;
 
     /**

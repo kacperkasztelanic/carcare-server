@@ -49,8 +49,6 @@
         <commons-io.version>2.15.0</commons-io.version>
         <!-- Not managed by spring-boot-dependencies; matches the value the former JHipster BOM pinned -->
         <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
-        <!-- Temporary bridge dependency; remove when F-03 drops all tech.jhipster.* usages -->
-        <jhipster-framework.version>8.0.0</jhipster-framework.version>
         <jjwt.version>0.12.3</jjwt.version>
         <archunit-junit5-engine.version>1.0.1</archunit-junit5-engine.version>
 
@@ -162,13 +160,6 @@
 			<artifactId>tika-core</artifactId>
 			<version>${tika-core.version}</version>
 		</dependency>
-
-        <!-- Temporary bridge dependency; remove when F-03 drops all tech.jhipster.* usages -->
-        <dependency>
-            <groupId>tech.jhipster</groupId>
-            <artifactId>jhipster-framework</artifactId>
-            <version>${jhipster-framework.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>jakarta.annotation</groupId>

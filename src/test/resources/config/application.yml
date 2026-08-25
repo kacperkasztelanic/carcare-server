@@ -78,42 +78,29 @@ info:
         version: #project.version#
 
 # ===================================================================
-# JHipster specific properties
-#
-# Full reference is available at: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
-
-jhipster:
-    clientApp:
-        name: 'carcare'
-    logging:
-        # To test json console appender
-        use-json-format: true # By default, logs are in Json format
-        logstash:
-            enabled: false
-            host: localhost
-            port: 5000
-            queue-size: 512
-    mail:
-        from: test@localhost
-        base-url: http://127.0.0.1:8080
-    security:
-        authentication:
-            jwt:
-                # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-                base64-secret: YTA0N2NkMTQzMTI0OTUzOGNiNGNjMjdjMmUyNDYzYmM0OGMwNmExYzAzMmY3ZTk2YzlkODY2NzUzYTMzOTFhZjY5MzY2OTczOTY3N2YzNGZlMGUxZjliN2RlYjc1OTlkNmY1MjAwOTJlNTJkNmY1MDZjMDliODgzZjk4ZWEzYzQ=
-                # Token is valid 24 hours
-                token-validity-in-seconds: 86400
-
-# ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
-#
-# More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
+# to have type-safe configuration.
 # ===================================================================
 
 application:
     data-directory:
         location: data
+    logging:
+        # To test json console appender
+        use-json-format: ${JHIPSTER_LOGGING_USE_JSON_FORMAT:true} # By default, logs are in Json format
+        logstash:
+            enabled: ${JHIPSTER_LOGGING_LOGSTASH_ENABLED:false}
+            host: ${JHIPSTER_LOGGING_LOGSTASH_HOST:localhost}
+            port: ${JHIPSTER_LOGGING_LOGSTASH_PORT:5000}
+            queue-size: ${JHIPSTER_LOGGING_LOGSTASH_QUEUE_SIZE:512}
+    mail:
+        from: ${JHIPSTER_MAIL_FROM:test@localhost}
+        base-url: ${JHIPSTER_MAIL_BASE_URL:http://127.0.0.1:8080}
+    security:
+        authentication:
+            jwt:
+                # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
+                base64-secret: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET:YTA0N2NkMTQzMTI0OTUzOGNiNGNjMjdjMmUyNDYzYmM0OGMwNmExYzAzMmY3ZTk2YzlkODY2NzUzYTMzOTFhZjY5MzY2OTczOTY3N2YzNGZlMGUxZjliN2RlYjc1OTlkNmY1MjAwOTJlNTJkNmY1MDZjMDliODgzZjk4ZWEzYzQ=}
+                # Token is valid 24 hours
+                token-validity-in-seconds: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_TOKEN_VALIDITY_IN_SECONDS:86400}

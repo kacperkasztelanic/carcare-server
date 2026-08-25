@@ -342,29 +342,29 @@ There is no database data migration in F-03. One client-visible contract does ch
 
 #### Automated
 
-- [x] 1.1 Forbidden Jakarta EE 8 namespaces are absent from `src/main/java`: `! rg -n 'javax\.(persistence|validation|servlet|transaction|mail)' src/main/java`
-- [x] 1.2 Removed Spring Security 5 APIs are absent: `! rg -n 'WebSecurityConfigurerAdapter|EnableGlobalMethodSecurity|authorizeRequests\(|antMatchers\(' src/main/java`
-- [x] 1.3 Exactly one `SecurityFilterChain` bean is declared and the obsolete `JwtConfigurer` source is removed: `[ "$(rg -c --no-filename 'SecurityFilterChain\s+\w+\s*\(' src/main/java | awk '{s+=$1} END {print s+0}')" = 1 ] && ! test -e src/main/java/com/kasztelanic/carcare/security/jwt/JwtConfigurer.java`
-- [x] 1.4 Java 17 main compilation passes: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile`
+- [x] 1.1 Forbidden Jakarta EE 8 namespaces are absent from `src/main/java`: `! rg -n 'javax\.(persistence|validation|servlet|transaction|mail)' src/main/java` — 8848e36
+- [x] 1.2 Removed Spring Security 5 APIs are absent: `! rg -n 'WebSecurityConfigurerAdapter|EnableGlobalMethodSecurity|authorizeRequests\(|antMatchers\(' src/main/java` — 8848e36
+- [x] 1.3 Exactly one `SecurityFilterChain` bean is declared and the obsolete `JwtConfigurer` source is removed: `[ "$(rg -c --no-filename 'SecurityFilterChain\s+\w+\s*\(' src/main/java | awk '{s+=$1} END {print s+0}')" = 1 ] && ! test -e src/main/java/com/kasztelanic/carcare/security/jwt/JwtConfigurer.java` — 8848e36
+- [x] 1.4 Java 17 main compilation passes: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile` — 8848e36
 
 #### Manual
 
-- [ ] 1.5 Security source review confirms the matcher order, bypass paths, filter anchors, headers, session policy, method security, and ProblemDetail handlers match the contract above.
+- [x] 1.5 Security source review confirms the matcher order, bypass paths, filter anchors, headers, session policy, method security, and ProblemDetail handlers match the contract above. — 8848e36
 
 ### Phase 2: Boot-Native Configuration and JHipster Removal
 
 #### Automated
 
-- [ ] 2.1 No JHipster Java/package references remain: `! rg -n 'tech\.jhipster' src/main/java src/test/java src/main/resources src/test/resources/logback.xml pom.xml` (scoped to exclude `src/test/resources/config/application.yml`, whose `FixedH2Dialect` line F-04 owns)
-- [ ] 2.2 The JHipster bridge is absent from the dependency graph: `! JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -q dependency:tree -Dincludes=tech.jhipster:jhipster-framework | grep -q jhipster-framework`
-- [ ] 2.3 Java 17 main compilation remains green: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile`
-- [ ] 2.4 Filtered resources retain the dev and no-Liquibase profile contracts: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pno-liquibase process-resources`
-- [ ] 2.5 The old alert-header namespace is gone and only one remains: `! rg -n 'carcareApp' src/main/java src/test/java`
+- [x] 2.1 No JHipster Java/package references remain: `! rg -n 'tech\.jhipster' src/main/java src/test/java src/main/resources src/test/resources/logback.xml pom.xml` (scoped to exclude `src/test/resources/config/application.yml`, whose `FixedH2Dialect` line F-04 owns)
+- [x] 2.2 The JHipster bridge is absent from the dependency graph: `! JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -q dependency:tree -Dincludes=tech.jhipster:jhipster-framework | grep -q jhipster-framework`
+- [x] 2.3 Java 17 main compilation remains green: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile`
+- [x] 2.4 Filtered resources retain the dev and no-Liquibase profile contracts: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pno-liquibase process-resources`
+- [x] 2.5 The old alert-header namespace is gone and only one remains: `! rg -n 'carcareApp' src/main/java src/test/java`
 
 #### Manual
 
-- [ ] 2.6 Configuration review confirms every consumed legacy value moved to `application.*` with canonical-first legacy environment aliases and unchanged effective dev/prod/test values.
-- [ ] 2.7 Utility review confirms locale-cookie, alert/error header (single `X-carcare-*` namespace), pagination-link, optional-response, logging, async, and no-Liquibase behavior is represented without JHipster code.
+- [x] 2.6 Configuration review confirms every consumed legacy value moved to `application.*` with canonical-first legacy environment aliases and unchanged effective dev/prod/test values.
+- [x] 2.7 Utility review confirms locale-cookie, alert/error header (single `X-carcare-*` namespace), pagination-link, optional-response, logging, async, and no-Liquibase behavior is represented without JHipster code.
 
 ### Phase 3: Hibernate 6 Configuration Closure and F-04 Handoff
 

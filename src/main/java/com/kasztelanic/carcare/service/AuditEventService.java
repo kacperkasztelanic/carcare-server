@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.service;
 
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.config.audit.AuditEventConverter;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tech.jhipster.config.JHipsterProperties;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -29,7 +29,7 @@ public class AuditEventService {
 
     private final PersistenceAuditEventRepository persistenceAuditEventRepository;
     private final AuditEventConverter auditEventConverter;
-    private final JHipsterProperties jHipsterProperties;
+    private final ApplicationProperties applicationProperties;
 
     /**
      * Old audit events should be automatically deleted after 30 days.
@@ -39,7 +39,7 @@ public class AuditEventService {
     @Scheduled(cron = "0 0 12 * * ?")
     public void removeOldAuditEvents() {
         persistenceAuditEventRepository
-            .findByAuditEventDateBefore(Instant.now().minus(jHipsterProperties.getAuditEvents().getRetentionPeriod(), ChronoUnit.DAYS))
+            .findByAuditEventDateBefore(Instant.now().minus(applicationProperties.getAuditEvents().getRetentionPeriod(), ChronoUnit.DAYS))
             .forEach(auditEvent -> {
                 log.debug("Deleting audit data {}", auditEvent);
                 persistenceAuditEventRepository.delete(auditEvent);

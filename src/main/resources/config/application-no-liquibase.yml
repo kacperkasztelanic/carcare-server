@@ -1,0 +1,9 @@
+# ===================================================================
+# Spring Boot configuration for the "no-liquibase" profile.
+#
+# This configuration overrides the application.yml file.
+# ===================================================================
+
+spring:
+    liquibase:
+        enabled: false

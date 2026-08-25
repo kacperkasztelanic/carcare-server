@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
+import com.kasztelanic.carcare.web.rest.util.PaginationUtil;
+import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -72,7 +72,7 @@ public class UserResource {
     private final MailService mailService;
 
     @Autowired
-    public UserResource(@Value("${jhipster.clientApp.name}") String applicationName, UserService userService,
+    public UserResource(@Value("${spring.application.name}") String applicationName, UserService userService,
                         UserRepository userRepository, MailService mailService) {
         this.applicationName = applicationName;
         this.userService = userService;

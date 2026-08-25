@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import tech.jhipster.config.JHipsterProperties;
 
 import jakarta.servlet.ServletContext;
 import java.io.File;
@@ -33,7 +32,7 @@ import static java.net.URLDecoder.decode;
 public class WebConfigurer implements ServletContextInitializer, WebServerFactoryCustomizer<WebServerFactory> {
 
     private final Environment env;
-    private final JHipsterProperties jHipsterProperties;
+    private final ApplicationProperties applicationProperties;
 
     @Override
     public void onStartup(ServletContext servletContext) {
@@ -100,7 +99,7 @@ public class WebConfigurer implements ServletContextInitializer, WebServerFactor
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = jHipsterProperties.getCors();
+        CorsConfiguration config = applicationProperties.getCors();
         if (config.getAllowedOrigins() != null && !config.getAllowedOrigins().isEmpty()) {
             log.debug("Registering CORS filter");
             source.registerCorsConfiguration("/api/**", config);

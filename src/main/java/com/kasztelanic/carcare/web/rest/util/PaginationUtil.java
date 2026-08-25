@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.text.MessageFormat;
+
 /**
  * Utility class for handling pagination.
  *
@@ -15,6 +17,37 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PaginationUtil {
+
+    public static <T> HttpHeaders generatePaginationHttpHeaders(UriComponentsBuilder uriBuilder, Page<T> page) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
+        int pageNumber = page.getNumber();
+        int pageSize = page.getSize();
+        StringBuilder link = new StringBuilder();
+        if (pageNumber < page.getTotalPages() - 1) {
+            link.append(prepareLink(uriBuilder, pageNumber + 1, pageSize, "next")).append(",");
+        }
+        if (pageNumber > 0) {
+            link.append(prepareLink(uriBuilder, pageNumber - 1, pageSize, "prev")).append(",");
+        }
+        link.append(prepareLink(uriBuilder, page.getTotalPages() - 1, pageSize, "last")).append(",")
+            .append(prepareLink(uriBuilder, 0, pageSize, "first"));
+        headers.add(HttpHeaders.LINK, link.toString());
+        return headers;
+    }
+
+    private static String prepareLink(UriComponentsBuilder uriBuilder, int page, int size, String relType) {
+        return MessageFormat.format("<{0}>; rel=\"{1}\"", preparePageUri(uriBuilder, page, size), relType);
+    }
+
+    private static String preparePageUri(UriComponentsBuilder uriBuilder, int page, int size) {
+        return uriBuilder
+            .replaceQueryParam("page", Integer.toString(page))
+            .replaceQueryParam("size", Integer.toString(size))
+            .toUriString()
+            .replace(",", "%2C")
+            .replace(";", "%3B");
+    }
 
     public static <T> HttpHeaders generatePaginationHttpHeaders(Page<T> page, String baseUrl) {
 
