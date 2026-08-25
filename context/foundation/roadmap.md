@@ -45,8 +45,8 @@ event types against the same paths, payloads, and status codes as before.
 | --- | --- | --- | --- | --- | --- |
 | F-01 | `resolvable-build` | (foundation) Maven resolves every dependency; the compiler runs | — | FR-001, FR-002 | done |
 | F-02 | `golden-baseline-capture` | (foundation) reference output exists from the last runnable commit | — | FR-016 | ready |
-| F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | ready |
-| F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | proposed |
+| F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | done |
+| F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | ready |
 | S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | proposed |
 | S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch, unchanged | F-04 | FR-002, FR-007, FR-015 | proposed |
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | proposed |
@@ -62,7 +62,7 @@ parallel tracks.
 
 | Stream | Theme | Chain | Note |
 | --- | --- | --- | --- |
-| A | Platform restoration | `F-01` → `F-03` → `F-04` | The critical path. Every slice waits on it. `F-01` is delivered and the frame-options decision that gated `F-03` is made, so the whole stream is now unblocked; `F-03` is the next item. |
+| A | Platform restoration | `F-01` → `F-03` → `F-04` | The critical path. Every slice waits on it. `F-01` and `F-03` are delivered, so `src/main` now compiles and packages on the declared platform; `F-04` is the next item and the last foundation on this chain. |
 | B | Reference capture | `F-02` | Runs entirely on commit `6e19b96`, so it is unaffected by the broken build and parallel with all of Stream A. Feeds `S-03` and `S-04`. |
 | C | Parity proof | `S-01` / `S-02` / `S-03` / `S-04`, all four parallel | Joins Stream A at `F-04`; `S-03` and `S-04` also consume Stream B. Proving nothing moved is the bulk of the user-visible work. |
 | D | New behaviour and feedback | `S-05` / `S-06`, parallel | Joins Stream C. The only two items that change what anyone sees; both deliberately last. |
@@ -151,8 +151,10 @@ never written.
 - **Parallel with:** F-01, F-03, F-04
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Runs entirely on an old commit, so it is immune to the broken build — which is
-  what makes it the one piece of real work available today. Its value rests on the verified
+- **Risk:** Runs entirely on an old commit, so it is immune to the state of HEAD. (It was the
+  only workable item while the build was broken; since F-03 that is no longer the constraint,
+  but running on `6e19b96` remains the point — HEAD compiles and packages, yet still cannot
+  boot a context, so it cannot produce a reference.) Its value rests on the verified
   fact that `src/main/java` and the Liquibase changelogs are byte-identical between
   `3e91ed4` and HEAD, so any post-migration difference is attributable to the migration
   alone. Client artifacts below 1.2.3 are no longer retrievable, which bounds how far back
@@ -228,7 +230,17 @@ never written.
   two JDK-owned imports listed under "Scope discovered during F-01" must not be rewritten, and
   Spring Security 6 authorization defaults genuinely differ, so FR-004 asks for deliberate and
   documented outcomes rather than identical ones.
-- **Status:** ready
+- **Delivered:** 2026-08-25, `context/archive/jakarta-platform-migration/`. `src/main` compiles
+  under both the default and `IDE` profiles and packages a prod WAR; no `javax.*` EE 8 or
+  `tech.jhipster.*` references remain in main sources. The implementation review
+  (`reviews/impl-review.md`) found ten issues, all fixed — two of them critical: the Spring
+  Security 6 chain had no terminal `anyRequest()` rule and denied every root SPA asset, and the
+  alert-header rename had also silently renamed the client's i18n message keys. Two deliberate
+  divergences are recorded there: `/test/**` was dropped from the security bypass despite being
+  listed as preserved, and gate 2.5 (`! rg carcareApp`) no longer holds literally because
+  `carcareApp` legitimately survives as an i18n key namespace. Runtime behaviour is still
+  unproven — that is F-04's gate.
+- **Status:** done
 
 ### F-04: Test context loads and the suite executes
 
@@ -257,7 +269,19 @@ never written.
   underneath it, and a hand-restored `FixedH2Dialect` also failed during baseline
   verification. This is the one foundation where the fix is not yet known, which is why it
   is isolated rather than buried inside a larger item.
-- **Status:** proposed
+- **Carried in from F-03's implementation review** (`context/archive/jakarta-platform-migration/reviews/impl-review.md`):
+  - Assert `GET /` returns 200. F-03's security chain gained `.anyRequest().permitAll()` to undo a
+    Spring Security 6 fall-through inversion that denied every root SPA asset; the fix is reasoned
+    from bytecode but has never served a request.
+  - Two test-side landmines were already defused, so they should not resurface: `UserResourceIT:96`
+    no longer reads the deleted `jhipster.clientApp.name`, and the JWT validity fields carry their
+    pre-migration defaults again (remember-me tokens would otherwise have expired instantly under
+    the test profile, which omits that key).
+  - The remaining `javax.*` imports are confined to six files: `MailServiceIT`,
+    `ExceptionTranslatorTestController`, `TestUtil`, `UserResourceIT`,
+    `CustomAuditEventRepositoryIT`, `DateTimeWrapper`. `MailServiceIT` additionally still imports
+    `org.thymeleaf.spring5`.
+- **Status:** ready
 
 ## Slices
 
@@ -397,9 +421,9 @@ never written.
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 | --- | --- | --- | --- | --- |
 | F-01 | `resolvable-build` | Restore Maven dependency resolution and drop the JHipster BOM | done | Delivered 2026-08-25; see `context/archive/resolvable-build/` |
-| F-02 | `golden-baseline-capture` | Capture golden reference output from commit `6e19b96` | yes | Run `/10x-plan golden-baseline-capture`; independent of the broken build |
-| F-03 | `jakarta-platform-migration` | Migrate `src/main` to Jakarta EE 9+ and Spring Security 6, remove JHipster | yes | Unblocked 2026-08-25 — F-01 delivered and the frame-options decision is made (`DENY`). Run `/10x-plan jakarta-platform-migration`; start from `context/archive/resolvable-build/migration-surface.md` |
-| F-04 | `test-context-restored` | Restore the integration-test Spring context under H2 | no | Waits on F-03 |
+| F-02 | `golden-baseline-capture` | Capture golden reference output from commit `6e19b96` | yes | Run `/10x-plan golden-baseline-capture`; runs on `6e19b96`, so it is independent of HEAD and parallel with F-04 |
+| F-03 | `jakarta-platform-migration` | Migrate `src/main` to Jakarta EE 9+ and Spring Security 6, remove JHipster | done | Delivered 2026-08-25; see `context/archive/jakarta-platform-migration/`. Implementation review found and fixed 10 issues — read `reviews/impl-review.md` before F-04 |
+| F-04 | `test-context-restored` | Restore the integration-test Spring context under H2 | yes | Unblocked 2026-08-25 — F-03 delivered. Run `/10x-plan test-context-restored`; start from the F-04 handoff in `context/archive/jakarta-platform-migration/change.md` |
 | S-01 | `session-parity` | Prove a full user session is unchanged through client 1.2.5 | no | Waits on F-04 |
 | S-02 | `admin-surface-parity` | Prove the administrator surface is unchanged | no | Waits on F-04 |
 | S-03 | `report-parity` | Verify statistics and XLSX reports against the golden baseline | no | Waits on F-02 and F-04 |
