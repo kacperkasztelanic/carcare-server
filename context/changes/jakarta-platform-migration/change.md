@@ -1,7 +1,7 @@
 ---
 change_id: jakarta-platform-migration
 title: Jakarta platform migration
-status: implementing
+status: implemented
 created: 2026-08-25
 updated: 2026-08-25
 archived_at: null

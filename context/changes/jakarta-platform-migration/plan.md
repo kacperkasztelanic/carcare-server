@@ -370,13 +370,13 @@ There is no database data migration in F-03. One client-visible contract does ch
 
 #### Automated
 
-- [x] 3.1 No legacy Hibernate 5, removed naming, legacy dialect, or Jakarta Validation 2 references remain in main configuration and `pom.xml`.
-- [x] 3.2 Java 17 default main compilation passes: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile`
-- [x] 3.3 Java 17 IDE-profile compilation and generated metamodel processing pass: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -PIDE compile`
-- [x] 3.4 Production main artifact builds without compiling the known-broken tests: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pprod -Dmaven.test.skip=true package`
-- [x] 3.5 Roadmap and change documentation explicitly record the F-03, S-02, and F-04 ownership boundaries.
-- [x] 3.6 No Boot 2 actuator/MVC property names survive in configuration: `! rg -n 'favicon|jhimetrics|^ {8}export:' src/main/resources/config src/test/resources/config` and the renamed block is present: `rg -q '^ {4}prometheus:' src/main/resources/config/application.yml`
+- [x] 3.1 No legacy Hibernate 5, removed naming, legacy dialect, or Jakarta Validation 2 references remain in main configuration and `pom.xml`. — c379620
+- [x] 3.2 Java 17 default main compilation passes: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile` — c379620
+- [x] 3.3 Java 17 IDE-profile compilation and generated metamodel processing pass: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -PIDE compile` — c379620
+- [x] 3.4 Production main artifact builds without compiling the known-broken tests: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pprod -Dmaven.test.skip=true package` — c379620
+- [x] 3.5 Roadmap and change documentation explicitly record the F-03, S-02, and F-04 ownership boundaries. — c379620
+- [x] 3.6 No Boot 2 actuator/MVC property names survive in configuration: `! rg -n 'favicon|jhimetrics|^ {8}export:' src/main/resources/config src/test/resources/config` and the renamed block is present: `rg -q '^ {4}prometheus:' src/main/resources/config/application.yml` — c379620
 
 #### Manual
 
-- [x] 3.7 Final review confirms no database changeset, security behavior, or test-suite success is claimed without runtime evidence, and the F-04 handoff is sufficient to continue without rediscovery.
+- [x] 3.7 Final review confirms no database changeset, security behavior, or test-suite success is claimed without runtime evidence, and the F-04 handoff is sufficient to continue without rediscovery. — c379620
