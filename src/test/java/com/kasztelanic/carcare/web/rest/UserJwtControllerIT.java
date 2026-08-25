@@ -3,17 +3,13 @@ package com.kasztelanic.carcare.web.rest;
 import com.kasztelanic.carcare.CarcareApp;
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.repository.UserRepository;
-import com.kasztelanic.carcare.security.jwt.TokenProvider;
-import com.kasztelanic.carcare.web.rest.errors.ExceptionTranslator;
 import com.kasztelanic.carcare.web.rest.vm.LoginVm;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.emptyString;
@@ -28,28 +24,15 @@ import static org.hamcrest.Matchers.not;
  * Integration tests for the {@link UserJwtController} REST controller.
  */
 @SpringBootTest(classes = CarcareApp.class)
+@AutoConfigureMockMvc
 class UserJwtControllerIT {
 
-    @Autowired
-    private TokenProvider tokenProvider;
-    @Autowired
-    private AuthenticationManagerBuilder authenticationManager;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
     private MockMvc mockMvc;
-
-    @BeforeEach
-    public void setup() {
-        UserJwtController userJWTController = new UserJwtController(tokenProvider, authenticationManager);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(userJWTController)
-            .setControllerAdvice(exceptionTranslator)
-            .build();
-    }
 
     @Test
     @Transactional

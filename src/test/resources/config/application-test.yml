@@ -28,6 +28,10 @@ spring:
             # columns (see 00000000000000_initial_schema.xml) never carried that, so normalize to
             # UTC instead of preserving the offset in the column type.
             hibernate.timezone.default_storage: NORMALIZE
+            # jhi_persistent_audit_evt_data.value is a plain, unquoted Liquibase column, but H2 2.x
+            # (unlike the H2 1.4.x the pre-migration stack shipped) reserves VALUE as a keyword, so
+            # Hibernate's generated SQL for it fails to parse unless auto-quoted.
+            hibernate.auto_quote_keyword: true
             hibernate.connection.provider_disables_autocommit: true
             hibernate.cache.use_second_level_cache: false
             hibernate.cache.use_query_cache: false

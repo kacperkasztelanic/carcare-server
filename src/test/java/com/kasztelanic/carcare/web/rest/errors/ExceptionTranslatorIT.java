@@ -1,14 +1,12 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
 import com.kasztelanic.carcare.CarcareApp;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -20,24 +18,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests {@link ExceptionTranslator} controller advice.
  */
 @SpringBootTest(classes = CarcareApp.class)
+@AutoConfigureMockMvc
 class ExceptionTranslatorIT {
 
     @Autowired
-    private ExceptionTranslatorTestController controller;
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-    @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-            .setControllerAdvice(exceptionTranslator)
-            .setMessageConverters(jacksonMessageConverter)
-            .build();
-    }
 
     @Test
     void testConcurrencyFailure() throws Exception {

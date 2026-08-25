@@ -462,26 +462,26 @@ untouched because wiring or deleting it is independent of restoring the test con
 
 #### Automated
 
-- [x] 1.1 Test compilation passes on Java 17
-- [x] 1.2 The sole remaining `javax.*` test import is `javax.crypto.SecretKey`
-- [x] 1.3 Generated test resources contain only the layered profile contract
-- [x] 1.4 Focused configuration and Hibernate context tests pass
+- [x] 1.1 Test compilation passes on Java 17 — 5d2bf0d
+- [x] 1.2 The sole remaining `javax.*` test import is `javax.crypto.SecretKey` — 5d2bf0d
+- [x] 1.3 Generated test resources contain only the layered profile contract — 5d2bf0d
+- [x] 1.4 Focused configuration and Hibernate context tests pass — 5d2bf0d
 
 #### Manual
 
-- [x] 1.5 Test-profile review confirms shared defaults are inherited, environment-sensitive SMTP values are neutralized, and strict schema validation remains enabled
+- [x] 1.5 Test-profile review confirms shared defaults are inherited, environment-sensitive SMTP values are neutralized, and strict schema validation remains enabled — 5d2bf0d
 
 ### Phase 2: Convert Foundational REST and Security Tests
 
 #### Automated
 
-- [ ] 2.1 Foundational REST and security ITs pass
-- [ ] 2.2 Converted foundational ITs no longer build standalone MockMvc
-- [ ] 2.3 Security smoke assertions cover SPA headers, private-api `401`, audit USER `403`, audit ADMIN success, and public management health
+- [x] 2.1 Foundational REST and security ITs pass
+- [x] 2.2 Converted foundational ITs no longer build standalone MockMvc
+- [x] 2.3 Security smoke assertions cover SPA headers, private-api `401`, audit USER `403`, audit ADMIN success, and public management health
 
 #### Manual
 
-- [ ] 2.4 Security-contract review confirms filter-level Problem Details are not confused with exceptions handled inside `DispatcherServlet`, and matcher outcomes match `SecurityConfiguration`
+- [x] 2.4 Security-contract review confirms filter-level Problem Details are not confused with exceptions handled inside `DispatcherServlet`, and matcher outcomes match `SecurityConfiguration`
 
 ### Phase 3: Convert Stateful Account and User Tests
 

@@ -123,10 +123,11 @@ public final class TestUtil {
         Object testOtherObject = new Object();
         assertThat(domainObject1).isNotEqualTo(testOtherObject);
         assertThat(domainObject1).isNotEqualTo(null);
-        // Test with an instance of the same class
+        // Test with an instance of the same class. Entities in this codebase use
+        // @EqualsAndHashCode(of = "id"), so two not-yet-persisted instances (null id) are equal,
+        // and so are their hashCodes.
         T domainObject2 = clazz.getConstructor().newInstance();
-        assertThat(domainObject1).isNotEqualTo(domainObject2);
-        // HashCodes are equals because the objects are not persisted yet
+        assertThat(domainObject1).isEqualTo(domainObject2);
         assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode());
     }
 

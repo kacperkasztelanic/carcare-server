@@ -1,24 +1,19 @@
 package com.kasztelanic.carcare.web.rest;
 
 import com.kasztelanic.carcare.CarcareApp;
-import com.kasztelanic.carcare.config.ApplicationProperties;
-import com.kasztelanic.carcare.config.audit.AuditEventConverter;
 import com.kasztelanic.carcare.domain.PersistentAuditEvent;
 import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
+import com.kasztelanic.carcare.security.AuthoritiesConstants;
 
-import com.kasztelanic.carcare.service.AuditEventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.format.support.FormattingConversionService;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -32,7 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link AuditResource} REST controller.
  */
 @SpringBootTest(classes = CarcareApp.class)
+@AutoConfigureMockMvc
 @Transactional
+@WithMockUser(authorities = AuthoritiesConstants.ADMIN)
 class AuditResourceIT {
 
     private static final String SAMPLE_PRINCIPAL = "SAMPLE_PRINCIPAL";
@@ -43,31 +40,9 @@ class AuditResourceIT {
     @Autowired
     private PersistenceAuditEventRepository auditEventRepository;
     @Autowired
-    private AuditEventConverter auditEventConverter;
-    @Autowired
-    private ApplicationProperties applicationProperties;
-    @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-    @Autowired
-    @Qualifier("mvcConversionService")
-    private FormattingConversionService formattingConversionService;
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    private PersistentAuditEvent auditEvent;
     private MockMvc restAuditMockMvc;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.initMocks(this);
-        AuditEventService auditEventService =
-            new AuditEventService(auditEventRepository, auditEventConverter, applicationProperties);
-        AuditResource auditResource = new AuditResource(auditEventService);
-        this.restAuditMockMvc = MockMvcBuilders.standaloneSetup(auditResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setConversionService(formattingConversionService)
-            .setMessageConverters(jacksonMessageConverter).build();
-    }
+    private PersistentAuditEvent auditEvent;
 
     @BeforeEach
     void initTest() {
@@ -139,6 +114,20 @@ class AuditResourceIT {
         // Get the audit
         restAuditMockMvc.perform(get("/management/audits/{id}", Long.MAX_VALUE))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void getAllAuditsAsAnonymousIsUnauthorized() throws Exception {
+        restAuditMockMvc.perform(get("/management/audits"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(authorities = AuthoritiesConstants.USER)
+    void getAllAuditsAsUserIsForbidden() throws Exception {
+        restAuditMockMvc.perform(get("/management/audits"))
+            .andExpect(status().isForbidden());
     }
 
     @Test

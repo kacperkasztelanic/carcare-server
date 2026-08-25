@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +27,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "jhi_persistent_audit_event")
+@EqualsAndHashCode(of = "id")
 public class PersistentAuditEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
