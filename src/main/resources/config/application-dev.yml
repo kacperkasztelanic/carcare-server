@@ -35,7 +35,7 @@ spring:
                 prepStmtCacheSqlLimit: 2048
                 useServerPrepStmts: true
     jpa:
-        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+        database-platform: org.hibernate.dialect.MariaDBDialect
         database: MYSQL
         show-sql: true
         properties:

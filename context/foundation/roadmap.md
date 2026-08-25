@@ -207,6 +207,18 @@ never written.
   - Two JDK-owned imports must **never** be converted: `javax.sql.DataSource`
     (`LiquibaseConfiguration.java:18`) and `javax.crypto.SecretKey`
     (`TokenProvider.java:24`, introduced by F-01's jjwt migration).
+- **Ownership boundary (resolves the prior F-03/S-02 contradiction):** F-03 implements every
+  `tech.jhipster.web.util` replacement — `HeaderUtil`, `PaginationUtil`, `ResponseUtil` — and
+  renames alert/error headers on the ten non-`UserResource` endpoints from `X-carcareApp-*` to
+  a single `X-carcare-*` namespace, unifying them with the names `UserResource` and
+  `ExceptionTranslator` already used. S-02 no longer implements this removal; it verifies
+  admin header, pagination, and response parity against the **renamed** `X-carcare-*`
+  contract, and owns confirming the client at `../client` does not key on the old
+  `carcareApp` prefix. F-04 owns the H2 dialect, the five CLOB/`TEXT` schema-validation pairs,
+  remaining test-source `javax.*` imports, full-context MockMvc conversion, Liquibase-before-
+  Hibernate-validation startup ordering, and runtime security assertions — none of which
+  F-03's green main compile proves. `hibernate.hbm2ddl.auto: validate` must not be weakened to
+  unblock any of this.
 - **Risk:** This is the single largest item on the roadmap and it cannot be split further —
   a partially converted namespace does not compile, and `WebSecurityConfigurerAdapter` no
   longer exists in Spring Security 6, so FR-003 and FR-004 must land together. Removing
@@ -288,11 +300,13 @@ never written.
     standing TODOs in source. Owner: user. Block: no — offered as a non-goal, not ruled out.
   - Should test-data generation remain a production surface at all? Owner: user. Block: no —
     ruled out of this change, but the source TODO remains.
-- **Risk:** This slice completes the JHipster removal, carrying the last
-  `tech.jhipster.web.util` usages (`HeaderUtil`, `PaginationUtil`, `ResponseUtil`) in
-  `UserResource` and `AuditResource`. The main hazard is scope creep: the resources here
-  bypass the service layer and advertise their own TODOs, and the point of this change is to
-  prove nothing moved. Resist fixing them.
+- **Risk:** F-03 already completes the JHipster removal, replacing `HeaderUtil`,
+  `PaginationUtil`, and `ResponseUtil` and renaming alert/error headers on ten resources from
+  `X-carcareApp-*` to `X-carcare-*`. This slice does not repeat that work; it verifies admin
+  header, pagination, and response parity against the **renamed** `X-carcare-*` contract, and
+  owns confirming the client at `../client` does not key on the old `carcareApp` prefix. The
+  main hazard is scope creep: the resources here bypass the service layer and advertise their
+  own TODOs, and the point of this change is to prove nothing moved. Resist fixing them.
 - **Status:** proposed
 
 ### S-03: A user's reports and statistics match the pre-migration baseline

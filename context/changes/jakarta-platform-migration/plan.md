@@ -355,28 +355,28 @@ There is no database data migration in F-03. One client-visible contract does ch
 
 #### Automated
 
-- [x] 2.1 No JHipster Java/package references remain: `! rg -n 'tech\.jhipster' src/main/java src/test/java src/main/resources src/test/resources/logback.xml pom.xml` (scoped to exclude `src/test/resources/config/application.yml`, whose `FixedH2Dialect` line F-04 owns)
-- [x] 2.2 The JHipster bridge is absent from the dependency graph: `! JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -q dependency:tree -Dincludes=tech.jhipster:jhipster-framework | grep -q jhipster-framework`
-- [x] 2.3 Java 17 main compilation remains green: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile`
-- [x] 2.4 Filtered resources retain the dev and no-Liquibase profile contracts: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pno-liquibase process-resources`
-- [x] 2.5 The old alert-header namespace is gone and only one remains: `! rg -n 'carcareApp' src/main/java src/test/java`
+- [x] 2.1 No JHipster Java/package references remain: `! rg -n 'tech\.jhipster' src/main/java src/test/java src/main/resources src/test/resources/logback.xml pom.xml` (scoped to exclude `src/test/resources/config/application.yml`, whose `FixedH2Dialect` line F-04 owns) — 4542b32
+- [x] 2.2 The JHipster bridge is absent from the dependency graph: `! JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -q dependency:tree -Dincludes=tech.jhipster:jhipster-framework | grep -q jhipster-framework` — 4542b32
+- [x] 2.3 Java 17 main compilation remains green: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile` — 4542b32
+- [x] 2.4 Filtered resources retain the dev and no-Liquibase profile contracts: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pno-liquibase process-resources` — 4542b32
+- [x] 2.5 The old alert-header namespace is gone and only one remains: `! rg -n 'carcareApp' src/main/java src/test/java` — 4542b32
 
 #### Manual
 
-- [x] 2.6 Configuration review confirms every consumed legacy value moved to `application.*` with canonical-first legacy environment aliases and unchanged effective dev/prod/test values.
-- [x] 2.7 Utility review confirms locale-cookie, alert/error header (single `X-carcare-*` namespace), pagination-link, optional-response, logging, async, and no-Liquibase behavior is represented without JHipster code.
+- [x] 2.6 Configuration review confirms every consumed legacy value moved to `application.*` with canonical-first legacy environment aliases and unchanged effective dev/prod/test values. — 4542b32
+- [x] 2.7 Utility review confirms locale-cookie, alert/error header (single `X-carcare-*` namespace), pagination-link, optional-response, logging, async, and no-Liquibase behavior is represented without JHipster code. — 4542b32
 
 ### Phase 3: Hibernate 6 Configuration Closure and F-04 Handoff
 
 #### Automated
 
-- [ ] 3.1 No legacy Hibernate 5, removed naming, legacy dialect, or Jakarta Validation 2 references remain in main configuration and `pom.xml`.
-- [ ] 3.2 Java 17 default main compilation passes: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile`
-- [ ] 3.3 Java 17 IDE-profile compilation and generated metamodel processing pass: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -PIDE compile`
-- [ ] 3.4 Production main artifact builds without compiling the known-broken tests: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pprod -Dmaven.test.skip=true package`
-- [ ] 3.5 Roadmap and change documentation explicitly record the F-03, S-02, and F-04 ownership boundaries.
-- [ ] 3.6 No Boot 2 actuator/MVC property names survive in configuration: `! rg -n 'favicon|jhimetrics|^ {8}export:' src/main/resources/config src/test/resources/config` and the renamed block is present: `rg -q '^ {4}prometheus:' src/main/resources/config/application.yml`
+- [x] 3.1 No legacy Hibernate 5, removed naming, legacy dialect, or Jakarta Validation 2 references remain in main configuration and `pom.xml`.
+- [x] 3.2 Java 17 default main compilation passes: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw compile`
+- [x] 3.3 Java 17 IDE-profile compilation and generated metamodel processing pass: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -PIDE compile`
+- [x] 3.4 Production main artifact builds without compiling the known-broken tests: `JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem ./mvnw -Pprod -Dmaven.test.skip=true package`
+- [x] 3.5 Roadmap and change documentation explicitly record the F-03, S-02, and F-04 ownership boundaries.
+- [x] 3.6 No Boot 2 actuator/MVC property names survive in configuration: `! rg -n 'favicon|jhimetrics|^ {8}export:' src/main/resources/config src/test/resources/config` and the renamed block is present: `rg -q '^ {4}prometheus:' src/main/resources/config/application.yml`
 
 #### Manual
 
-- [ ] 3.7 Final review confirms no database changeset, security behavior, or test-suite success is claimed without runtime evidence, and the F-04 handoff is sufficient to continue without rediscovery.
+- [x] 3.7 Final review confirms no database changeset, security behavior, or test-suite success is claimed without runtime evidence, and the F-04 handoff is sufficient to continue without rediscovery.

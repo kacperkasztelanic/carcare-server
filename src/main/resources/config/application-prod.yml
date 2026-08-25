@@ -14,9 +14,9 @@ logging:
         com.kasztelanic.carcare: INFO
 
 management:
-    metrics:
-        export:
-            prometheus:
+    prometheus:
+        metrics:
+            export:
                 enabled: false
 
 spring:
@@ -40,7 +40,7 @@ spring:
                 prepStmtCacheSqlLimit: 2048
                 useServerPrepStmts: true
     jpa:
-        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+        database-platform: org.hibernate.dialect.MariaDBDialect
         database: MYSQL
         show-sql: false
         properties:
