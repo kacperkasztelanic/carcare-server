@@ -499,13 +499,13 @@ untouched because wiring or deleting it is independent of restoring the test con
 
 #### Automated
 
-- [x] 4.1 Surefire unit tests pass
-- [x] 4.2 The complete unit and integration suite passes
-- [x] 4.3 The Jakarta migration guard still leaves only the JDK-owned test import
-- [x] 4.4 Changed files pass whitespace validation
+- [x] 4.1 Surefire unit tests pass — 1a54b2f
+- [x] 4.2 The complete unit and integration suite passes — 1a54b2f
+- [x] 4.3 The Jakarta migration guard still leaves only the JDK-owned test import — 1a54b2f
+- [x] 4.4 Changed files pass whitespace validation — 1a54b2f
 
 #### Manual
 
-- [x] 4.5 Final failure-triage review confirms every additional repair is migration-scoped and evidence-backed
-- [x] 4.6 Final scope review confirms no production entity, Liquibase schema, API behavior, client, or deferred business-test slice was changed
-- [x] 4.7 `AGENTS.md` review confirms the test-configuration path, the failure explanation, the standalone-harness note, and the reported suite status all match the delivered suite
+- [x] 4.5 Final failure-triage review confirms every additional repair is migration-scoped and evidence-backed — 1a54b2f
+- [x] 4.6 Final scope review confirms no production entity, Liquibase schema, API behavior, client, or deferred business-test slice was changed — 1a54b2f
+- [x] 4.7 `AGENTS.md` review confirms the test-configuration path, the failure explanation, the standalone-harness note, and the reported suite status all match the delivered suite — 1a54b2f

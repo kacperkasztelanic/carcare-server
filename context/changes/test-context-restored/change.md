@@ -1,7 +1,7 @@
 ---
 change_id: test-context-restored
 title: Test context loads and the suite executes
-status: implementing
+status: implemented
 created: 2026-08-25
 updated: 2026-08-26
 archived_at: null
