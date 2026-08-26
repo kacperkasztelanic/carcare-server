@@ -12,7 +12,7 @@
 spring:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:h2:mem:carcare;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        url: jdbc:h2:mem:carcare;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
         name:
         username:
         password:
@@ -28,10 +28,12 @@ spring:
             # columns (see 00000000000000_initial_schema.xml) never carried that, so normalize to
             # UTC instead of preserving the offset in the column type.
             hibernate.timezone.default_storage: NORMALIZE
-            # jhi_persistent_audit_evt_data.value is a plain, unquoted Liquibase column, but H2 2.x
-            # (unlike the H2 1.4.x the pre-migration stack shipped) reserves VALUE as a keyword, so
-            # Hibernate's generated SQL for it fails to parse unless auto-quoted.
-            hibernate.auto_quote_keyword: true
+            # This test-only identifier arrangement is the third documented divergence from
+            # production, alongside F-04's TestH2Dialect CLOB boundary and timezone normalization.
+            # H2 2.x treats VALUE as a keyword while Liquibase leaves event-table date columns
+            # unquoted; reserve VALUE as a non-keyword, fold quoted and bare identifiers together,
+            # and disable global auto-quoting so both schema styles resolve under H2.
+            hibernate.auto_quote_keyword: false
             hibernate.connection.provider_disables_autocommit: true
             hibernate.cache.use_second_level_cache: false
             hibernate.cache.use_query_cache: false

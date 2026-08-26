@@ -780,13 +780,13 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [ ] 1.1 Full existing suite green: `./mvnw verify` — 22 unit tests, 115 integration tests, 0 failures
-- [ ] 1.2 The new `TestConfigurationIT` guard passes
-- [ ] 1.3 No file under `src/main/` is modified in this phase
+- [x] 1.1 Full existing suite green: `./mvnw verify` — 22 unit tests, 115 integration tests, 0 failures
+- [x] 1.2 The new `TestConfigurationIT` guard passes
+- [x] 1.3 No file under `src/main/` is modified in this phase
 
 #### Manual
 
-- [ ] 1.4 The comment in `application-test.yml` explains the three-way divergence clearly
+- [x] 1.4 The comment in `application-test.yml` explains the three-way divergence clearly
 
 ### Phase 2: Restore the `X-carcareApp-*` alert header
 

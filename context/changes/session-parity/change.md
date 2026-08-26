@@ -1,7 +1,7 @@
 ---
 change_id: session-parity
 title: Session parity
-status: plan_reviewed
+status: implementing
 created: 2026-08-26
 updated: 2026-08-26
 archived_at: null

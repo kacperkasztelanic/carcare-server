@@ -1,12 +1,14 @@
 package com.kasztelanic.carcare.config;
 
 import com.kasztelanic.carcare.CarcareApp;
+import com.kasztelanic.carcare.repository.RefuelRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Guards the {@code test} profile layering (see {@code src/test/resources/config/application.properties}
@@ -23,6 +25,9 @@ class TestConfigurationIT {
     @Autowired
     private ApplicationProperties applicationProperties;
 
+    @Autowired
+    private RefuelRepository refuelRepository;
+
     @Test
     void testProfileIsActiveAndDevIsNot() {
         assertThat(env.getActiveProfiles()).contains("test");
@@ -33,6 +38,11 @@ class TestConfigurationIT {
     void datasourceIsH2() {
         assertThat(env.getProperty("spring.datasource.url")).contains("jdbc:h2:mem:");
         assertThat(env.getProperty("spring.jpa.database")).isEqualTo("H2");
+    }
+
+    @Test
+    void eventTableQueriesExecuteUnderTestProfile() {
+        assertThatCode(refuelRepository::findAll).doesNotThrowAnyException();
     }
 
     @Test
