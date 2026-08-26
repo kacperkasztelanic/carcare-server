@@ -10,35 +10,29 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Utility class for HTTP headers creation.
+ * Utility class for HTTP alert header creation.
  * <p>
- * {@link #applicationName} is seeded from {@code spring.application.name} by
- * {@link com.kasztelanic.carcare.config.HeaderUtilInitializer}, since this static utility has no
- * Spring injection point of its own.
+ * {@link #HEADER_NAME_PREFIX} is the fixed client-facing prefix for the alert header names.
+ * {@link #TRANSLATION_KEY_NAMESPACE} is the independent i18n root for alert values. Both contracts
+ * currently use {@code carcareApp}, but neither is derived from {@code spring.application.name}.
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HeaderUtil {
 
-    private static volatile String applicationName = "carcare";
+    private static final String HEADER_NAME_PREFIX = "carcareApp";
 
     /**
-     * Namespace for the i18n message keys carried in alert headers. This is a <em>client
-     * translation namespace</em>, not the application name: the client's per-language
-     * {@code carcare.json} bundles are rooted at {@code carcareApp}, so this is deliberately
-     * independent of {@code spring.application.name} and must not be folded into
-     * {@link #applicationName}. Renaming it silently breaks every alert toast on the client.
+     * Namespace for the i18n message keys carried in alert header values. This is a <em>client
+     * translation namespace</em>, distinct from {@link #HEADER_NAME_PREFIX}; the client's
+     * per-language {@code carcare.json} bundles are rooted at {@code carcareApp}.
      */
     private static final String TRANSLATION_KEY_NAMESPACE = "carcareApp";
 
-    public static void setApplicationName(String name) {
-        applicationName = name;
-    }
-
     public static HttpHeaders createAlert(String message, String param) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-" + applicationName + "-alert", message);
-        headers.add("X-" + applicationName + "-params", param);
+        headers.add("X-" + HEADER_NAME_PREFIX + "-alert", message);
+        headers.add("X-" + HEADER_NAME_PREFIX + "-params", param);
         return headers;
     }
 
@@ -78,8 +72,8 @@ public final class HeaderUtil {
     public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {
         log.error("Entity processing failed, {}", defaultMessage);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-" + applicationName + "-error", "error." + errorKey);
-        headers.add("X-" + applicationName + "-params", entityName);
+        headers.add("X-" + HEADER_NAME_PREFIX + "-error", "error." + errorKey);
+        headers.add("X-" + HEADER_NAME_PREFIX + "-params", entityName);
         return headers;
     }
 }

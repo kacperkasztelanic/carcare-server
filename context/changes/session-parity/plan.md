@@ -780,25 +780,25 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [x] 1.1 Full existing suite green: `./mvnw verify` — 22 unit tests, 115 integration tests, 0 failures
-- [x] 1.2 The new `TestConfigurationIT` guard passes
-- [x] 1.3 No file under `src/main/` is modified in this phase
+- [x] 1.1 Full existing suite green: `./mvnw verify` — 22 unit tests, 115 integration tests, 0 failures — 8dc87a0
+- [x] 1.2 The new `TestConfigurationIT` guard passes — 8dc87a0
+- [x] 1.3 No file under `src/main/` is modified in this phase — 8dc87a0
 
 #### Manual
 
-- [x] 1.4 The comment in `application-test.yml` explains the three-way divergence clearly
+- [x] 1.4 The comment in `application-test.yml` explains the three-way divergence clearly — 8dc87a0
 
 ### Phase 2: Restore the `X-carcareApp-*` alert header
 
 #### Automated
 
-- [ ] 2.1 `./mvnw verify` green — existing suite plus the new `HeaderUtilTest`
-- [ ] 2.2 `HeaderUtilInitializer` no longer exists and nothing references it
-- [ ] 2.3 Grep confirms `UserResource` and `ExceptionTranslator` still emit `X-carcare-*`
+- [x] 2.1 `./mvnw verify` green — existing suite plus the new `HeaderUtilTest`
+- [x] 2.2 `HeaderUtilInitializer` no longer exists and nothing references it
+- [x] 2.3 Grep confirms `UserResource` and `ExceptionTranslator` still emit `X-carcare-*`
 
 #### Manual
 
-- [ ] 2.4 The rewritten javadoc distinguishes the header prefix from the i18n namespace
+- [x] 2.4 The rewritten javadoc distinguishes the header prefix from the i18n namespace
 
 ### Phase 3: Build the fixture layer
 
