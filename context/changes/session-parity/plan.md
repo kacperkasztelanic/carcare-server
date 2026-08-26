@@ -792,26 +792,26 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [x] 2.1 `./mvnw verify` green — existing suite plus the new `HeaderUtilTest`
-- [x] 2.2 `HeaderUtilInitializer` no longer exists and nothing references it
-- [x] 2.3 Grep confirms `UserResource` and `ExceptionTranslator` still emit `X-carcare-*`
+- [x] 2.1 `./mvnw verify` green — existing suite plus the new `HeaderUtilTest` — d361816
+- [x] 2.2 `HeaderUtilInitializer` no longer exists and nothing references it — d361816
+- [x] 2.3 Grep confirms `UserResource` and `ExceptionTranslator` still emit `X-carcare-*` — d361816
 
 #### Manual
 
-- [x] 2.4 The rewritten javadoc distinguishes the header prefix from the i18n namespace
+- [x] 2.4 The rewritten javadoc distinguishes the header prefix from the i18n namespace — d361816
 
 ### Phase 3: Build the fixture layer
 
 #### Automated
 
-- [ ] 3.1 `./mvnw verify` green including `SessionFixturesIT`
-- [ ] 3.2 The lookups are populated before any test seeds them, proving the `ApplicationRunner` fired
-- [ ] 3.3 Seeding a second time does not throw
-- [ ] 3.4 No new Spring context configuration beyond the two that already exist — no `@MockBean` or `@DirtiesContext` introduced
+- [x] 3.1 `./mvnw verify` green including `SessionFixturesIT`
+- [x] 3.2 The lookups are populated before any test seeds them, proving the `ApplicationRunner` fired
+- [x] 3.3 Seeding a second time does not throw
+- [x] 3.4 No new Spring context configuration beyond the two that already exist — no `@MockBean` or `@DirtiesContext` introduced
 
 #### Manual
 
-- [ ] 3.5 Fixture builders read clearly enough that Phase 4's six IT classes will be short
+- [x] 3.5 Fixture builders read clearly enough that Phase 4's six IT classes will be short
 
 ### Phase 4: CRUD parity integration tests
 
