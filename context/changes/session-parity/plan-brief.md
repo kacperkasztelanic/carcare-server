@@ -27,7 +27,8 @@ covering `Vehicle` or any event type, with both lookup tables empty under test.
 `./mvnw verify` runs the existing 115 integration tests plus a new S-01 suite, all green, asserting
 baseline status codes and restored header names across every CRUD path, a uniform 404 (never 403) on
 every cross-user access, a real JWT minted and replayed successfully, and the four wire invariants
-whose violation crashes the client. A human has walked one full session in a browser against the real
+whose violation crashes the client (three in `ClientWireContractIT`, the `Bearer ` prefix in
+`JwtSessionIT`). A human has walked one full session in a browser against the real
 client and seen the toasts appear.
 
 ## Key Decisions Made
@@ -40,7 +41,7 @@ client and seen the toasts appear.
 | Auth seam | `@WithMockUser` throughout + one real-JWT test | Cheap for 30+ tests while still proving the login path a mock structurally cannot | Plan |
 | Suite shape | One IT per resource + one cross-cutting `OwnerIsolationIT` | Matches F-04's convention; concentrates the highest-severity guardrail in one auditable file | Plan |
 | Wire assertions | The break-the-client set only | Covers every invariant whose violation is a crash or dead flow, without straying into S-03's value-level mandate | Plan |
-| Three pre-existing 500s | Fix them here | Owner decision — widens past strict parity deliberately; sequenced after the parity suite is green | Plan |
+| Four pre-existing 500s | Fix them here | Owner decision — widens past strict parity deliberately; sequenced after the parity suite is green. `InsuranceTypeMapper` joins `FuelTypeMapper` because the client's PUT shape hits it and Phase 4 asserts that round-trip | Plan |
 | Stats/report reads | Isolation smoke only, values to S-03 | Closes the gap on the guardrail that fails silently, without needing F-02's baseline | Plan |
 | Done gate | Green suite + one manual client session | Only a browser session can prove the *client* is satisfied — the exact blind spot the header rename exploited | Plan |
 
@@ -48,7 +49,7 @@ client and seen the toasts appear.
 
 **In scope:** the test-profile blocker fix; restoring the alert header name; a fixture layer; CRUD
 parity ITs for `/api/vehicle` and the five event types; a cross-cutting owner-isolation IT covering
-those six plus the seven shared stats/report/events read paths; a real-JWT session test; fixing three
+those six plus the seven shared stats/report/events read paths; a real-JWT session test; fixing four
 pre-existing 500s; the manual client gate and record correction.
 
 **Out of scope:** fixing `DELETE /api/vehicle/{id}` for vehicles with history (S-05); asserting any
@@ -61,8 +62,9 @@ this suite runs in CI until then, since `.gitlab/gitlab-ci.yml:20` runs Surefire
 Two blocking changes first, each with its own gate so a failure is attributable: the test-profile
 identifier fix (validated green against all 115 existing ITs during research), then the `HeaderUtil`
 constant restoration. Then a test-only `SessionFixtures` component seeding through the repositories,
-component-scanned from `src/test/java` like the existing `TestUserIdentitySequenceFixup` so the
-shared Spring context is not forked. Then the suite. Behaviour changes land last, so parity is proven
+component-scanned from `src/test/java` and triggered by an `ApplicationRunner` exactly like the
+existing `TestUserIdentitySequenceFixup`, so the shared Spring context is not forked and the lookups
+are committed before any test transaction opens. Then the suite. Behaviour changes land last, so parity is proven
 against the tree as it stands before anything is fixed.
 
 ## Phases at a Glance
@@ -74,7 +76,7 @@ against the tree as it stands before anything is fixed.
 | 3. Fixture layer | Idempotent seeding + two-owner builders + IT base | Unique constraints on both lookup tables; shared JVM-wide H2 |
 | 4. CRUD parity ITs | Six `*ResourceIT` classes, ~40–50 tests | The `@Disabled` delete case must escape class-level `@Transactional` |
 | 5. Isolation + JWT | The highest-severity guardrail, in one file | Shared read paths are POST-with-body, not GET |
-| 6. Fix three 500s | 400 / merged / `0.0` instead of server errors | Deliberately past parity; the NaN fix touches S-03's surface |
+| 6. Fix four 500s | 400 / 400 / merged / `0.0` instead of server errors | Deliberately past parity; the NaN fix touches S-03's surface |
 | 7. Manual gate + record | Browser session, `AGENTS.md`, epilogue | Reverses F-03 impl-review finding F2 — must be stated, not silent |
 
 **Prerequisites:** F-04 delivered and archived (done, 2026-08-26). Java 17 exactly

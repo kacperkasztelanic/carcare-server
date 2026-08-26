@@ -9,7 +9,7 @@ update, and delete all five event types — is indistinguishable through the unm
 Three things stand between here and that proof, in order: the test profile cannot execute a single
 query against any event table; the client-visible alert header was renamed during F-03 and no longer
 matches; and the project has no business-behaviour tests and no fixture layer to write them against.
-This plan lands all three, then adds the suite, then fixes three pre-existing 500s the suite will
+This plan lands all three, then adds the suite, then fixes four pre-existing 500s the suite will
 otherwise trip over.
 
 ## Current State Analysis
@@ -52,7 +52,8 @@ suite asserts:
   all six resources plus the statistics, report, and events read paths.
 - A real JWT minted through `POST /api/authenticate` and replayed as `Bearer` against a protected
   endpoint succeeds.
-- The four wire invariants whose violation crashes or dead-ends client 1.2.5.
+- The four wire invariants whose violation crashes or dead-ends client 1.2.5 — three in
+  `ClientWireContractIT`, the `Bearer ` prefix in `JwtSessionIT`.
 
 And a human has run one manual session against the real client with the app booted on MariaDB,
 confirming toasts appear and the console is clean.
@@ -65,14 +66,21 @@ confirming toasts appear and the console is clean.
   from `jhipster.clientApp.name: carcare` (`6e19b96:application.yml:119-120`) — byte-identical
   output. The restoration touches `HeaderUtil`'s internal constant only, and S-02's stated
   `X-carcare-*` admin contract survives untouched.
-- **The `fuelType` 400 cannot be raised in the mapper.** `ArchTest` forbids `service` → `web`
+- **The lookup-mapper 400 cannot be raised in the mapper.** `ArchTest` forbids `service` → `web`
   dependencies, so `BadRequestAlertException` (in `web/rest/errors`) is unreachable from
   `FuelTypeMapper`. The established pattern is a `service/exception` type plus an `@ExceptionHandler`
   in `ExceptionTranslator` — exactly how `EmailAlreadyUsedException` and `InvalidPasswordException`
   already work.
-- **There are two `fuelType` failure modes, not one.** `FuelTypeMapper.java:25-28`: a null
+- **There are two failure modes per lookup mapper, not one.** `FuelTypeMapper.java:25-28`: a null
   `FuelTypeDto` NPEs, and an unknown `type` throws `IllegalStateException`. Neither has a handler;
   both are 500 today.
+- **`InsuranceTypeMapper` is the byte-for-byte twin of `FuelTypeMapper`.**
+  `InsuranceTypeMapper.java:25-28` is character-identical to `FuelTypeMapper.java:25-28` modulo the
+  type name, with the same two failure modes. It matters because it is the mapper S-01's *own*
+  insurance tests hit: the client's PUT does not object-wrap `insuranceType`
+  (`insurance.reducer.ts:192-198`) while its POST does (`:183-190`), and both shapes land on
+  `InsuranceMapper.java:42` → this mapper. Fixing `FuelTypeMapper` alone would leave Phase 4 §3's
+  round-trip assertion unsatisfiable, so Phase 6 §1 covers both.
 - **Seeded credentials work.** `user`/`user` and `admin`/`admin` both verify against their
   `user.csv` bcrypt hashes (checked with `BCryptPasswordEncoder` 6.1.5) and both rows are
   `activated=true`. This resolves research open question 3: the JWT test needs no user creation, and
@@ -80,9 +88,17 @@ confirming toasts appear and the console is clean.
 - **The shared read paths are POST-with-body**, not GET: `/api/stats/consumption/per-period`,
   `/api/stats/consumption/per-refuel`, `/api/stats/mileage`, `/api/stats/cost`, `/api/reports/costs`,
   and `/api/events` all take a request body. Only `GET /api/reports/vehicle/{id}` is a path variable.
-- **`TestUtil`'s ObjectMapper sets `NON_EMPTY`** (`TestUtil.java:42`), so empty strings vanish from
-  serialized request bodies and then NPE in `VehicleDetailsMapper`'s `.trim()` chain. S-01 request
-  bodies must not go through it.
+- **Every request-side mapper `.trim()`s without a null check — 18 sites, all 500 on null.**
+  `VehicleMapper.java:37-39`, `VehicleDetailsMapper.java:42-48`, `InsuranceMapper.java:41-44`,
+  `RefuelMapper.java:32`, `RepairMapper.java:32-33`, `InspectionMapper.java:33-34`,
+  `RoutineServiceMapper.java:34,37`. This is a production defect on S-01's entire create/update
+  surface, not a test artifact. It is latent rather than live because client 1.2.5 mostly protects
+  itself — `updateVehicle` trims client-side (`vehicle.reducer.ts:169-179`), `createVehicle` omits
+  `vehicleDetails` so `VehicleMapper.java:41-45` defaults it, and the four non-insurance event types
+  share one `prepareToDispatch` over AvField-backed strings. Left unfixed here (parity), recorded in
+  Phase 7. The consequence for this slice: **`TestUtil`'s ObjectMapper sets `NON_EMPTY`**
+  (`TestUtil.java:42`), so empty strings vanish from serialized request bodies and then NPE in the
+  `.trim()` chain — S-01 request bodies must not go through it.
 
 ## What We're NOT Doing
 
@@ -120,13 +136,18 @@ test-only rows and the shared Spring context is not forked.
 
 ## Critical Implementation Details
 
-**H2 is shared JVM-wide** (`DB_CLOSE_DELAY=-1`) and every IT must stay in the same Spring context —
-no `@MockBean`, no `@DirtiesContext`. A second context re-enters the JCache territory F-04 fixed in
-`CacheConfiguration.createCache()`. Use class-level `@Transactional` everywhere **except** the
+**H2 is shared JVM-wide** (`DB_CLOSE_DELAY=-1`) and no new IT may introduce a new Spring context
+configuration — no `@MockBean`, no `@DirtiesContext`. Note the baseline honestly: the suite already
+runs **two** contexts, because `TestConfigurationIT.java:17` is `@SpringBootTest` alone while the REST
+ITs add `@AutoConfigureMockMvc`, and those are different context cache keys. Additional contexts are
+no longer a correctness hazard — F-04 made `CacheConfiguration.createCache()` idempotent for exactly
+this reason — so the constraint here is cost and shared-H2 hygiene, not JCache. Every S-01 IT extends
+`AbstractSessionIT`, which fixes one configuration for the whole suite. Use class-level
+`@Transactional` everywhere **except** the
 delete-with-events placeholder: under `@Transactional` the delete flushes at *test rollback*, not
 during the request, so the FK violation never surfaces as a 500 in the `MvcResult`.
 
-**Ordering within Phase 6 matters.** The three 500 fixes must land *after* the parity suite is green,
+**Ordering within Phase 6 matters.** The four 500 fixes must land *after* the parity suite is green,
 not before. Their tests are new; no existing S-01 assertion should change when they land, and if one
 does, that is a signal the fix reached further than intended.
 
@@ -269,16 +290,28 @@ ObjectMapper.
 
 **File**: `src/test/java/com/kasztelanic/carcare/fixtures/SessionFixtures.java` (new)
 
-**Intent**: A `@Component` (test classpath only, so it is scanned into the same shared context as
-`TestUserIdentitySequenceFixup` without forking it) that seeds the `fuel_types` and
-`insurance_types` lookups idempotently, and builds vehicles and each of the five event types for a
-named owner. Idempotency matters because all three columns on both lookup tables carry unique
-constraints and the context is shared JVM-wide.
+**Intent**: A test-classpath-only component that seeds the `fuel_types` and `insurance_types` lookups
+idempotently, and builds vehicles and each of the five event types for a named owner.
 
-**Contract**: Seeding is find-or-create per row, not `deleteAll` + insert — another IT's data must
-survive. Vehicle and event builders take an owner login and return the persisted entity, resolving
-the `User` by login rather than by id. Owners are the Liquibase-seeded `user` and `admin`; **no test
-creates a user**.
+**Contract**: **Seeding is triggered by an `ApplicationRunner`**, exactly like
+`TestUserIdentitySequenceFixup.java:21` — `@Component @Profile("test") implements ApplicationRunner`,
+scanned into the same shared context rather than forking it. Nothing in a test has to remember to call
+it, and because the runner commits outside any test transaction, the lookup rows are visible to
+class-level `@Transactional` ITs *and* to the non-`@Transactional` delete-with-history placeholder.
+This is what makes `vehicles.fuel_type_id` (`NOT NULL`, FK to `fuel_types`) satisfiable in Phase 4's
+~40–50 tests. Split the class if the runner and the builders read awkwardly together — the builders
+themselves are ordinary injected methods, not part of the runner contract.
+
+Seeding is find-or-create per row, not `deleteAll` + insert. The reason is **not** cross-IT data
+survival — Phase 4/5 ITs are class-level `@Transactional` and roll back, so no IT's data outlives it.
+It is that H2 is shared JVM-wide (`DB_CLOSE_DELAY=-1`) while the suite runs more than one Spring
+context (see Critical Implementation Details): the second context's runner starts against an
+already-seeded schema, and all three columns on both lookup tables carry unique constraints. The
+non-`@Transactional` delete-with-history test is the other case that must not corrupt the shared rows.
+
+Vehicle and event builders take an owner login and return the persisted entity, resolving the `User`
+by login rather than by id. Owners are the Liquibase-seeded `user` and `admin`; **no test creates a
+user**.
 
 #### 2. Shared IT base
 
@@ -298,20 +331,23 @@ inclusion, registering `JavaTimeModule` for the `LocalDate` fields on `Insurance
 
 **File**: `src/test/java/com/kasztelanic/carcare/fixtures/SessionFixturesIT.java` (new)
 
-**Intent**: Prove the fixtures seed and read back, and — critically — that running them twice does
-not violate a unique constraint.
+**Intent**: Prove the runner seeded the lookups at context start, that the builders read back, and —
+critically — that re-running the seed does not violate a unique constraint.
 
-**Contract**: Seeds lookups twice, then builds a vehicle with events for both owners and asserts row
-counts. This is also the first test that would fail if `SecurityEvaluationContextExtension` ever
-stopped resolving.
+**Contract**: Asserts the lookup rows exist without seeding them first (proving the runner fired),
+then invokes the seed a second time explicitly and asserts it is a no-op, then builds a vehicle with
+events for both owners and asserts row counts. This is also the first test that would fail if
+`SecurityEvaluationContextExtension` ever stopped resolving.
 
 ### Success Criteria:
 
 #### Automated Verification:
 
 - `./mvnw verify` green including `SessionFixturesIT`
-- Seeding twice in one context does not throw
-- Still exactly one Spring context — no `@MockBean` or `@DirtiesContext` introduced
+- The lookups are populated before any test seeds them, proving the `ApplicationRunner` fired
+- Seeding a second time does not throw
+- No new Spring context configuration beyond the two that already exist — no `@MockBean` or
+  `@DirtiesContext` introduced
 
 #### Manual Verification:
 
@@ -368,6 +404,12 @@ status, and `Location` assertions. `InsuranceResourceIT` additionally covers the
 `insuranceType` shape asymmetry the client sends (POST object-wraps, PUT does not) — if both shapes
 do not round-trip, the client's edit flow breaks.
 
+Note the ordering: the bare-string PUT shape reaches `InsuranceTypeMapper` and 500s until Phase 6 §1
+lands. Write the round-trip assertion here as a characterization of what the tree actually does —
+whichever of 400 (Jackson type mismatch on the bare string) or 500 (null DTO → NPE in the mapper) it
+turns out to be — then tighten it to a clean 200 round-trip in Phase 6 §4. Do not assume which;
+Phase 4 asserts what it observes.
+
 **Contract**: Per type — `POST /api/{type}/{vehicleId}` → 201 + `Location: /api/{type}/{vehicleId}/{id}`
 + `carcareApp.{type}.created`; `PUT /api/{type}/{id}` → 200 + `.updated`; `DELETE /api/{type}/{id}` →
 200 + `.deleted` **and the deleted DTO in the body**; `GET /api/{type}/{id}` → 200 or bodyless 404;
@@ -378,15 +420,20 @@ each resource's `ENTITY_NAME` constant.
 
 **File**: `src/test/java/com/kasztelanic/carcare/web/rest/ClientWireContractIT.java` (new)
 
-**Intent**: Assert the four invariants whose violation crashes or dead-ends client 1.2.5, kept in one
-file so the coupling to `../client` is documented in one place with its `file:line` justification.
+**Intent**: Assert three of the four invariants whose violation crashes or dead-ends client 1.2.5,
+kept in one file so the coupling to `../client` is documented in one place with its `file:line`
+justification. The fourth — the `Bearer ` prefix — belongs to `JwtSessionIT` (Phase 5 §3), which mints
+a real token anyway; a comment here names it and points there, so the set stays readable as four.
 
 **Contract**: (a) every string field the client `.trim()`s unconditionally — `station`, `details`,
 `insurer`, `number`, `make`, `model`, `licensePlate`, and the five `vehicleDetails` strings — is
-non-null in a GET response when stored empty; (b) `GET /api/{type}/{id}` returns `vehicleId`, since
+non-null in a GET **response** when stored empty. Note the direction explicitly in a comment: this
+invariant pins the response side only. The mirror-image request-side defect (the same fields NPE the
+mapper when sent null) is real but deliberately unfixed — see the Key Discoveries bullet and Phase 7;
+`ClientWireContractIT` does not and is not meant to catch it. (b) `GET /api/{type}/{id}` returns `vehicleId`, since
 the client's delete flow reads it off a preceding GET; (c) `X-Total-Count` is present on both list
-endpoints; (d) the `Authorization` response header on `POST /api/authenticate` carries a literal
-`Bearer ` prefix — see Phase 5, which may host this one instead.
+endpoints. Invariant (d) — the literal `Bearer ` prefix on the `Authorization` response header of
+`POST /api/authenticate` — is **not** asserted here; `JwtSessionIT` owns it (Phase 5 §3).
 
 ### Success Criteria:
 
@@ -456,7 +503,8 @@ endpoint.
 **Contract**: `POST /api/authenticate` with `user`/`user` (verified: the `user.csv` bcrypt hash matches
 and the row is `activated=true`) returns 200; the token is read from the `Authorization` *response
 header*, not the body (`../client/.../authentication.ts:111-113`), and must carry a literal `Bearer `
-prefix; replaying it against `GET /api/vehicle/all` returns 200. Also asserts anonymous access to the
+prefix — this is client wire invariant (d), owned here rather than in `ClientWireContractIT`;
+replaying it against `GET /api/vehicle/all` returns 200. Also asserts anonymous access to the
 same endpoint returns 401 `application/problem+json`, and that `GET /` returns **200** — the runtime
 guard for F-03's `.anyRequest().permitAll()` fix, which was reasoned from bytecode.
 
@@ -478,33 +526,43 @@ guard for F-03's `.anyRequest().permitAll()` fix, which was reasoned from byteco
 
 ---
 
-## Phase 6: Fix the three pre-existing 500s
+## Phase 6: Fix the four pre-existing 500s
 
 ### Overview
 
-Three server errors that predate the migration (all call sites byte-identical to `6e19b96`) and that
+Four server errors that predate the migration (all call sites byte-identical to `6e19b96`) and that
 the suite trips over. Owner decision: fix them. This deliberately widens past strict parity, so it
 lands *after* the parity suite is green — if any Phase 4 or 5 assertion changes here, the fix reached
 further than intended.
 
 ### Changes Required:
 
-#### 1. Missing or unknown `fuelType` → 400
+#### 1. Missing or unknown `fuelType` / `insuranceType` → 400
 
 **Files**: `src/main/java/com/kasztelanic/carcare/service/exception/` (new exception type),
-`service/mapper/FuelTypeMapper.java`, `web/rest/errors/ExceptionTranslator.java`
+`service/mapper/FuelTypeMapper.java`, `service/mapper/InsuranceTypeMapper.java`,
+`web/rest/errors/ExceptionTranslator.java`
 
-**Intent**: Turn both mapper failure modes into a 400 ProblemDetail instead of a 500. A null
-`FuelTypeDto` and an unknown `type` are both unsatisfiable — `vehicles.fuel_type_id` is `NOT NULL`
-with an FK to `fuel_types` — so there is no valid interpretation of either.
+**Intent**: Turn both mapper failure modes into a 400 ProblemDetail instead of a 500, in **both**
+lookup mappers. A null `FuelTypeDto` and an unknown `type` are both unsatisfiable —
+`vehicles.fuel_type_id` is `NOT NULL` with an FK to `fuel_types` — so there is no valid interpretation
+of either; the same holds for `insurances.insurance_type_id`. `InsuranceTypeMapper.java:25-28` is the
+byte-for-byte twin of `FuelTypeMapper.java:25-28`, and it is the one Phase 4 §3's insurance
+round-trip actually hits, so fixing only `fuelType` would leave that assertion unsatisfiable.
 
 **Contract**: The exception must live in `service/exception`, **not** `web/rest/errors`: `ArchTest`
 forbids `service` → `web` dependencies, so `BadRequestAlertException` is unreachable from the mapper.
 Follow the existing pattern — `EmailAlreadyUsedException`, `InvalidPasswordException`, and
 `ReportGenerationException` all live there with `@ExceptionHandler` methods in `ExceptionTranslator`.
 The handler returns 400 and routes through `handleExceptionInternal` so `path` and `message` are added
-like every other error body. `FuelTypeMapper.java:25-28` replaces the bare
-`orElseThrow(IllegalStateException::new)` and adds a null check.
+like every other error body. **One** exception type carrying the offending lookup name serves both
+mappers — do not add a second. `FuelTypeMapper.java:25-28` and `InsuranceTypeMapper.java:25-28` each
+replace the bare `orElseThrow(IllegalStateException::new)` and add a null check.
+
+Watch the PUT shape specifically: the client sends `insuranceType` as a bare string on update
+(`insurance.reducer.ts:192-198`), which may fail earlier at Jackson deserialization rather than in the
+mapper. Verify which layer rejects it before writing the handler — if it is Jackson, that path already
+returns 400 and only the null/unknown cases need this fix.
 
 #### 2. Duplicate `vehicleId` in `POST /api/events` → tolerated
 
@@ -526,32 +584,41 @@ silently dropped.
 `volume * 100.0 / mileage` is NaN or Infinity and `BigDecimal.valueOf(...)` throws
 `NumberFormatException` → 500.
 
-**Contract**: `getAverageConsumption()` (`:19-23`) returns `0.0` when `mileage <= 0`; **every non-zero
-input must produce a bit-identical result to today**. The return type stays primitive `double`, so the
+**Contract**: `getAverageConsumption()` (`:19-23`) returns `0.0` when `mileage == 0` — **not**
+`mileage <= 0`; **every non-zero input must produce a bit-identical result to today**. A negative
+mileage (an odometer corrected downward) is a non-zero input: today it computes a finite negative
+value and `BigDecimal.valueOf` succeeds, so the guard must not swallow it. Only zero produces the
+NaN/Infinity that throws. The return type stays primitive `double`, so the
 JSON shape and nullability are unchanged and no client arithmetic path can break. Record the known
 semantic cost: "unknown" is now reported as "zero", indistinguishable from a real 0.0 — flag it for
 S-03, which owns this surface at value level and has the golden baseline to judge it against.
 
-#### 4. Tests for all three
+#### 4. Tests for all four
 
-**Files**: `VehicleResourceIT.java`, `OwnerIsolationIT.java` or a new `EventResourceIT.java`, and a
-unit test for the DTO
+**Files**: `VehicleResourceIT.java`, `InsuranceResourceIT.java`, `OwnerIsolationIT.java` or a new
+`EventResourceIT.java`, and a unit test for the DTO
 
-**Intent**: Assert the new behaviour: 400 for both `fuelType` cases, 200 with merged results for the
-duplicate `vehicleId`, and `0.0` for zero mileage.
+**Intent**: Assert the new behaviour: 400 for both `fuelType` cases and both `insuranceType` cases,
+200 with merged results for the duplicate `vehicleId`, and `0.0` for zero mileage. Additionally,
+tighten Phase 4 §3's insurance round-trip characterization to assert a clean 200 for **both** the
+object-wrapped POST shape and the bare-string PUT shape — this is the one Phase 4 assertion that is
+*expected* to change here, and the only one.
 
-**Contract**: The `fuelType` test asserts 400 **and** that the response body is a ProblemDetail
-carrying `path` and `message` — the two fields client 1.2.5 actually reads. The DTO test is a plain
-unit test asserting both the guard and that a representative non-zero case is unchanged.
+**Contract**: The `fuelType` and `insuranceType` tests assert 400 **and** that the response body is a
+ProblemDetail carrying `path` and `message` — the two fields client 1.2.5 actually reads. The DTO test
+is a plain unit test asserting the guard and that representative non-zero cases are unchanged —
+including a **negative**-mileage case, which is what pins the guard to `== 0` rather than `<= 0`.
 
 ### Success Criteria:
 
 #### Automated Verification:
 
 - `./mvnw verify` green
-- No Phase 4 or Phase 5 assertion changed to accommodate these fixes
-- All three formerly-500 requests now return their intended status
-- The `AverageConsumptionResult` unit test proves a non-zero case is bit-identical
+- No Phase 4 or Phase 5 assertion changed to accommodate these fixes, except the one insurance
+  round-trip characterization §4 names
+- All four formerly-500 requests now return their intended status
+- The `AverageConsumptionResult` unit test proves positive and negative non-zero cases are
+  bit-identical
 
 #### Manual Verification:
 
@@ -595,6 +662,15 @@ produced this regression and what caused F-03's review to clear it.
 **Contract**: A short subsection under the existing header/contract material, naming both with their
 file references and the client-side suffix-match that depends on the header prefix.
 
+Record one asymmetry so the subsection is not a half-truth: only the *alert* prefix is restored.
+The `X-carcareApp-error` name lives on `HeaderUtil.java:78-84`, a three-arg `createFailureAlert` with
+**zero callers**; the live error path is `ExceptionTranslator.java:99,107,121`, which uses the
+explicit-`applicationName` overload and so emits `X-carcare-error`, never matching the client's
+`endsWith('app-error')` (`notification-middleware.ts:57-63`). That is baseline behaviour, out of
+S-01's scope, and harmless: the client falls back to `data.message`
+(`notification-middleware.ts:80-81`) — which is precisely why Phase 6's new `fuelType` and
+`insuranceType` 400s still toast.
+
 #### 3. Epilogue and record correction
 
 **File**: `context/changes/session-parity/change.md`
@@ -605,9 +681,19 @@ header rename on reasoning that conflated the header name with the i18n namespac
 went, but a different contract from the one that broke. Without this the archived record reads as
 contradicting the current code.
 
-**Contract**: Also record: the three fixed 500s and their new behaviour; the `@Disabled` delete case
+**Contract**: Also record: the four fixed 500s and their new behaviour; the `@Disabled` delete case
 and S-05 as its owner; the test profile's third identifier divergence from production; and that
 research open question 3 is resolved (seeded credentials verified working). Set `status: implemented`.
+
+Record one more defect S-01 found and deliberately did **not** fix: the 18 unguarded `.trim()` sites
+on the request-side mappers — `VehicleMapper.java:37-39`, `VehicleDetailsMapper.java:42-48`,
+`InsuranceMapper.java:41-44`, `RefuelMapper.java:32`, `RepairMapper.java:32-33`,
+`InspectionMapper.java:33-34`, `RoutineServiceMapper.java:34,37` — each a 500 on a null string. Name
+the parked **Bean Validation on business request bodies** item (`roadmap.md:505-507`) as the owner of
+the real fix, and state why S-01 left it: it is latent under client 1.2.5, and rejecting these
+payloads is exactly the compatibility risk that item was parked over. State also that
+`ClientWireContractIT` invariant (a) covers the response direction only, so nothing in the suite would
+notice a regression here.
 
 #### 4. Roadmap note
 
@@ -670,9 +756,10 @@ belongs to the parked read-models work, not here.
 ## Migration Notes
 
 No schema change. No Liquibase changelog is added or edited. `src/main` changes are confined to
-`HeaderUtil` (header names), the deleted `HeaderUtilInitializer`, and the three Phase 6 fixes. The
+`HeaderUtil` (header names), the deleted `HeaderUtilInitializer`, and the four Phase 6 fixes. The
 only production-visible behaviour changes are the restored header names — which restore baseline —
-and the three 500s becoming 400 / 200 / `0.0`.
+and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged duplicate
+`vehicleId`), and `0.0` (zero mileage).
 
 ## References
 
@@ -718,12 +805,13 @@ and the three 500s becoming 400 / 200 / `0.0`.
 #### Automated
 
 - [ ] 3.1 `./mvnw verify` green including `SessionFixturesIT`
-- [ ] 3.2 Seeding twice in one context does not throw
-- [ ] 3.3 Still exactly one Spring context — no `@MockBean` or `@DirtiesContext` introduced
+- [ ] 3.2 The lookups are populated before any test seeds them, proving the `ApplicationRunner` fired
+- [ ] 3.3 Seeding a second time does not throw
+- [ ] 3.4 No new Spring context configuration beyond the two that already exist — no `@MockBean` or `@DirtiesContext` introduced
 
 #### Manual
 
-- [ ] 3.4 Fixture builders read clearly enough that Phase 4's six IT classes will be short
+- [ ] 3.5 Fixture builders read clearly enough that Phase 4's six IT classes will be short
 
 ### Phase 4: CRUD parity integration tests
 
@@ -752,14 +840,14 @@ and the three 500s becoming 400 / 200 / `0.0`.
 
 - [ ] 5.5 `OwnerIsolationIT` reads as a complete statement of the guarantee
 
-### Phase 6: Fix the three pre-existing 500s
+### Phase 6: Fix the four pre-existing 500s
 
 #### Automated
 
 - [ ] 6.1 `./mvnw verify` green
-- [ ] 6.2 No Phase 4 or Phase 5 assertion changed to accommodate these fixes
-- [ ] 6.3 All three formerly-500 requests now return their intended status
-- [ ] 6.4 The `AverageConsumptionResult` unit test proves a non-zero case is bit-identical
+- [ ] 6.2 No Phase 4 or Phase 5 assertion changed to accommodate these fixes, except the one insurance round-trip characterization §4 names
+- [ ] 6.3 All four formerly-500 requests now return their intended status
+- [ ] 6.4 The `AverageConsumptionResult` unit test proves positive and negative non-zero cases are bit-identical
 
 #### Manual
 

@@ -4,18 +4,18 @@
 - **Plan**: `context/changes/session-parity/plan.md`
 - **Mode**: Deep
 - **Date**: 2026-08-26
-- **Verdict**: REVISE
+- **Verdict**: REVISE → **SOUND** after triage (2026-08-26; all 7 findings fixed in the plan)
 - **Findings**: 1 critical, 4 warnings, 2 observations
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| End-State Alignment | FAIL |
-| Lean Execution | PASS |
-| Architectural Fitness | PASS |
-| Blind Spots | WARNING |
-| Plan Completeness | WARNING |
+| Dimension | Verdict (at review) | After triage |
+|-----------|---------------------|--------------|
+| End-State Alignment | FAIL | PASS |
+| Lean Execution | PASS | PASS |
+| Architectural Fitness | PASS | PASS |
+| Blind Spots | WARNING | PASS |
+| Plan Completeness | WARNING | PASS |
 
 ## Grounding
 
@@ -66,7 +66,11 @@ default on subagent use).
   - Confidence: MEDIUM — depends on whether the client actually sends a null/unmappable
     `insuranceType`, which could not be settled from `insurance-update.tsx:117` alone.
   - Blind spot: None significant.
-- **Decision**: PENDING
+- **Decision**: FIXED via Fix A — Phase 6 §1 now covers `InsuranceTypeMapper` alongside
+  `FuelTypeMapper` (one shared `service/exception` type); Phase 4 §3 writes the insurance round-trip
+  as a characterization and Phase 6 §4 tightens it to a clean 200, with criterion 6.2 carving out that
+  single expected change. "Three 500s" → "four" throughout the plan and brief. The unverified PUT
+  deserialization layer is now an explicit *verify-before-writing-the-handler* instruction in Phase 6 §1.
 
 ### F2 — 18 unconditional `.trim()` sites are an unrecorded 500 class
 
@@ -96,7 +100,11 @@ default on subagent use).
   - Confidence: HIGH — all 18 sites enumerated and the client payload builders checked for all six
     resources.
   - Blind spot: None significant.
-- **Decision**: PENDING
+- **Decision**: FIXED — Key Discoveries now states the 18 sites as a production defect (with the
+  client-side mitigations) rather than a `TestUtil` footnote; Phase 4 §4 restates invariant (a) as
+  response-direction-only with an explicit pointer to the unfixed request side; Phase 7 §3 records the
+  full `file:line` list and names the parked *Bean Validation on business request bodies* item
+  (`roadmap.md:505-507`) as owner.
 
 ### F3 — Phase 6 §3's guard contradicts its own stated contract
 
@@ -113,7 +121,8 @@ default on subagent use).
   contract sentence to "every input with positive mileage" and record the negative case as a second
   deliberate change. Criterion 6.4's "bit-identical" unit test should include a negative-mileage case
   either way.
-- **Decision**: PENDING
+- **Decision**: FIXED — Phase 6 §3's guard narrowed to `mileage == 0` with the negative case called
+  out explicitly; §4 and criterion 6.4 now require a negative-mileage case in the bit-identical test.
 
 ### F4 — Phase 3 never says what triggers fixture seeding
 
@@ -137,7 +146,13 @@ default on subagent use).
   - Tradeoff: A `@BeforeEach` re-seeds per test; negligible at this size.
   - Confidence: HIGH — both candidate analogues and the `NOT NULL` constraint path were read.
   - Blind spot: None significant.
-- **Decision**: PENDING
+- **Decision**: FIXED (owner chose the `ApplicationRunner` trigger over the suggested `@BeforeEach`) —
+  Phase 3 §1 now specifies `@Component @Profile("test") implements ApplicationRunner`, matching
+  `TestUserIdentitySequenceFixup.java:21`, and notes that committing outside any test transaction is
+  what makes the lookups visible to both the `@Transactional` ITs and the `NOT_SUPPORTED` delete test.
+  The idempotency rationale is restated as multi-context re-seeding against a JVM-wide H2 rather than
+  cross-IT survival. §3's smoke test now asserts the runner fired before re-seeding; criteria
+  renumbered 3.1–3.5.
 
 ### F5 — Wire invariant (d) has unresolved ownership
 
@@ -152,7 +167,9 @@ default on subagent use).
 - **Fix**: Assign (d) to `JwtSessionIT` (it needs a real token anyway) and drop it from
   `ClientWireContractIT`, leaving three invariants there. Adjust the Desired End State wording to
   match.
-- **Decision**: PENDING
+- **Decision**: FIXED — invariant (d) assigned to `JwtSessionIT` (Phase 5 §3) and removed from
+  `ClientWireContractIT`, which now states it holds three and points at the fourth; Desired End State
+  and the brief both name the split.
 
 ### F6 — "Exactly one Spring context" is already false, and its rationale is stale
 
@@ -169,7 +186,9 @@ default on subagent use).
   correcting.
 - **Fix**: Reword 3.3 to "no new context configuration beyond the two that already exist" and drop the
   JCache rationale.
-- **Decision**: PENDING
+- **Decision**: FIXED — Critical Implementation Details now states the two-context baseline with its
+  cause, replaces the JCache rationale with cost/shared-H2 hygiene, and notes that `AbstractSessionIT`
+  fixes one configuration for the suite; the criterion (renumbered 3.4 by F4) reworded to match.
 
 ### F7 — Phase 2 restores `X-carcareApp-error` onto dead code
 
@@ -188,4 +207,6 @@ default on subagent use).
 - **Fix**: One sentence in Phase 7 §2's `AGENTS.md` subsection noting that the error-alert prefix
   diverges from the alert prefix and the client degrades to `data.message` — otherwise the new
   documentation records a half-truth about the header contract.
-- **Decision**: PENDING
+- **Decision**: FIXED — Phase 7 §2's contract now requires recording that only the alert prefix is
+  restored, that `X-carcareApp-error` sits on a zero-caller overload while the live path emits
+  `X-carcare-error`, and that the client degrades to `data.message`.
