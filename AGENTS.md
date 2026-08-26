@@ -176,16 +176,39 @@ Separately, Hibernate 6 classifies `String(length = 65535)` as VARCHAR rather th
 H2 (`H2Dialect.getMaxVarcharLength()` returns 1,048,576), which broke schema validation for the five
 long-text columns (including `vehicles.notes`, embedded from `VehicleDetails`). A test-only
 `com.kasztelanic.carcare.config.TestH2Dialect` (in `src/test/java`) lowers that boundary below 65,535
-so those columns validate as CLOB; no production entity or Liquibase changelog changed.
+so those columns validate as CLOB; no Liquibase changelog changed.
 `TestConfigurationIT` guards the resource-layering fix, and `HibernateTimeZoneIT` is the first
 schema-validating context checkpoint.
+
+Two further test-only fixtures exist for H2 2.x behaviour changes. `TestUserIdentitySequenceFixup`
+(a `@Profile("test")` `ApplicationRunner`) restarts `jhi_user`'s identity counter after Liquibase
+seeding, because H2 2.x no longer auto-advances it past manually inserted ids. And
+`application-test.yml` sets `hibernate.timezone.default_storage: NORMALIZE` and
+`hibernate.auto_quote_keyword: true`, neither of which main sets — the asymmetry is deliberate: no
+production entity uses `ZonedDateTime`/`OffsetDateTime`, and `VALUE` is reserved in H2 2.x but not in
+MariaDB.
 
 The full suite is green: `./mvnw test` runs 22 unit tests (1 intentionally `@Disabled` in
 `WebConfigurerTest`), and `./mvnw verify` additionally runs 115 integration tests, all passing. This
 restores JHipster scaffolding coverage only — no vehicle, event, report, statistics, or reminder
 business behavior is tested; that is deferred to the S-01–S-04 roadmap slices.
 
-One pre-existing (JHipster-original) bug surfaced and was fixed along the way:
+Three production/build files changed despite F-04 being a test-only change. Do not read this section
+as "src/main was untouched".
+
+`PersistentAuditEvent` gained `@EqualsAndHashCode(of = "id")` so `AuditResourceIT`'s equality test
+would pass. This is a real entity-semantics change — transient instances with null ids now compare
+equal — kept because every other entity in `domain/` already carries the same annotation, and
+`PersistentAuditEvent` is never held in a `Set` or `Map` in `src/main`. Relatedly,
+`TestUtil.equalsVerifier` now asserts that two fresh instances **are** equal, matching that
+convention; it no longer catches the JPA transient-identity pitfall it was originally written for.
+
+`pom.xml`'s `argLine` pins the test JVM with `-Duser.timezone=UTC`, because Hibernate 6's H2 binding
+uses `ZoneId.systemDefault()` rather than `hibernate.jdbc.time_zone`. Note the coverage cost:
+`HibernateTimeZoneIT` — the one test meant to prove zone-independent storage — now only ever runs in
+UTC, so it proves nothing about non-UTC hosts.
+
+Third, one pre-existing (JHipster-original) bug surfaced and was fixed along the way:
 `CacheConfiguration.createCache()` used to unconditionally `destroyCache()` + `createCache()` on
 every boot. Because JSR-107's `CachingProvider` returns the same `javax.cache.CacheManager` instance
 to every Spring context in a JVM by default, booting a second test context (e.g. the

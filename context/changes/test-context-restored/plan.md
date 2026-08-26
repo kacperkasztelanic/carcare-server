@@ -509,3 +509,11 @@ untouched because wiring or deleting it is independent of restoring the test con
 - [x] 4.5 Final failure-triage review confirms every additional repair is migration-scoped and evidence-backed — 1a54b2f
 - [x] 4.6 Final scope review confirms no production entity, Liquibase schema, API behavior, client, or deferred business-test slice was changed — 1a54b2f
 - [x] 4.7 `AGENTS.md` review confirms the test-configuration path, the failure explanation, the standalone-harness note, and the reported suite status all match the delivered suite — 1a54b2f
+
+> **Re-affirmed 2026-08-26** after implementation review (`reviews/impl-review.md`). 4.5 and 4.7 hold
+> against the corrected records. **4.6 does not hold as written**: three production/build files changed —
+> `CacheConfiguration.java` (disclosed at close-out), `PersistentAuditEvent.java` (`@EqualsAndHashCode(of = "id")`,
+> a production entity change), and `pom.xml` (`-Duser.timezone=UTC` on `argLine`). No Liquibase schema,
+> API behavior, client code, or deferred business-test slice was changed. Review finding F1 accepted the
+> two undisclosed edits deliberately rather than reverting them; `change.md` and `AGENTS.md` now enumerate
+> all three.
