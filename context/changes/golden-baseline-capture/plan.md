@@ -665,16 +665,16 @@ manually during capture; it is never applied by Liquibase and never runs in `dev
 
 #### Automated
 
-- [ ] 1.1 The `6e19b96` worktree builds offline
-- [ ] 1.2 MariaDB container reachable and `carcare` schema exists
-- [ ] 1.3 WAR boots under `dev` and `GET /management/health` returns `UP`
-- [ ] 1.4 `POST /api/authenticate` returns a token for both `admin` and `user`
-- [ ] 1.5 No change under `src/` or `pom.xml`; `git worktree list` shows only the capture worktree
+- [x] 1.1 The `6e19b96` worktree builds offline
+- [x] 1.2 MariaDB container reachable and `carcare` schema exists
+- [x] 1.3 WAR boots under `dev` and `GET /management/health` returns `UP`
+- [x] 1.4 `POST /api/authenticate` returns a token for both `admin` and `user`
+- [x] 1.5 No change under `src/` or `pom.xml`; `git worktree list` shows only the capture worktree
 
 #### Manual
 
-- [ ] 1.6 `reference.md` contains every command verbatim, in order
-- [ ] 1.7 The empty-lookup-table finding is recorded
+- [x] 1.6 `reference.md` contains every command verbatim, in order
+- [x] 1.7 The empty-lookup-table finding is recorded
 
 ### Phase 2: Author the golden fixture
 
