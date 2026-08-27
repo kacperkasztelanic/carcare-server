@@ -86,6 +86,10 @@ public class SessionFixtures implements ApplicationRunner {
                 .vinNumber("")
                 .vehicleCard("")
                 .registrationCertificate("")
+                .yearOfManufacture(0)
+                .engineVolume(0)
+                .enginePower(0)
+                .weight(0)
                 .notes("")
                 .image("")
                 .build())
@@ -105,8 +109,12 @@ public class SessionFixtures implements ApplicationRunner {
     }
 
     public Refuel refuelFor(Vehicle vehicle) {
+        return refuelFor(vehicle, 10_000, LocalDate.of(2024, 1, 10));
+    }
+
+    public Refuel refuelFor(Vehicle vehicle, int mileage, LocalDate date) {
         return refuelRepository.save(Refuel.builder()
-            .vehicleEvent(VehicleEvent.of(10_000, LocalDate.of(2024, 1, 10)))
+            .vehicleEvent(VehicleEvent.of(mileage, date))
             .vehicle(vehicle)
             .costInCents(15_000)
             .volume(45_000)

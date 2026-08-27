@@ -817,28 +817,28 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [x] 4.1 `./mvnw verify` green with all six `*ResourceIT` classes plus `ClientWireContractIT`
-- [x] 4.2 Every create/update/delete assertion checks the literal header name `X-carcareApp-alert`
-- [x] 4.3 The `@Disabled` placeholder is present, named, and skipped — not failing
-- [x] 4.4 Test count increases by roughly 40–50 integration tests
+- [x] 4.1 `./mvnw verify` green with all six `*ResourceIT` classes plus `ClientWireContractIT` — 0df86c5
+- [x] 4.2 Every create/update/delete assertion checks the literal header name `X-carcareApp-alert` — 0df86c5
+- [x] 4.3 The `@Disabled` placeholder is present, named, and skipped — not failing — 0df86c5
+- [x] 4.4 Test count increases by roughly 40–50 integration tests — 0df86c5
 
 #### Manual
 
-- [x] 4.5 `InsuranceResourceIT` makes the POST/PUT shape asymmetry obvious
-- [x] 4.6 No test asserts a computed value — S-03's boundary respected
+- [x] 4.5 `InsuranceResourceIT` makes the POST/PUT shape asymmetry obvious — 0df86c5
+- [x] 4.6 No test asserts a computed value — S-03's boundary respected — 0df86c5
 
 ### Phase 5: Owner isolation and the real-JWT session
 
 #### Automated
 
-- [ ] 5.1 `./mvnw verify` green with `OwnerIsolationIT` and `JwtSessionIT`
-- [ ] 5.2 Every cross-user assertion checks 404 or empty-list, and none accepts 403
-- [ ] 5.3 All six stats/report/events paths have an owner-positive and a non-owner-negative case
-- [ ] 5.4 `GET /` returns 200 and anonymous `GET /api/vehicle/all` returns 401
+- [x] 5.1 `./mvnw verify` green with `OwnerIsolationIT` and `JwtSessionIT`
+- [x] 5.2 Every cross-user assertion checks 404 or empty-list, and none accepts 403
+- [x] 5.3 All six stats/report/events paths have an owner-positive and a non-owner-negative case
+- [x] 5.4 `GET /` returns 200 and anonymous `GET /api/vehicle/all` returns 401
 
 #### Manual
 
-- [ ] 5.5 `OwnerIsolationIT` reads as a complete statement of the guarantee
+- [x] 5.5 `OwnerIsolationIT` reads as a complete statement of the guarantee
 
 ### Phase 6: Fix the four pre-existing 500s
 
