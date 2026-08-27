@@ -7,8 +7,10 @@ import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class VehicleResourceIT extends AbstractSessionIT {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     @WithMockUser(username = "user")
@@ -127,9 +132,21 @@ class VehicleResourceIT extends AbstractSessionIT {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void deletingVehicleWithHistoryCurrentlyViolatesForeignKeys() throws Exception {
         Vehicle vehicle = sessionFixtures.vehicleWithEventsFor("user");
+        try {
+            mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId()))
+                .andExpect(status().is5xxServerError());
+        } finally {
+            // This test runs outside the class-level transaction, so its rows are committed to the
+            // JVM-wide H2 instance (DB_CLOSE_DELAY=-1) and must be removed by hand.
+            purgeVehicle(vehicle.getId());
+        }
+    }
 
-        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId()))
-            .andExpect(status().is5xxServerError());
+    private void purgeVehicle(Long vehicleId) {
+        for (String table : new String[] { "refuels", "repairs", "routine_services", "inspections", "insurances" }) {
+            jdbcTemplate.update("delete from " + table + " where vehicle_id = ?", vehicleId);
+        }
+        jdbcTemplate.update("delete from vehicles where id = ?", vehicleId);
     }
 
     private static VehicleDto vehicleRequest(String make) {

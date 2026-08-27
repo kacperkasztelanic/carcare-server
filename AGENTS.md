@@ -117,6 +117,12 @@ error path passes `spring.application.name` explicitly and therefore emits the b
 `X-carcare-error`, which does not match the client's `app-error` suffix. That is harmless here:
 the client falls back to `data.message`, including for lookup-validation 400 responses.
 
+A third client contract lives in `InsuranceTypeDto`: a `@JsonCreator(mode = DELEGATING)` over a raw
+`JsonNode` accepts both the object form (`{"type": ..., "translation": ...}`) and client 1.2.5's
+bare-string form (`"OC"`) on insurance requests. `FuelTypeDto` deliberately has no equivalent and
+stays object-only — the client never sends a bare-string fuel type. Do not "fix" that asymmetry by
+adding the creator to `FuelTypeDto`; the narrower contract is intentional.
+
 ## Deployment
 
 Dockerized, behind an NGINX reverse proxy (`src/main/docker/reverseproxy`). CI is GitLab

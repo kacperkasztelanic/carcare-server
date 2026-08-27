@@ -1,7 +1,7 @@
 ---
 change_id: session-parity
 title: Session parity
-status: implemented
+status: impl_reviewed
 created: 2026-08-26
 updated: 2026-08-27
 archived_at: null
@@ -97,3 +97,21 @@ vehicle creation displayed “Vehicle added”. A normal unauthenticated client 
 `/api/account` 401 and a client-side `applicationProfile(...includes)` console error. Full event
 CRUD, console hygiene, and any compatibility fixes are deliberately handed to
 `client-server-contract-trial`.
+
+### Recorded during implementation review (2026-08-27)
+
+`InsuranceTypeDto` gained a `@JsonCreator(mode = DELEGATING)` taking a raw `JsonNode`, so the
+request contract now accepts both the object form (`{"type":…,"translation":…}`) and client 1.2.5's
+bare-string form (`"OC"`). This is a permanent widening of a production request shape that the plan's
+Migration Notes did not anticipate — that section names only `HeaderUtil`, the deleted
+`HeaderUtilInitializer`, and the four Phase 6 fixes. It is kept: Phase 6 §4 required a clean 200 for
+the bare-string PUT, and both forms are covered by green integration tests. `FuelTypeDto` is
+deliberately **not** given the same creator — the client never sends a bare-string fuel type, so the
+asymmetry is the narrower contract, not an oversight.
+
+The Phase 7 roadmap edit also went beyond its stated contract of "S-02's Risk paragraph only". The
+same commit added slice S-07 `client-server-contract-trial`, flipped S-01's table status to
+`implemented`, appended to S-03's Risk, and re-sequenced Stream C from four parallel slices to
+"S-01 → S-07 (next); S-02 / S-03 / S-04 follow". The expansion is kept as-is, but the resequencing
+was S-01's decision rather than the roadmap's: nothing in the manual smoke shows S-02 / S-03 / S-04
+actually depend on S-07, so treat their gating as provisional.

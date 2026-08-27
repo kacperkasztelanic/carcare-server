@@ -43,13 +43,13 @@ class ClientWireContractIT extends AbstractSessionIT {
         // This pins GET responses only; null request fields are the separate Phase 7 mapper defect.
         mockMvc.perform(get("/api/vehicle/{id}", vehicle.getId()))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.make").isEmpty()).andExpect(jsonPath("$.model").isEmpty())
-            .andExpect(jsonPath("$.licensePlate").isEmpty())
-            .andExpect(jsonPath("$.vehicleDetails.modelSuffix").isEmpty())
-            .andExpect(jsonPath("$.vehicleDetails.vinNumber").isEmpty())
-            .andExpect(jsonPath("$.vehicleDetails.vehicleCard").isEmpty())
-            .andExpect(jsonPath("$.vehicleDetails.registrationCertificate").isEmpty())
-            .andExpect(jsonPath("$.vehicleDetails.notes").isEmpty());
+            .andExpect(jsonPath("$.make").value("")).andExpect(jsonPath("$.model").value(""))
+            .andExpect(jsonPath("$.licensePlate").value(""))
+            .andExpect(jsonPath("$.vehicleDetails.modelSuffix").value(""))
+            .andExpect(jsonPath("$.vehicleDetails.vinNumber").value(""))
+            .andExpect(jsonPath("$.vehicleDetails.vehicleCard").value(""))
+            .andExpect(jsonPath("$.vehicleDetails.registrationCertificate").value(""))
+            .andExpect(jsonPath("$.vehicleDetails.notes").value(""));
     }
 
     @Test
@@ -107,7 +107,7 @@ class ClientWireContractIT extends AbstractSessionIT {
     private void assertEmptyEventStrings(String getPath, Long id, String... fields) throws Exception {
         var response = mockMvc.perform(get(getPath, id)).andExpect(status().isOk());
         for (String field : fields) {
-            response.andExpect(jsonPath("$." + field).isEmpty());
+            response.andExpect(jsonPath("$." + field).value(""));
         }
     }
 }

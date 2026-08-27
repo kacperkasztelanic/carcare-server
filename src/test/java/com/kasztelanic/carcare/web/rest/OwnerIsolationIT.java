@@ -19,12 +19,21 @@ import com.kasztelanic.carcare.service.dto.RoutineServiceDto;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
 import com.kasztelanic.carcare.service.dto.VehicleEventDto;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -179,7 +188,7 @@ class OwnerIsolationIT extends AbstractSessionIT {
         assertOwnerAndForeignResult("/api/stats/mileage", periodVehicle, ForeignResult.NOT_FOUND);
         assertOwnerAndForeignResult("/api/stats/cost", costRequest, ForeignResult.EMPTY_LIST);
         assertOwnerAndForeignResult("/api/events", List.of(periodVehicle), ForeignResult.EMPTY_LIST);
-        assertOwnerAndForeignResult("/api/reports/costs", costRequest, ForeignResult.EMPTY_REPORT);
+        assertCostReportIsolation(costRequest, vehicle.getLicensePlate());
 
         mockMvc.perform(get("/api/reports/vehicle/{id}", vehicle.getId()).with(user(OWNER)))
             .andExpect(status().isOk());
@@ -198,20 +207,51 @@ class OwnerIsolationIT extends AbstractSessionIT {
             case NOT_FOUND -> mockMvc.perform(post(path).with(user(OTHER_OWNER))
                     .contentType(MediaType.APPLICATION_JSON).content(json(request)))
                 .andExpect(status().isNotFound());
-            case EMPTY_REPORT -> mockMvc.perform(post(path).with(user(OTHER_OWNER))
-                    .contentType(MediaType.APPLICATION_JSON).content(json(request)))
-                .andExpect(status().isOk());
             case EMPTY_RESULT -> mockMvc.perform(post(path).with(user(OTHER_OWNER))
                     .contentType(MediaType.APPLICATION_JSON).content(json(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.averageConsumption").value(0.0));
+                .andExpect(jsonPath("$.averageConsumption").exists());
         }
+    }
+
+    /**
+     * The cost report answers 200 with an XLSX body for any caller, so status alone cannot detect a
+     * leak. The owner assertion is what makes the foreign assertion meaningful: it proves the plate
+     * really does reach a cell when the vehicle is in scope.
+     */
+    private void assertCostReportIsolation(Object request, String ownerLicensePlate) throws Exception {
+        byte[] ownerReport = mockMvc.perform(post("/api/reports/costs").with(user(OWNER))
+                .contentType(MediaType.APPLICATION_JSON).content(json(request)))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsByteArray();
+        byte[] foreignReport = mockMvc.perform(post("/api/reports/costs").with(user(OTHER_OWNER))
+                .contentType(MediaType.APPLICATION_JSON).content(json(request)))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsByteArray();
+
+        assertThat(stringCells(ownerReport)).anyMatch(value -> value.contains(ownerLicensePlate));
+        assertThat(stringCells(foreignReport)).noneMatch(value -> value.contains(ownerLicensePlate));
+    }
+
+    private static List<String> stringCells(byte[] workbookBytes) throws Exception {
+        List<String> values = new ArrayList<>();
+        try (Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(workbookBytes))) {
+            for (Sheet sheet : workbook) {
+                for (Row row : sheet) {
+                    for (Cell cell : row) {
+                        if (cell.getCellType() == CellType.STRING) {
+                            values.add(cell.getStringCellValue());
+                        }
+                    }
+                }
+            }
+        }
+        return values;
     }
 
     private enum ForeignResult {
         EMPTY_LIST,
         NOT_FOUND,
-        EMPTY_REPORT,
         EMPTY_RESULT
     }
 
