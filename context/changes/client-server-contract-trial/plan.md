@@ -295,9 +295,9 @@ deployment.
 
 #### Automated
 
-- [x] 3.1 Each extra confirmed server defect has focused regression coverage and final verification is green
+- [x] 3.1 Each extra confirmed server defect has focused regression coverage and final verification is green — 68ce391
 
 #### Manual
 
-- [x] 3.2 The clean-browser CRUD matrix completes for vehicle and all five event types
-- [x] 3.3 The change record contains the trial evidence and any correctly scoped handoffs
+- [x] 3.2 The clean-browser CRUD matrix completes for vehicle and all five event types — 68ce391
+- [x] 3.3 The change record contains the trial evidence and any correctly scoped handoffs — 68ce391
