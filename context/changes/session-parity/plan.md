@@ -804,28 +804,28 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [x] 3.1 `./mvnw verify` green including `SessionFixturesIT`
-- [x] 3.2 The lookups are populated before any test seeds them, proving the `ApplicationRunner` fired
-- [x] 3.3 Seeding a second time does not throw
-- [x] 3.4 No new Spring context configuration beyond the two that already exist — no `@MockBean` or `@DirtiesContext` introduced
+- [x] 3.1 `./mvnw verify` green including `SessionFixturesIT` — 3140168
+- [x] 3.2 The lookups are populated before any test seeds them, proving the `ApplicationRunner` fired — 3140168
+- [x] 3.3 Seeding a second time does not throw — 3140168
+- [x] 3.4 No new Spring context configuration beyond the two that already exist — no `@MockBean` or `@DirtiesContext` introduced — 3140168
 
 #### Manual
 
-- [x] 3.5 Fixture builders read clearly enough that Phase 4's six IT classes will be short
+- [x] 3.5 Fixture builders read clearly enough that Phase 4's six IT classes will be short — 3140168
 
 ### Phase 4: CRUD parity integration tests
 
 #### Automated
 
-- [ ] 4.1 `./mvnw verify` green with all six `*ResourceIT` classes plus `ClientWireContractIT`
-- [ ] 4.2 Every create/update/delete assertion checks the literal header name `X-carcareApp-alert`
-- [ ] 4.3 The `@Disabled` placeholder is present, named, and skipped — not failing
-- [ ] 4.4 Test count increases by roughly 40–50 integration tests
+- [x] 4.1 `./mvnw verify` green with all six `*ResourceIT` classes plus `ClientWireContractIT`
+- [x] 4.2 Every create/update/delete assertion checks the literal header name `X-carcareApp-alert`
+- [x] 4.3 The `@Disabled` placeholder is present, named, and skipped — not failing
+- [x] 4.4 Test count increases by roughly 40–50 integration tests
 
 #### Manual
 
-- [ ] 4.5 `InsuranceResourceIT` makes the POST/PUT shape asymmetry obvious
-- [ ] 4.6 No test asserts a computed value — S-03's boundary respected
+- [x] 4.5 `InsuranceResourceIT` makes the POST/PUT shape asymmetry obvious
+- [x] 4.6 No test asserts a computed value — S-03's boundary respected
 
 ### Phase 5: Owner isolation and the real-JWT session
 

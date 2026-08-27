@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 
 /**
  * Common full-context harness for the session-parity integration tests.
@@ -29,5 +32,9 @@ public abstract class AbstractSessionIT {
 
     protected byte[] json(Object value) throws JsonProcessingException {
         return REQUEST_MAPPER.writeValueAsBytes(value);
+    }
+
+    protected long responseId(MvcResult result) throws IOException {
+        return REQUEST_MAPPER.readTree(result.getResponse().getContentAsByteArray()).path("id").asLong();
     }
 }
