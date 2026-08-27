@@ -145,6 +145,60 @@ The application log starts with `Wed Apr 15 12:00:00 PM UTC 2026`, and all Sprin
 Liquibase timestamps use `2026-04-15`. Do not use `docker exec ... date` as proof of the fake
 time: a new exec process does not inherit the app process's `LD_PRELOAD` environment.
 
+## Phase 3 capture record
+
+The throwaway driver is `/private/tmp/carcare-golden-reducer/capture.sh`. It authenticates after
+the fixture load, because the application caches users by login; the app was restarted once after
+the load to clear the pre-fixture user cache. It resolves these capture-side ids only at HTTP
+execution time: `vehicle:en-primary` → 900101, `vehicle:pl-primary` → 900102, and
+`vehicle:zero-consumption` → 900103. Golden JSON contains handles, never those ids.
+
+All captures use `2026-03-01` through `2026-03-31`. The shared cost request is
+`{"vehicleIds":["vehicle:en-primary","vehicle:pl-primary","vehicle:zero-consumption"],"dateFrom":"2026-03-01","dateTo":"2026-03-31"}`.
+The shared EN period request substitutes `vehicle:en-primary`; the zero-consumption request
+substitutes `vehicle:zero-consumption`; the unowned mileage request substitutes
+`vehicle:pl-primary`. All are made as `owner:admin-en`, except `vehicle-pl.json`, which is made
+as `owner:user-pl`.
+
+| Golden file | HTTP call | Expected status |
+| --- | --- | --- |
+| `src/test/resources/golden/reports/vehicle-en.json` | `GET /api/reports/vehicle/{vehicle:en-primary}` | 200 |
+| `src/test/resources/golden/reports/vehicle-pl.json` | `GET /api/reports/vehicle/{vehicle:pl-primary}` | 200 |
+| `src/test/resources/golden/reports/costs-en.json` | `POST /api/reports/costs` with shared cost request | 200 |
+| `src/test/resources/golden/reports/vehicle-unowned.json` | admin `GET /api/reports/vehicle/{vehicle:pl-primary}` | 404 |
+| `src/test/resources/golden/stats/consumption-period-en.json` | `POST /api/stats/consumption/per-period` with EN period request | 200 |
+| `src/test/resources/golden/stats/consumption-period-zero.json` | `POST /api/stats/consumption/per-period` with zero-consumption request | 500 |
+| `src/test/resources/golden/stats/consumption-refuel-en.json` | `POST /api/stats/consumption/per-refuel` with EN period request | 200 |
+| `src/test/resources/golden/stats/consumption-refuel-zero.json` | `POST /api/stats/consumption/per-refuel` with zero-consumption request | 200 |
+| `src/test/resources/golden/stats/mileage-en.json` | `POST /api/stats/mileage` with EN period request | 200 |
+| `src/test/resources/golden/stats/mileage-unowned.json` | admin `POST /api/stats/mileage` with unowned request | 404 |
+| `src/test/resources/golden/stats/cost-en.json` | `POST /api/stats/cost` with shared cost request | 200 |
+
+Every golden record contains the status and only the controller-explicit headers: `Content-Type`,
+`Content-Disposition`, `Cache-Control`, and `X-Total-Count` where present. `Date`,
+`Content-Length`, and transfer headers are intentionally excluded: the baseline capture uses real
+HTTP, while the later HEAD harness uses MockMvc.
+
+Workbook values are reduced with raw POI cell types, values, and style data formats — never
+`DataFormatter`. Money uses two decimal places; other numeric values use six. The `Costs` sheet's
+per-vehicle rows are sorted by its vehicle-label composite key because the source collection is
+unordered; every other sheet remains in workbook order and natural row order. POI represents the
+zero-volume refuel's positive infinity as an Excel `#DIV/0!` error cell, so that error cell is
+stored with type `ERROR`, data format `0.00`, and the explicit `Infinity` sentinel. The report
+content type is the historical `application/vnd.ms-excel` despite its XLSX bytes. The final main
+sheet row is the literal `reports.vehicle.main.certificate` message-key lookup; its localized
+label and string value are captured as cells, not treated as a structured certificate object.
+
+`consumption-period-zero.json` deliberately stores the 500 body as a raw string. Baseline Jackson
+writes a partial result and then appends its problem document without a JSON delimiter when the
+zero mileage produces `NaN`; this is captured behaviour, not a capture error. The raw string has
+only its vehicle id normalized to the fixture handle.
+
+Repeatability was verified from a newly created `carcare` database: stop the app container, run
+`DROP DATABASE carcare; CREATE DATABASE carcare;` inside the dedicated MariaDB container, start
+the app so Liquibase recreates the schema, reload `golden-dataset.sql`, then run the throwaway
+driver and reducers again. All eleven reduced JSON files compared byte-for-byte with this set.
+
 ## Teardown (after Phase 4)
 
 ```bash

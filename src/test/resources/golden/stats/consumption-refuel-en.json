@@ -1,0 +1,27 @@
+{
+  "status" : 200,
+  "headers" : {
+    "X-Total-Count" : "2",
+    "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+    "Content-Type" : "application/json"
+  },
+  "body" : [ {
+    "periodVehicle" : {
+      "vehicleId" : "vehicle:en-primary",
+      "dateFrom" : "2026-03-01",
+      "dateTo" : "2026-03-15"
+    },
+    "volume" : "42.000000",
+    "mileage" : "500.000000",
+    "averageConsumption" : "8.400000"
+  }, {
+    "periodVehicle" : {
+      "vehicleId" : "vehicle:en-primary",
+      "dateFrom" : "2026-03-15",
+      "dateTo" : "2026-03-31"
+    },
+    "volume" : "40.000000",
+    "mileage" : "500.000000",
+    "averageConsumption" : "8.000000"
+  } ]
+}

@@ -1,0 +1,601 @@
+{
+  "status" : 200,
+  "headers" : {
+    "Content-Disposition" : "form-data; name=\"EN_1001.xlsx\"; filename=\"EN_1001.xlsx\"",
+    "Cache-Control" : "must-revalidate, post-check=0, pre-check=0",
+    "Content-Type" : "application/vnd.ms-excel"
+  },
+  "body" : {
+    "sheets" : [ {
+      "name" : "General",
+      "rows" : [ [ {
+        "type" : "STRING",
+        "value" : "General",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Make",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Ford",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Model",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Focus",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Model suffix",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Titanium",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "License plate",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "EN 1001",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Year of manufacture",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "2019.000000",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Fuel type",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Diesel",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Engine volume (cm3)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "1997.000000",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Engine power (kW)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "110.000000",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Weight (kg)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "1420.000000",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "VIN",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "ENPRIMARY00000001",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Vehicle card",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "CARD-EN",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Registration certificate",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "REG-EN-001",
+        "dataFormat" : "General"
+      } ] ]
+    }, {
+      "name" : "Insurance",
+      "rows" : [ [ {
+        "type" : "STRING",
+        "value" : "Date",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Mileage (km)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Cost (PLN)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Type",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Number",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Insurer",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Valid from",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Valid thru",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Details",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-05",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10100.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "420.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "Liability",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "EN-OC-1",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Insure EN",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2025-04-18",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2026-04-18",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "EN policy",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-07",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10200.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "440.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "Liability",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "EN-OC-2",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Insure EN",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2025-04-19",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2026-04-19",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Too late",
+        "dataFormat" : "General"
+      } ] ]
+    }, {
+      "name" : "Inspection",
+      "rows" : [ [ {
+        "type" : "STRING",
+        "value" : "Date",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Mileage (km)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Cost (PLN)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Station",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Date of next",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Details",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-10",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10300.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "160.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "EN Station",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2026-04-18",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Due in three",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-25",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10900.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "150.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "EN Station",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2027-03-25",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Annual inspection",
+        "dataFormat" : "General"
+      } ] ]
+    }, {
+      "name" : "Routine Service",
+      "rows" : [ [ {
+        "type" : "STRING",
+        "value" : "Date",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Mileage (km)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Cost (PLN)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Next by mileage (km)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Next by date",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Station",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Details",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-10",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10300.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "150.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "BLANK",
+        "value" : null,
+        "dataFormat" : "General"
+      }, {
+        "type" : "BLANK",
+        "value" : null,
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "EN Service",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "No next date",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-11",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10400.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "220.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "12000.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2026-04-18",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "EN Service",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Due in three",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-20",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10700.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "200.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "BLANK",
+        "value" : null,
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "2026-05-01",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "EN Service",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "No next mileage",
+        "dataFormat" : "General"
+      } ] ]
+    }, {
+      "name" : "Repair",
+      "rows" : [ [ {
+        "type" : "STRING",
+        "value" : "Date",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Mileage (km)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Cost (PLN)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Station",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Details",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-02-28",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "9800.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "99.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "EN Garage",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Old repair",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-25",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10800.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "125.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "EN Garage",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Brake pads",
+        "dataFormat" : "General"
+      } ] ]
+    }, {
+      "name" : "Refuel",
+      "rows" : [ [ {
+        "type" : "STRING",
+        "value" : "Date",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Mileage (km)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Cost (PLN)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Volume (dm3)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Unit price (PLN/dm3)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Station",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-01",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10000.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "270.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "45.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "6.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "North Fuel",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-15",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "10500.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "252.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "42.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "6.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "North Fuel",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-03-31",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "11000.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "248.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "40.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "6.20",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "North Fuel",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "2026-04-01",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "11500.000000",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "1.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "0.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "ERROR",
+        "value" : "Infinity",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "STRING",
+        "value" : "Zero Volume",
+        "dataFormat" : "General"
+      } ] ]
+    } ]
+  }
+}

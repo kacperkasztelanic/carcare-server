@@ -1,0 +1,8 @@
+{
+  "status" : 500,
+  "headers" : {
+    "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+    "Content-Type" : "application/problem+json"
+  },
+  "body" : "{\n  \"periodVehicle\" : {\n    \"vehicleId\" : vehicle:zero-consumption,\n    \"dateFrom\" : \"2026-03-01\",\n    \"dateTo\" : \"2026-03-31\"\n  },\n  \"volume\" : 0.0,\n  \"mileage\" : 0\n}{\n  \"type\" : \"https://www.jhipster.tech/problem/problem-with-message\",\n  \"title\" : \"Internal Server Error\",\n  \"status\" : 500,\n  \"detail\" : \"Could not write JSON: Character N is neither a decimal digit number, decimal point, nor \\\"e\\\" notation exponential mark.; nested exception is com.fasterxml.jackson.databind.JsonMappingException: Character N is neither a decimal digit number, decimal point, nor \\\"e\\\" notation exponential mark. (through reference chain: com.kasztelanic.carcare.service.dto.AverageConsumptionResult[\\\"averageConsumption\\\"])\",\n  \"path\" : \"/api/stats/consumption/per-period\",\n  \"message\" : \"error.http.500\"\n}"
+}

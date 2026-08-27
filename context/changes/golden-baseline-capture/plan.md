@@ -680,33 +680,33 @@ manually during capture; it is never applied by Liquibase and never runs in `dev
 
 #### Automated
 
-- [x] 2.1 `golden-dataset.sql` loads into the migrated `6e19b96` MariaDB without error
-- [x] 2.2 Row counts per table match the counts stated in `reference.md`
-- [x] 2.3 No fixture id collides with a Liquibase-seeded id
+- [x] 2.1 `golden-dataset.sql` loads into the migrated `6e19b96` MariaDB without error — d06950c
+- [x] 2.2 Row counts per table match the counts stated in `reference.md` — d06950c
+- [x] 2.3 No fixture id collides with a Liquibase-seeded id — d06950c
 
 #### Manual
 
-- [x] 2.4 Every branch in the Phase 2 contract has a covering row in the branch inventory
-- [x] 2.5 Reference date is away from month/year boundaries and is not 29 February
-- [x] 2.6 Inventory plus SQL explains why each row exists
-- [x] 2.7 Every fixture row has a unique handle; the inventory's handle→id map covers all of them
+- [x] 2.4 Every branch in the Phase 2 contract has a covering row in the branch inventory — d06950c
+- [x] 2.5 Reference date is away from month/year boundaries and is not 29 February — d06950c
+- [x] 2.6 Inventory plus SQL explains why each row exists — d06950c
+- [x] 2.7 Every fixture row has a unique handle; the inventory's handle→id map covers all of them — d06950c
 
 ### Phase 3: Capture reports and statistics
 
 #### Automated
 
-- [ ] 3.1 Every endpoint call returns the status recorded in `reference.md`, 5xx included
-- [ ] 3.2 A golden file exists for every call listed in `reference.md`
-- [ ] 3.3 Re-running the capture produces byte-identical golden files
-- [ ] 3.4 Every number parses as fixed-precision decimal or is a documented sentinel
-- [ ] 3.5 No golden file contains a raw entity id; identities are Phase 2 handles
+- [x] 3.1 Every endpoint call returns the status recorded in `reference.md`, 5xx included
+- [x] 3.2 A golden file exists for every call listed in `reference.md`
+- [x] 3.3 Re-running the capture produces byte-identical golden files
+- [x] 3.4 Every number parses as fixed-precision decimal or is a documented sentinel
+- [x] 3.5 No golden file contains a raw entity id; identities are Phase 2 handles
 
 #### Manual
 
-- [ ] 3.6 Both report locales captured with differing sheet names
-- [ ] 3.7 Zero-volume refuel unit-price cell shows the `Infinity` sentinel
-- [ ] 3.8 Zero-mileage consumption and same-date mileage merge are visible in captured values
-- [ ] 3.9 Three captured figures hand-verified against the fixture rows
+- [x] 3.6 Both report locales captured with differing sheet names
+- [x] 3.7 Zero-volume refuel unit-price cell shows the `Infinity` sentinel
+- [x] 3.8 Zero-mileage consumption and same-date mileage merge are visible in captured values
+- [x] 3.9 Three captured figures hand-verified against the fixture rows
 
 ### Phase 4: Capture reminder selection
 

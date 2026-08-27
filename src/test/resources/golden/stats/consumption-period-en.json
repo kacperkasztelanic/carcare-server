@@ -1,0 +1,17 @@
+{
+  "status" : 200,
+  "headers" : {
+    "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+    "Content-Type" : "application/json"
+  },
+  "body" : {
+    "periodVehicle" : {
+      "vehicleId" : "vehicle:en-primary",
+      "dateFrom" : "2026-03-01",
+      "dateTo" : "2026-03-31"
+    },
+    "volume" : "87.000000",
+    "mileage" : "1000.000000",
+    "averageConsumption" : "8.700000"
+  }
+}

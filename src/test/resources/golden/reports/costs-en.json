@@ -1,0 +1,126 @@
+{
+  "status" : 200,
+  "headers" : {
+    "Content-Disposition" : "form-data; name=\"cost.xlsx\"; filename=\"cost.xlsx\"",
+    "Cache-Control" : "must-revalidate, post-check=0, pre-check=0",
+    "Content-Type" : "application/vnd.ms-excel"
+  },
+  "body" : {
+    "sheets" : [ {
+      "name" : "Costs",
+      "rows" : [ [ {
+        "type" : "STRING",
+        "value" : "Costs (PLN)",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Insurance",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Inspection",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Routine Service",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Repair",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Refuel",
+        "dataFormat" : "General"
+      }, {
+        "type" : "STRING",
+        "value" : "Sum",
+        "dataFormat" : "General"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Ford Focus - EN 1001",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "860.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "310.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "570.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "125.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "770.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "2635.00",
+        "dataFormat" : "0.00"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Mazda Three - EN 1003",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "0.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "0.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "0.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "0.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "180.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "180.00",
+        "dataFormat" : "0.00"
+      } ], [ {
+        "type" : "STRING",
+        "value" : "Sum",
+        "dataFormat" : "General"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "860.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "310.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "570.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "125.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "950.00",
+        "dataFormat" : "0.00"
+      }, {
+        "type" : "NUMERIC",
+        "value" : "2815.00",
+        "dataFormat" : "0.00"
+      } ] ]
+    } ]
+  }
+}
