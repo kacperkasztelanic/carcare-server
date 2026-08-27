@@ -151,3 +151,6 @@ Desktop.ini
 # codebase-memory-mcp
 ######################
 .codebase-memory/
+
+# Playwright MCP trial artifacts
+.playwright-mcp/

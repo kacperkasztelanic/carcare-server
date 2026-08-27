@@ -283,21 +283,21 @@ deployment.
 
 #### Automated
 
-- [x] 2.1 The entity and a new Liquibase changeset widen licence plates to 20 characters
-- [x] 2.2 Authenticated vehicle create/edit persists a 20-character plate with its normal alert
-- [x] 2.3 `./mvnw verify` passes with the migration
+- [x] 2.1 The entity and a new Liquibase changeset widen licence plates to 20 characters — e72071e
+- [x] 2.2 Authenticated vehicle create/edit persists a 20-character plate with its normal alert — e72071e
+- [x] 2.3 `./mvnw verify` passes with the migration — e72071e
 
 #### Manual
 
-- [x] 2.4 The real-client create/edit form accepts and displays an 11–20 character plate
+- [x] 2.4 The real-client create/edit form accepts and displays an 11–20 character plate — e72071e
 
 ### Phase 3: Complete the evidence-led browser contract trial
 
 #### Automated
 
-- [ ] 3.1 Each extra confirmed server defect has focused regression coverage and final verification is green
+- [x] 3.1 Each extra confirmed server defect has focused regression coverage and final verification is green
 
 #### Manual
 
-- [ ] 3.2 The clean-browser CRUD matrix completes for vehicle and all five event types
-- [ ] 3.3 The change record contains the trial evidence and any correctly scoped handoffs
+- [x] 3.2 The clean-browser CRUD matrix completes for vehicle and all five event types
+- [x] 3.3 The change record contains the trial evidence and any correctly scoped handoffs
