@@ -64,3 +64,36 @@ make S-05 a test-breaking change for the wrong reason.
 Harness note carried into the plan: that placeholder test must not be `@Transactional`, or the
 FK violation flushes at test rollback rather than inside the request and the assertion never
 sees a response.
+
+## Session-parity epilogue
+
+S-01 reverses F-03 implementation-review finding F2. The review correctly noticed two separate
+uses of `carcareApp`, but accepted a header rename on reasoning that conflated the HTTP header-name
+prefix with the i18n message-key root. Business-resource alerts now restore the baseline
+`X-carcareApp-*` names while their values remain `carcareApp.<entity>.<action>`; those are separate
+contracts.
+
+Four previously reachable 500 responses now have their intended behavior: missing or unknown fuel
+and insurance lookups return a ProblemDetail 400, duplicate vehicle IDs in an events request keep
+the first period and return 200, and zero-mileage consumption returns `0.0`. The latter deliberately
+conflates unknown consumption with a real zero; S-03 owns deciding that value-level behavior against
+its golden baseline.
+
+The delete-with-history case remains an `@Disabled` test because non-cascading foreign keys make it
+fail; S-05 `vehicle-archiving` owns the compatible replacement. The test profile's identifier setup
+now deliberately differs from MariaDB in a third way (`NON_KEYWORDS=VALUE` plus
+case-insensitive identifiers), alongside the two F-04 divergences. Research open question 3 is
+resolved: seeded `user`/`user` and `admin`/`admin` credentials work.
+
+S-01 also found 18 unguarded request-side mapper `.trim()` calls. A null string still produces a
+500, but client 1.2.5 normally avoids that path. The parked Bean Validation on business request
+bodies item in `roadmap.md` owns the real decision: adding validation can reject payloads the frozen
+client legitimately sends. `ClientWireContractIT` invariant (a) covers the response direction only,
+so this suite would not detect a request-side regression there.
+
+Manual client smoke (2026-08-27, client 1.2.5) ran against a clean MariaDB-backed WAR through
+Playwright. Login, list/open vehicle, valid vehicle creation, and repair creation succeeded; the
+vehicle creation displayed “Vehicle added”. A normal unauthenticated client load also produced an
+`/api/account` 401 and a client-side `applicationProfile(...includes)` console error. Full event
+CRUD, console hygiene, and any compatibility fixes are deliberately handed to
+`client-server-contract-trial`.

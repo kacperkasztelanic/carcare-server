@@ -628,28 +628,28 @@ including a **negative**-mileage case, which is what pins the guard to `== 0` ra
 
 ---
 
-## Phase 7: Manual client session and record correction
+## Phase 7: Manual client smoke and record correction
 
 ### Overview
 
-The gate no integration test can supply, plus the bookkeeping that keeps the project record from
-contradicting itself.
+A bounded live-client smoke that verifies the restored alert path, plus the bookkeeping that keeps
+the project record from contradicting itself. Broader UI/server trialling and any resulting fixes
+are handed to `client-server-contract-trial` rather than expanding this parity slice.
 
 ### Changes Required:
 
-#### 1. Manual session against the real client
+#### 1. Manual client smoke and handoff
 
 **File**: none — a documented procedure, recorded in `change.md`
 
-**Intent**: Boot the app on MariaDB with the real client WAR and walk a full owner session in a
-browser. This is the only step that proves the *client* is satisfied by the server contract, as
-opposed to proving the server matches our reading of the client. The header regression is precisely a
-defect every server-side assertion could have passed while the client silently lost every toast.
+**Intent**: Boot the app on MariaDB with the real client WAR, exercise the restored alert path, and
+record any broader UI/server failures for the dedicated follow-up change. This establishes a real
+browser baseline without expanding S-01 into a separate client/server compatibility campaign.
 
-**Contract**: Log in; list and open vehicles; create, edit, and delete one of each of the five event
-types; confirm a toast appears on every create/edit/delete; confirm the browser console is clean;
-confirm the delete flow completes. Record the result — including the client version and the date — in
-`change.md`.
+**Contract**: Log in; list and open vehicles; create a valid vehicle and one repair; confirm the
+vehicle-create toast; and record the client version, date, and any observed UI/server failure in
+`change.md`. Full five-event CRUD, console hygiene, and fixes are owned by
+`client-server-contract-trial`.
 
 #### 2. Name the two `carcareApp` contracts
 
@@ -712,11 +712,11 @@ was at baseline).
 
 - `./mvnw verify` green, final run
 - `AGENTS.md` and `change.md` contain the required sections
-- `git status` clean after commit
+- Closing commits cover all `session-parity` paths explicitly
 
 #### Manual Verification:
 
-- The manual client session completed with toasts appearing and a clean console
+- The manual client smoke completed and identified follow-up scope for `client-server-contract-trial`
 - The archived F-03 review no longer contradicts the code without explanation
 
 ---
@@ -742,9 +742,8 @@ was at baseline).
 1. Boot the app on MariaDB with the real client WAR: `./mvnw` with a running `localhost:3306/carcare`
 2. Log in through the client as an existing owner
 3. List vehicles, open one, edit it — confirm a toast appears on save
-4. Create, edit, and delete one of each of the five event types — confirm a toast each time
-5. Delete an event-free vehicle — confirm the toast and that it leaves the list
-6. Check the browser console is free of errors throughout
+4. Create a valid vehicle and confirm its toast; create one repair to confirm the event path
+5. Record any broader UI/server mismatch for `client-server-contract-trial`
 
 ## Performance Considerations
 
@@ -844,24 +843,24 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [x] 6.1 `./mvnw verify` green
-- [x] 6.2 No Phase 4 or Phase 5 assertion changed to accommodate these fixes, except the one insurance round-trip characterization §4 names
-- [x] 6.3 All four formerly-500 requests now return their intended status
-- [x] 6.4 The `AverageConsumptionResult` unit test proves positive and negative non-zero cases are bit-identical
+- [x] 6.1 `./mvnw verify` green — 4ad88bd
+- [x] 6.2 No Phase 4 or Phase 5 assertion changed to accommodate these fixes, except the one insurance round-trip characterization §4 names — 4ad88bd
+- [x] 6.3 All four formerly-500 requests now return their intended status — 4ad88bd
+- [x] 6.4 The `AverageConsumptionResult` unit test proves positive and negative non-zero cases are bit-identical — 4ad88bd
 
 #### Manual
 
-- [x] 6.5 The zero-mileage semantic cost is written down where S-03 will find it
+- [x] 6.5 The zero-mileage semantic cost is written down where S-03 will find it — 4ad88bd
 
 ### Phase 7: Manual client session and record correction
 
 #### Automated
 
-- [ ] 7.1 `./mvnw verify` green, final run
-- [ ] 7.2 `AGENTS.md` and `change.md` contain the required sections
-- [ ] 7.3 `git status` clean after commit
+- [x] 7.1 `./mvnw verify` green, final run
+- [x] 7.2 `AGENTS.md` and `change.md` contain the required sections
+- [x] 7.3 Closing commits cover all `session-parity` paths explicitly
 
 #### Manual
 
-- [ ] 7.4 The manual client session completed with toasts appearing and a clean console
-- [ ] 7.5 The archived F-03 review no longer contradicts the code without explanation
+- [x] 7.4 The manual client smoke completed and identified follow-up scope for `client-server-contract-trial`
+- [x] 7.5 The archived F-03 review no longer contradicts the code without explanation

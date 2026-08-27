@@ -47,7 +47,8 @@ event types against the same paths, payloads, and status codes as before.
 | F-02 | `golden-baseline-capture` | (foundation) reference output exists from the last runnable commit | — | FR-016 | ready |
 | F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | done |
 | F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | done |
-| S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | proposed |
+| S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | implemented |
+| S-07 | `client-server-contract-trial` | trial the real client against the server and fix confirmed compatibility failures | S-01 | FR-004, FR-005, FR-006, FR-008, FR-015 | next |
 | S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch, unchanged | F-04 | FR-002, FR-007, FR-015 | proposed |
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | proposed |
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | proposed |
@@ -64,7 +65,7 @@ parallel tracks.
 | --- | --- | --- | --- |
 | A | Platform restoration | `F-01` → `F-03` → `F-04` | The critical path. Every slice waits on it. `F-01` and `F-03` are delivered, so `src/main` now compiles and packages on the declared platform; `F-04` is the next item and the last foundation on this chain. |
 | B | Reference capture | `F-02` | Runs entirely on commit `6e19b96`, so it is unaffected by the broken build and parallel with all of Stream A. Feeds `S-03` and `S-04`. |
-| C | Parity proof | `S-01` / `S-02` / `S-03` / `S-04`, all four parallel | Joins Stream A at `F-04`; `S-03` and `S-04` also consume Stream B. Proving nothing moved is the bulk of the user-visible work. |
+| C | Parity proof | `S-01` → `S-07` (next); `S-02` / `S-03` / `S-04` follow | Joins Stream A at `F-04`; `S-03` and `S-04` also consume Stream B. S-07 turns the real-client findings from S-01 into focused compatibility work before the remaining parity slices proceed. |
 | D | New behaviour and feedback | `S-05` / `S-06`, parallel | Joins Stream C. The only two items that change what anyone sees; both deliberately last. |
 
 ## Baseline
@@ -309,6 +310,22 @@ never written.
   deliberate escape hatch if preserving one specific endpoint proves disproportionate.
 - **Status:** proposed
 
+### S-07: Trial and fix confirmed client-server compatibility failures
+
+- **Outcome:** the frozen React client can be exercised against a clean MariaDB-backed server in a
+  real browser; every observed client/server mismatch is either fixed with coverage or recorded as
+  a deliberate compatibility decision.
+- **Change ID:** `client-server-contract-trial`
+- **PRD refs:** FR-004, FR-005, FR-006, FR-008, FR-015
+- **Prerequisites:** S-01
+- **Parallel with:** —
+- **Blockers:** —
+- **Risk:** The S-01 manual smoke exposed a normal pre-login `/api/account` 401 followed by a
+  client-side `applicationProfile(...includes)` console error. Treat observations as evidence, not
+  automatic server defects: reproduce against the real client, establish ownership, and avoid
+  widening frozen-client compatibility work without a confirmed contract break.
+- **Status:** next
+
 ### S-02: The administrator's surface is unchanged
 
 - **Outcome:** an administrator can manage users and authorities, read audit history,
@@ -325,12 +342,12 @@ never written.
   - Should test-data generation remain a production surface at all? Owner: user. Block: no —
     ruled out of this change, but the source TODO remains.
 - **Risk:** F-03 already completes the JHipster removal, replacing `HeaderUtil`,
-  `PaginationUtil`, and `ResponseUtil` and renaming alert/error headers on ten resources from
-  `X-carcareApp-*` to `X-carcare-*`. This slice does not repeat that work; it verifies admin
-  header, pagination, and response parity against the **renamed** `X-carcare-*` contract, and
-  owns confirming the client at `../client` does not key on the old `carcareApp` prefix. The
-  main hazard is scope creep: the resources here bypass the service layer and advertise their
-  own TODOs, and the point of this change is to prove nothing moved. Resist fixing them.
+  `PaginationUtil`, and `ResponseUtil`. Session-parity restored the business resources' baseline
+  `X-carcareApp-*` alert names, while `UserResource` remains on its baseline `X-carcare-*`
+  contract. This slice verifies the latter's admin header, pagination, and response parity; it
+  must not assume one alert-header namespace for both surfaces. The main hazard is scope creep:
+  the resources here bypass the service layer and advertise their own TODOs, and the point of this
+  change is to prove nothing moved. Resist fixing them.
 - **Status:** proposed
 
 ### S-03: A user's reports and statistics match the pre-migration baseline

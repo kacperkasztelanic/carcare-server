@@ -101,6 +101,22 @@ registry, and its static assets land in `target/www/`, which the WAR serves. The
 node/npm build in this project** — to change the UI, work in `../client` and bump
 `carcare-client.version` here.
 
+### Client alert-header and i18n contracts
+
+`carcareApp` names two independent client contracts that must not be folded together:
+
+- The fixed header-name prefix in `HeaderUtil` emits `X-carcareApp-alert` and
+  `X-carcareApp-params`; the client notification middleware recognizes those names by their
+  `app-alert` / `app-params` suffixes.
+- The i18n message-key root is `carcareApp` in `HeaderUtil` alert values and in the client's
+  `carcare.json` bundles.
+
+Only the alert prefix was restored. `X-carcareApp-error` belongs to the three-argument
+`HeaderUtil.createFailureAlert` overload, which has no callers. The live `ExceptionTranslator`
+error path passes `spring.application.name` explicitly and therefore emits the baseline
+`X-carcare-error`, which does not match the client's `app-error` suffix. That is harmless here:
+the client falls back to `data.message`, including for lookup-validation 400 responses.
+
 ## Deployment
 
 Dockerized, behind an NGINX reverse proxy (`src/main/docker/reverseproxy`). CI is GitLab
