@@ -3,7 +3,7 @@ project: "CarCare Server"
 version: 1
 status: draft
 created: 2026-08-24
-updated: 2026-08-26
+updated: 2026-08-27
 prd_version: 1
 main_goal: speed
 top_blocker: none
@@ -502,6 +502,27 @@ never written.
    despite a standing source TODO. Owner: user. **Blocks:** nothing.
 10. **Image-storage hardening** — no size limit, no content verification, and the old file is
     deleted before the transaction commits. Owner: user. **Blocks:** nothing.
+11. **Who owns the client-side defects found by S-07?** The S-07 browser trial reproduced two
+    faults in the frozen client 1.2.5 that no roadmap item covers. Every other S-07 finding has
+    a home — the delete-with-history 500 belongs to S-05 — but these do not, because the client
+    is explicitly out of scope for this repository (`../client`, consumed as a prebuilt Maven
+    artifact).
+
+    **C-2 is the one that matters.** The insurance edit form binds the raw `costInCents` into
+    its "Cost (PLN)" input, so saving that form **without touching a field** sends a value 100×
+    too large and silently corrupts the stored cost. It is isolated to that one form: the
+    repair, routine-service, inspection, and refuel edit forms all convert correctly from the
+    identical server field, and the server half of the path is sound. This destroys user data on
+    a normal edit, so it is not a cosmetic backlog item. **C-1** is milder: cold-loading any
+    route that mounts `VehicleDetails` (`#/app/details/:id`, `#/app/new`) white-screens the app,
+    while in-app navigation is unaffected.
+
+    Neither is fixable from this repository — both need a client change and a
+    `carcare-client.version` bump. Three options: open a slice for a client fix + bump, file
+    them in the client repo and track externally, or consciously accept them. Owner: user.
+    **Blocks:** nothing in this roadmap; raised so the decision is made deliberately rather than
+    lost inside an archived change record. Evidence:
+    `context/changes/client-server-contract-trial/change.md` (findings C-1, C-2).
 
 ## Parked
 
