@@ -68,6 +68,28 @@ class VehicleResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void createsAndUpdatesVehicleWithTwentyCharacterLicensePlate() throws Exception {
+        String createdLicensePlate = "ABCDEFGHIJKLMNOPQRST";
+        String updatedLicensePlate = "12345678901234567890";
+
+        MvcResult createResult = mockMvc.perform(post("/api/vehicle")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(vehicleRequestWithLicensePlate("Long plate create", createdLicensePlate))))
+            .andExpect(status().isCreated())
+            .andExpect(header().string("X-carcareApp-alert", "carcareApp.vehicle.created"))
+            .andExpect(jsonPath("$.licensePlate").value(createdLicensePlate))
+            .andReturn();
+
+        mockMvc.perform(put("/api/vehicle/{id}", responseId(createResult))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(vehicleRequestWithLicensePlate("Long plate update", updatedLicensePlate))))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-carcareApp-alert", "carcareApp.vehicle.updated"))
+            .andExpect(jsonPath("$.licensePlate").value(updatedLicensePlate));
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void returnsProblemDetailForMissingFuelType() throws Exception {
         mockMvc.perform(post("/api/vehicle")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -153,11 +175,19 @@ class VehicleResourceIT extends AbstractSessionIT {
         return vehicleRequest(make, FuelTypeDto.of(SessionFixtures.DEFAULT_FUEL_TYPE, "Fixture fuel"));
     }
 
+    private static VehicleDto vehicleRequestWithLicensePlate(String make, String licensePlate) {
+        return vehicleRequest(make, licensePlate, FuelTypeDto.of(SessionFixtures.DEFAULT_FUEL_TYPE, "Fixture fuel"));
+    }
+
     private static VehicleDto vehicleRequest(String make, FuelTypeDto fuelType) {
+        return vehicleRequest(make, "FX-POST", fuelType);
+    }
+
+    private static VehicleDto vehicleRequest(String make, String licensePlate, FuelTypeDto fuelType) {
         return VehicleDto.builder()
             .make(make)
             .model("Fixture model")
-            .licensePlate("FX-POST")
+            .licensePlate(licensePlate)
             .fuelType(fuelType)
             .vehicleDetails(VehicleDetailsDto.defaultBuilder().build())
             .build();

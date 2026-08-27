@@ -272,24 +272,24 @@ deployment.
 
 #### Automated
 
-- [x] 1.1 `GET /management/info` exposes both legacy profile fields anonymously
-- [x] 1.2 The existing anonymous `/api/account` Problem Details contract remains intact
+- [x] 1.1 `GET /management/info` exposes both legacy profile fields anonymously — 8947426
+- [x] 1.2 The existing anonymous `/api/account` Problem Details contract remains intact — 8947426
 
 #### Manual
 
-- [x] 1.3 An anonymous real-client load has no application-profile console exception
+- [x] 1.3 An anonymous real-client load has no application-profile console exception — 8947426
 
 ### Phase 2: Align licence-plate persistence with the compiled forms
 
 #### Automated
 
-- [ ] 2.1 The entity and a new Liquibase changeset widen licence plates to 20 characters
-- [ ] 2.2 Authenticated vehicle create/edit persists a 20-character plate with its normal alert
-- [ ] 2.3 `./mvnw verify` passes with the migration
+- [x] 2.1 The entity and a new Liquibase changeset widen licence plates to 20 characters
+- [x] 2.2 Authenticated vehicle create/edit persists a 20-character plate with its normal alert
+- [x] 2.3 `./mvnw verify` passes with the migration
 
 #### Manual
 
-- [ ] 2.4 The real-client create/edit form accepts and displays an 11–20 character plate
+- [x] 2.4 The real-client create/edit form accepts and displays an 11–20 character plate
 
 ### Phase 3: Complete the evidence-led browser contract trial
 

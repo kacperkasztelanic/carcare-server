@@ -54,8 +54,8 @@ public class Vehicle implements Serializable {
     @Getter
     @Setter
     @NotNull
-    @Length(min = 1, max = 10)
-    @Column(name = "license_plate", nullable = false, length = 10)
+    @Length(min = 1, max = 20)
+    @Column(name = "license_plate", nullable = false, length = 20)
     private String licensePlate;
 
     @Getter
