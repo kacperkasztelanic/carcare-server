@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -57,7 +58,7 @@ class SecurityConfigurationIT {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.activeProfiles").isArray())
             .andExpect(jsonPath("$.activeProfiles").isNotEmpty())
-            .andExpect(jsonPath("$.activeProfiles").value(org.hamcrest.Matchers.hasItem("test")))
+            .andExpect(jsonPath("$.activeProfiles").value(hasItem("test")))
             .andExpect(jsonPath("$['display-ribbon-on-profiles']").value("dev"));
     }
 }

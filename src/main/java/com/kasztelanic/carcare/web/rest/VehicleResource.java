@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.util.List;
 import java.util.function.Function;
@@ -49,7 +51,7 @@ public class VehicleResource {
     }
 
     @PostMapping("")
-    public ResponseEntity<VehicleDto> addVehicle(@RequestBody VehicleDto vehicleDto) {
+    public ResponseEntity<VehicleDto> addVehicle(@Valid @RequestBody VehicleDto vehicleDto) {
         Function<VehicleDto, URI> uriProvider = v -> UriUtil.buildURI(String.format("/api/vehicle/%s", v.getId()));
         VehicleDto result = vehicleService.addVehicle(vehicleDto, userService.getUserWithAuthoritiesOrFail());
         return ResponseEntity.created(uriProvider.apply(result))//
@@ -58,7 +60,7 @@ public class VehicleResource {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @RequestBody VehicleDto vehicleDto) {
+    public ResponseEntity<VehicleDto> editVehicle(@PathVariable Long id, @Valid @RequestBody VehicleDto vehicleDto) {
         return vehicleService.editVehicle(id, vehicleDto)//
             .map(i -> ResponseEntity.ok()//
                 .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, i.getId().toString()))//

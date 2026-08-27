@@ -90,6 +90,20 @@ class VehicleResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void rejectsLicensePlateLongerThanTwentyCharacters() throws Exception {
+        mockMvc.perform(post("/api/vehicle")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(vehicleRequestWithLicensePlate("Over-long plate", "ABCDEFGHIJKLMNOPQRSTU"))))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.path").value("/api/vehicle"))
+            .andExpect(jsonPath("$.message").value("error.validation"))
+            .andExpect(jsonPath("$.fieldErrors[0].field").value("licensePlate"))
+            .andExpect(jsonPath("$.fieldErrors[0].message").value("Length"));
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void returnsProblemDetailForMissingFuelType() throws Exception {
         mockMvc.perform(post("/api/vehicle")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -6,5 +6,8 @@
 
     <changeSet author="Kacper" id="20260827153000-1">
         <modifyDataType tableName="vehicles" columnName="license_plate" newDataType="VARCHAR(20)"/>
+        <!-- MariaDB renders modifyDataType as MODIFY COLUMN, which replaces the whole column
+             definition and drops NOT NULL; H2 preserves it. Restate it so both engines agree. -->
+        <addNotNullConstraint tableName="vehicles" columnName="license_plate" columnDataType="VARCHAR(20)"/>
     </changeSet>
 </databaseChangeLog>
