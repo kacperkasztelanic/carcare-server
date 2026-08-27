@@ -48,7 +48,7 @@ event types against the same paths, payloads, and status codes as before.
 | F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | done |
 | F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | done |
 | S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | implemented |
-| S-07 | `client-server-contract-trial` | trial the real client against the server and fix confirmed compatibility failures | S-01 | FR-004, FR-005, FR-006, FR-008, FR-015 | next |
+| S-07 | `client-server-contract-trial` | trial the real client against the server and fix confirmed compatibility failures | S-01 | FR-004, FR-005, FR-006, FR-008, FR-015 | done |
 | S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch, unchanged | F-04 | FR-002, FR-007, FR-015 | proposed |
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | proposed |
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | proposed |
@@ -324,7 +324,7 @@ never written.
   client-side `applicationProfile(...includes)` console error. Treat observations as evidence, not
   automatic server defects: reproduce against the real client, establish ownership, and avoid
   widening frozen-client compatibility work without a confirmed contract break.
-- **Status:** next
+- **Status:** done
 
 ### S-02: The administrator's surface is unchanged
 
@@ -565,3 +565,4 @@ never written.
 <!-- Populated by /10x-archive when a change whose Change ID matches an item above is archived. -->
 
 - **F-04: (foundation) `./mvnw verify` boots a Spring context against H2 and the integration suite runs on its merits instead of erroring at startup — the 20 remaining `javax.*` imports in `src/test` are converted, `tech.jhipster.domain.util.FixedH2Dialect` is replaced, and the schema-validation mismatch beneath it is resolved.** — Archived 2026-08-26 → `context/archive/2026-08-25-test-context-restored/`. Lesson: —.
+- **S-07: the frozen React client can be exercised against a clean MariaDB-backed server in a real browser; every observed client/server mismatch is either fixed with coverage or recorded as a deliberate compatibility decision.** — Archived 2026-08-27 → `context/archive/2026-08-27-client-server-contract-trial/`. Lesson: —.
