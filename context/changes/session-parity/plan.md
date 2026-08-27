@@ -856,11 +856,11 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [x] 7.1 `./mvnw verify` green, final run
-- [x] 7.2 `AGENTS.md` and `change.md` contain the required sections
-- [x] 7.3 Closing commits cover all `session-parity` paths explicitly
+- [x] 7.1 `./mvnw verify` green, final run — 142a112
+- [x] 7.2 `AGENTS.md` and `change.md` contain the required sections — 142a112
+- [x] 7.3 Closing commits cover all `session-parity` paths explicitly — 142a112
 
 #### Manual
 
-- [x] 7.4 The manual client smoke completed and identified follow-up scope for `client-server-contract-trial`
-- [x] 7.5 The archived F-03 review no longer contradicts the code without explanation
+- [x] 7.4 The manual client smoke completed and identified follow-up scope for `client-server-contract-trial` — 142a112
+- [x] 7.5 The archived F-03 review no longer contradicts the code without explanation — 142a112
