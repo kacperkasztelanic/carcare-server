@@ -32,7 +32,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<ForthcomingEvent> findForthcomingEvents(Collection<PeriodVehicle> periodVehicles) {
         Map<Long, PeriodVehicle> periodVehiclesByVehicleId = periodVehicles.stream()//
-            .collect(Collectors.toMap(PeriodVehicle::getVehicleId, identity()));
+            // Keep the first period deliberately: a second period for the same vehicle is ignored.
+            .collect(Collectors.toMap(PeriodVehicle::getVehicleId, identity(), (first, ignored) -> first));
         Set<Long> vehicleIds = periodVehicles.stream()//
             .map(PeriodVehicle::getVehicleId)//
             .collect(Collectors.toSet());

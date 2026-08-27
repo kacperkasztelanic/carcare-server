@@ -349,6 +349,8 @@ never written.
   Hibernate 6 changes type mapping and fetch behaviour, which is exactly where a silent
   statistics regression would hide — and the PRD deliberately asserts no performance or
   fetch-behaviour property, so such a regression would go unmeasured by choice.
+  Session-parity now reports zero mileage as `0.0` rather than failing: this conflates unknown
+  consumption with a real zero and must be judged against F-02's golden baseline at value level.
 - **Status:** proposed
 
 ### S-04: An English-language user receives a correct reminder

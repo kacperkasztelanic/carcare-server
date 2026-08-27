@@ -831,27 +831,27 @@ and the four 500s becoming 400 (`fuelType`), 400 (`insuranceType`), 200 (merged 
 
 #### Automated
 
-- [x] 5.1 `./mvnw verify` green with `OwnerIsolationIT` and `JwtSessionIT`
-- [x] 5.2 Every cross-user assertion checks 404 or empty-list, and none accepts 403
-- [x] 5.3 All six stats/report/events paths have an owner-positive and a non-owner-negative case
-- [x] 5.4 `GET /` returns 200 and anonymous `GET /api/vehicle/all` returns 401
+- [x] 5.1 `./mvnw verify` green with `OwnerIsolationIT` and `JwtSessionIT` — ea5c1ff
+- [x] 5.2 Every cross-user assertion checks 404 or empty-list, and none accepts 403 — ea5c1ff
+- [x] 5.3 All six stats/report/events paths have an owner-positive and a non-owner-negative case — ea5c1ff
+- [x] 5.4 `GET /` returns 200 and anonymous `GET /api/vehicle/all` returns 401 — ea5c1ff
 
 #### Manual
 
-- [x] 5.5 `OwnerIsolationIT` reads as a complete statement of the guarantee
+- [x] 5.5 `OwnerIsolationIT` reads as a complete statement of the guarantee — ea5c1ff
 
 ### Phase 6: Fix the four pre-existing 500s
 
 #### Automated
 
-- [ ] 6.1 `./mvnw verify` green
-- [ ] 6.2 No Phase 4 or Phase 5 assertion changed to accommodate these fixes, except the one insurance round-trip characterization §4 names
-- [ ] 6.3 All four formerly-500 requests now return their intended status
-- [ ] 6.4 The `AverageConsumptionResult` unit test proves positive and negative non-zero cases are bit-identical
+- [x] 6.1 `./mvnw verify` green
+- [x] 6.2 No Phase 4 or Phase 5 assertion changed to accommodate these fixes, except the one insurance round-trip characterization §4 names
+- [x] 6.3 All four formerly-500 requests now return their intended status
+- [x] 6.4 The `AverageConsumptionResult` unit test proves positive and negative non-zero cases are bit-identical
 
 #### Manual
 
-- [ ] 6.5 The zero-mileage semantic cost is written down where S-03 will find it
+- [x] 6.5 The zero-mileage semantic cost is written down where S-03 will find it
 
 ### Phase 7: Manual client session and record correction
 

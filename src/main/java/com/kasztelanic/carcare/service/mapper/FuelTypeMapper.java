@@ -3,6 +3,7 @@ package com.kasztelanic.carcare.service.mapper;
 import com.kasztelanic.carcare.domain.FuelType;
 import com.kasztelanic.carcare.repository.FuelTypeRepository;
 import com.kasztelanic.carcare.service.dto.FuelTypeDto;
+import com.kasztelanic.carcare.service.exception.InvalidLookupTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +24,11 @@ public class FuelTypeMapper {
     }
 
     public FuelType fuelTypeDtoToFuelType(FuelTypeDto fuelTypeDto) {
+        if (fuelTypeDto == null) {
+            throw new InvalidLookupTypeException("fuelType");
+        }
         return fuelTypeRepository.findByType(fuelTypeDto.getType())//
-            .orElseThrow(IllegalStateException::new);
+            .orElseThrow(() -> new InvalidLookupTypeException("fuelType"));
     }
 
     private static String selectTranslation(FuelType fuelType, Locale locale) {

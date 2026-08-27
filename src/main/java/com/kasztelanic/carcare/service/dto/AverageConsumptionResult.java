@@ -17,6 +17,9 @@ public class AverageConsumptionResult {
     int mileage;
 
     public double getAverageConsumption() {
+        if (mileage == 0) {
+            return 0.0;
+        }
         return BigDecimal.valueOf(volume * 100.0 / mileage)
             .setScale(1, RoundingMode.HALF_UP)
             .doubleValue();

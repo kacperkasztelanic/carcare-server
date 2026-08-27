@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
+import com.kasztelanic.carcare.service.exception.InvalidLookupTypeException;
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -114,6 +115,13 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         com.kasztelanic.carcare.service.exception.InvalidPasswordException ex, WebRequest request) {
         InvalidPasswordException problem = new InvalidPasswordException();
         return handleExceptionInternal(ex, problem.getBody(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(InvalidLookupTypeException.class)
+    public ResponseEntity<Object> handleInvalidLookupTypeException(InvalidLookupTypeException ex, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle(ex.getMessage());
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(BadRequestAlertException.class)

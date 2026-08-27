@@ -63,6 +63,30 @@ class VehicleResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void returnsProblemDetailForMissingFuelType() throws Exception {
+        mockMvc.perform(post("/api/vehicle")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(vehicleRequest("Missing fuel type", null))))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.path").value("/api/vehicle"))
+            .andExpect(jsonPath("$.message").value("error.http.400"));
+    }
+
+    @Test
+    @WithMockUser(username = "user")
+    void returnsProblemDetailForUnknownFuelType() throws Exception {
+        mockMvc.perform(post("/api/vehicle")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(vehicleRequest("Unknown fuel type", FuelTypeDto.of("missing-fuel", "Missing fuel")))))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.path").value("/api/vehicle"))
+            .andExpect(jsonPath("$.message").value("error.http.400"));
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void updatesAnOwnedVehicleWithAlert() throws Exception {
         Vehicle vehicle = sessionFixtures.vehicleFor("user");
 
@@ -109,11 +133,15 @@ class VehicleResourceIT extends AbstractSessionIT {
     }
 
     private static VehicleDto vehicleRequest(String make) {
+        return vehicleRequest(make, FuelTypeDto.of(SessionFixtures.DEFAULT_FUEL_TYPE, "Fixture fuel"));
+    }
+
+    private static VehicleDto vehicleRequest(String make, FuelTypeDto fuelType) {
         return VehicleDto.builder()
             .make(make)
             .model("Fixture model")
             .licensePlate("FX-POST")
-            .fuelType(FuelTypeDto.of(SessionFixtures.DEFAULT_FUEL_TYPE, "Fixture fuel"))
+            .fuelType(fuelType)
             .vehicleDetails(VehicleDetailsDto.defaultBuilder().build())
             .build();
     }

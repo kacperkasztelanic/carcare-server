@@ -13,6 +13,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -76,7 +77,7 @@ class InsuranceResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
-    void bareStringInsuranceTypePutIsCharacterizedBeforePhase6() throws Exception {
+    void updatesInsuranceWithBareStringTypeAndAlert() throws Exception {
         Vehicle vehicle = sessionFixtures.vehicleFor("user");
         Insurance insurance = sessionFixtures.insuranceFor(vehicle);
 
@@ -86,7 +87,37 @@ class InsuranceResourceIT extends AbstractSessionIT {
                     "validThru":"2025-06-01","costInCents":10000,"number":"Bare number","insurer":"Bare insurer",
                     "details":"Bare details","insuranceType":"fixture"}
                     """))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-carcareApp-alert", "carcareApp.insurance.updated"))
+            .andExpect(jsonPath("$.insuranceType.type").value(SessionFixtures.DEFAULT_INSURANCE_TYPE));
+    }
+
+    @Test
+    @WithMockUser(username = "user")
+    void returnsProblemDetailForMissingInsuranceType() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleFor("user");
+
+        mockMvc.perform(post("/api/insurance/{vehicleId}", vehicle.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Missing insurer", "Missing number", "Missing details", null))))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.path").value("/api/insurance/" + vehicle.getId()))
+            .andExpect(jsonPath("$.message").value("error.http.400"));
+    }
+
+    @Test
+    @WithMockUser(username = "user")
+    void returnsProblemDetailForUnknownInsuranceType() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleFor("user");
+
+        mockMvc.perform(post("/api/insurance/{vehicleId}", vehicle.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(request("Unknown insurer", "Unknown number", "Unknown details",
+                    InsuranceTypeDto.of("missing-insurance", "Missing insurance")))))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.path").value("/api/insurance/" + vehicle.getId()))
+            .andExpect(jsonPath("$.message").value("error.http.400"));
     }
 
     @Test
@@ -108,9 +139,14 @@ class InsuranceResourceIT extends AbstractSessionIT {
     }
 
     private static InsuranceDto request(String insurer, String number, String details) {
+        return request(insurer, number, details,
+            InsuranceTypeDto.of(SessionFixtures.DEFAULT_INSURANCE_TYPE, "Fixture insurance"));
+    }
+
+    private static InsuranceDto request(String insurer, String number, String details, InsuranceTypeDto insuranceType) {
         return InsuranceDto.builder().vehicleEvent(VehicleEventDto.of(12_000, java.time.LocalDate.of(2024, 6, 1)))
             .validFrom(java.time.LocalDate.of(2024, 6, 1)).validThru(java.time.LocalDate.of(2025, 6, 1))
             .costInCents(10_000).insurer(insurer).number(number).details(details)
-            .insuranceType(InsuranceTypeDto.of(SessionFixtures.DEFAULT_INSURANCE_TYPE, "Fixture insurance")).build();
+            .insuranceType(insuranceType).build();
     }
 }

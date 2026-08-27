@@ -174,7 +174,7 @@ class OwnerIsolationIT extends AbstractSessionIT {
         PeriodVehicle periodVehicle = PeriodVehicle.of(vehicle.getId(), DATE_FROM, DATE_TO);
         CostRequest costRequest = CostRequest.of(List.of(vehicle.getId()), DATE_FROM, DATE_TO);
 
-        assertOwnerAndForeignResult("/api/stats/consumption/per-period", periodVehicle, ForeignResult.EMPTY_RESULT_500);
+        assertOwnerAndForeignResult("/api/stats/consumption/per-period", periodVehicle, ForeignResult.EMPTY_RESULT);
         assertOwnerAndForeignResult("/api/stats/consumption/per-refuel", periodVehicle, ForeignResult.EMPTY_LIST);
         assertOwnerAndForeignResult("/api/stats/mileage", periodVehicle, ForeignResult.NOT_FOUND);
         assertOwnerAndForeignResult("/api/stats/cost", costRequest, ForeignResult.EMPTY_LIST);
@@ -201,11 +201,10 @@ class OwnerIsolationIT extends AbstractSessionIT {
             case EMPTY_REPORT -> mockMvc.perform(post(path).with(user(OTHER_OWNER))
                     .contentType(MediaType.APPLICATION_JSON).content(json(request)))
                 .andExpect(status().isOk());
-            // The empty result reaches AverageConsumptionResult#getAverageConsumption and divides 0 by 0.
-            // Characterized by Phase 5 instead of changing production behavior outside the approved scope.
-            case EMPTY_RESULT_500 -> mockMvc.perform(post(path).with(user(OTHER_OWNER))
+            case EMPTY_RESULT -> mockMvc.perform(post(path).with(user(OTHER_OWNER))
                     .contentType(MediaType.APPLICATION_JSON).content(json(request)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.averageConsumption").value(0.0));
         }
     }
 
@@ -213,7 +212,7 @@ class OwnerIsolationIT extends AbstractSessionIT {
         EMPTY_LIST,
         NOT_FOUND,
         EMPTY_REPORT,
-        EMPTY_RESULT_500
+        EMPTY_RESULT
     }
 
     private static VehicleDto vehicleRequest(String make) {
