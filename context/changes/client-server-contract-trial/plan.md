@@ -272,12 +272,12 @@ deployment.
 
 #### Automated
 
-- [ ] 1.1 `GET /management/info` exposes both legacy profile fields anonymously
-- [ ] 1.2 The existing anonymous `/api/account` Problem Details contract remains intact
+- [x] 1.1 `GET /management/info` exposes both legacy profile fields anonymously
+- [x] 1.2 The existing anonymous `/api/account` Problem Details contract remains intact
 
 #### Manual
 
-- [ ] 1.3 An anonymous real-client load has no application-profile console exception
+- [x] 1.3 An anonymous real-client load has no application-profile console exception
 
 ### Phase 2: Align licence-plate persistence with the compiled forms
 

@@ -1,7 +1,7 @@
 ---
 change_id: client-server-contract-trial
 title: Trial and fix client-server contract issues
-status: plan_reviewed
+status: implementing
 created: 2026-08-27
 updated: 2026-08-27
 archived_at: null

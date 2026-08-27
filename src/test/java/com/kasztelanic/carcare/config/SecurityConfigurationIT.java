@@ -50,4 +50,14 @@ class SecurityConfigurationIT {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value("UP"));
     }
+
+    @Test
+    void managementInfoExposesLegacyProfileFieldsAnonymously() throws Exception {
+        mockMvc.perform(get("/management/info"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.activeProfiles").isArray())
+            .andExpect(jsonPath("$.activeProfiles").isNotEmpty())
+            .andExpect(jsonPath("$.activeProfiles").value(org.hamcrest.Matchers.hasItem("test")))
+            .andExpect(jsonPath("$['display-ribbon-on-profiles']").value("dev"));
+    }
 }
