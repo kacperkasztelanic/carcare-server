@@ -665,31 +665,31 @@ manually during capture; it is never applied by Liquibase and never runs in `dev
 
 #### Automated
 
-- [x] 1.1 The `6e19b96` worktree builds offline
-- [x] 1.2 MariaDB container reachable and `carcare` schema exists
-- [x] 1.3 WAR boots under `dev` and `GET /management/health` returns `UP`
-- [x] 1.4 `POST /api/authenticate` returns a token for both `admin` and `user`
-- [x] 1.5 No change under `src/` or `pom.xml`; `git worktree list` shows only the capture worktree
+- [x] 1.1 The `6e19b96` worktree builds offline — 558f5b4
+- [x] 1.2 MariaDB container reachable and `carcare` schema exists — 558f5b4
+- [x] 1.3 WAR boots under `dev` and `GET /management/health` returns `UP` — 558f5b4
+- [x] 1.4 `POST /api/authenticate` returns a token for both `admin` and `user` — 558f5b4
+- [x] 1.5 No change under `src/` or `pom.xml`; `git worktree list` shows only the capture worktree — 558f5b4
 
 #### Manual
 
-- [x] 1.6 `reference.md` contains every command verbatim, in order
-- [x] 1.7 The empty-lookup-table finding is recorded
+- [x] 1.6 `reference.md` contains every command verbatim, in order — 558f5b4
+- [x] 1.7 The empty-lookup-table finding is recorded — 558f5b4
 
 ### Phase 2: Author the golden fixture
 
 #### Automated
 
-- [ ] 2.1 `golden-dataset.sql` loads into the migrated `6e19b96` MariaDB without error
-- [ ] 2.2 Row counts per table match the counts stated in `reference.md`
-- [ ] 2.3 No fixture id collides with a Liquibase-seeded id
+- [x] 2.1 `golden-dataset.sql` loads into the migrated `6e19b96` MariaDB without error
+- [x] 2.2 Row counts per table match the counts stated in `reference.md`
+- [x] 2.3 No fixture id collides with a Liquibase-seeded id
 
 #### Manual
 
-- [ ] 2.4 Every branch in the Phase 2 contract has a covering row in the branch inventory
-- [ ] 2.5 Reference date is away from month/year boundaries and is not 29 February
-- [ ] 2.6 Inventory plus SQL explains why each row exists
-- [ ] 2.7 Every fixture row has a unique handle; the inventory's handle→id map covers all of them
+- [x] 2.4 Every branch in the Phase 2 contract has a covering row in the branch inventory
+- [x] 2.5 Reference date is away from month/year boundaries and is not 29 February
+- [x] 2.6 Inventory plus SQL explains why each row exists
+- [x] 2.7 Every fixture row has a unique handle; the inventory's handle→id map covers all of them
 
 ### Phase 3: Capture reports and statistics
 

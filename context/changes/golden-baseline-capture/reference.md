@@ -27,6 +27,46 @@ persistent under Docker Desktop; `libfaketime` is. The WAR log and its Liquibase
 - The worktree is outside the repository at `/private/tmp/carcare-golden-baseline-6e19b96`.
   Docker Desktop cannot bind-mount the WAR from that path on this machine; use `docker cp` below.
 
+## Golden fixture inventory
+
+`src/test/resources/golden/golden-dataset.sql` is loaded only after a fresh Liquibase migration.
+It reserves the `900000+` id range; Liquibase-seeded users remain `admin` / id `3` and `user` /
+id `4`. Loaded row counts are: fuel types 1, insurance types 1, reminder advances 2, vehicles 3,
+refuels 6, repairs 2, inspections 4, insurances 3, and routine services 4.
+
+| Handle → capture id | Purpose |
+| --- | --- |
+| `fuel-type:diesel` → 900001 | Required vehicle lookup |
+| `insurance-type:oc` → 900011 | Required insurance lookup |
+| `reminder-advance:three-days` → 900021; `reminder-advance:seven-days` → 900022 | Global due-date offsets |
+| `owner:admin-en` → 3; `owner:user-pl` → 4 | Report locales and ownership isolation |
+| `vehicle:en-primary` → 900101 | Main EN report/statistics vehicle |
+| `vehicle:pl-primary` → 900102 | PL report and foreign-owner path |
+| `vehicle:zero-consumption` → 900103 | Isolated one-refuel consumption failure |
+| `refuel:en-first` → 900401; `refuel:en-second` → 900402; `refuel:en-boundary` → 900403 | Three in-range fills for `skip(1)` consumption and inclusive bounds |
+| `refuel:zero-volume` → 900404 | `Infinity` unit-price workbook cell |
+| `refuel:pl-only` → 900405; `refuel:zero-consumption` → 900406 | One-fill per-refuel/period paths |
+| `repair:same-date-low-mileage` → 900501; `repair:range-before` → 900502 | Same-date merge and excluded lower boundary |
+| `inspection:same-date-high-mileage` → 900601; `inspection:en-reminder-plus-three` → 900602; `inspection:pl-reminder-plus-seven` → 900603; `inspection:reminder-minus-one` → 900604 | Mileage winner and reminder selection/boundary |
+| `insurance:en-reminder-plus-three` → 900701; `insurance:pl-reminder-plus-seven` → 900702; `insurance:reminder-plus-one` → 900703 | Insurance reminder selection/boundary |
+| `routine-service:null-next-date` → 900301; `routine-service:null-next-mileage` → 900302; `routine-service:en-reminder-plus-three` → 900303; `routine-service:pl-reminder-plus-seven` → 900304 | Null cells and routine-service reminder selection |
+
+The reference date, `2026-04-15`, is neither a month/year boundary nor 29 February. Its configured
+advances select 18 April (`+3`) and 22 April (`+7`); 19 April and 21 April are deliberate `+1` and
+`-1` non-matches. The branch coverage is:
+
+| Captured behaviour / code location | Covering handles |
+| --- | --- |
+| Vehicle reports: EN and PL localisation, all fields, and empty event sheets (`VehicleReport`) | `vehicle:en-primary`, `vehicle:pl-primary`, `vehicle:zero-consumption` |
+| Refuel unit-price divide by zero (`VehicleReport`) | `refuel:zero-volume` |
+| Cost/consumption inclusive period and `skip(1)` (`CostCalculatorImpl`, `AverageConsumptionCalculatorImpl`) | `refuel:en-first`, `refuel:en-second`, `refuel:en-boundary`; `repair:range-before` excluded |
+| One-refuel / zero-mileage baseline failure captured separately | `vehicle:zero-consumption`, `refuel:zero-consumption` |
+| Same-date mileage `TreeMap` highest-mileage merge (`MileageServiceImpl`) | `repair:same-date-low-mileage`, `inspection:same-date-high-mileage` |
+| Routine-service absent vs present `nextByDate`, and absent `nextByMileage` | `routine-service:null-next-date`, `routine-service:null-next-mileage` |
+| Ownership and both report locales | `owner:admin-en`, `owner:user-pl`, `vehicle:en-primary`, `vehicle:pl-primary` |
+| Insurance, inspection, and routine-service exact due-date selection for both owners | all `*-reminder-plus-three` and `*-reminder-plus-seven` handles |
+| Reminder exclusion boundaries and nullable routine due date | `inspection:reminder-minus-one`, `insurance:reminder-plus-one`, `routine-service:null-next-date` |
+
 ## Reproducible fixed-clock boot
 
 Run the following commands in order from the repository root. They create the only capture
