@@ -424,7 +424,7 @@ need adjustment, while client 1.2.5 is unaffected because it does not consume th
 
 #### Automated
 
-- [x] 3.1 Targeted operational and reminder verification passes
-- [x] 3.2 Both reminder references prove exactly six typed mail invocations
-- [x] 3.3 Complete unit and integration verification passes
-- [x] 3.4 Complete change passes whitespace validation
+- [x] 3.1 Targeted operational and reminder verification passes — 5756d17
+- [x] 3.2 Both reminder references prove exactly six typed mail invocations — 5756d17
+- [x] 3.3 Complete unit and integration verification passes — 5756d17
+- [x] 3.4 Complete change passes whitespace validation — 5756d17
