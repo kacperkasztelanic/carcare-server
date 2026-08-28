@@ -4,7 +4,10 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -16,6 +19,12 @@ class GoldenReferenceTest {
     private static final Map<String, Long> HANDLES = Map.of("vehicle:en-primary", 412L);
     private static final Map<String, String> HEADERS = Map.of(
         "Content-Type", "application/json",
+        "Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"
+    );
+    private static final String RAW_BODY_GOLDEN = "golden/stats/consumption-period-zero.json";
+    private static final String RAW_BODY_HANDLE = "vehicle:zero-consumption";
+    private static final Map<String, String> PROBLEM_HEADERS = Map.of(
+        "Content-Type", "application/problem+json",
         "Cache-Control", "no-cache, no-store, max-age=0, must-revalidate"
     );
 
@@ -56,6 +65,33 @@ class GoldenReferenceTest {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("vehicle:en-primary")
             .hasMessageContaining("vehicle:pl-primary");
+    }
+
+    @Test
+    void rawHandleReplacementGuardsAnIdEmbeddedInALongerNumber() {
+        // 26 appears inside "2026-03-31" flanked by digits, so the lookarounds suppress it and
+        // only the standalone vehicleId is rewritten.
+        GoldenReference reference = GoldenReference.load(RAW_BODY_GOLDEN);
+
+        GoldenReference.Comparison comparison = reference.compareJson(
+            500, PROBLEM_HEADERS, rawBodyWithVehicleId(26), Map.of(RAW_BODY_HANDLE, 26L));
+
+        assertThat(comparison.matches()).isTrue();
+    }
+
+    @Test
+    void rawHandleReplacementDoesNotGuardAnIdDelimitedByNonDigits() {
+        // Pins a known limitation rather than an intended behaviour: 31 in "2026-03-31" is flanked
+        // by '-' and '"', so (?<!\d)...(?!\d) lets it through and the date is corrupted. The same
+        // holds for an id of 500 against "error.http.500". The raw path has no golden consuming it
+        // today; anchoring the replacement to the "vehicleId" field is the fix if one ever does.
+        GoldenReference reference = GoldenReference.load(RAW_BODY_GOLDEN);
+
+        GoldenReference.Comparison comparison = reference.compareJson(
+            500, PROBLEM_HEADERS, rawBodyWithVehicleId(31), Map.of(RAW_BODY_HANDLE, 31L));
+
+        assertThat(comparison.matches()).isFalse();
+        assertThat(comparison.message()).contains("mismatch at");
     }
 
     @Test
@@ -123,6 +159,18 @@ class GoldenReferenceTest {
             var cell = row.createCell(column + 1);
             cell.setCellStyle(money);
             cell.setCellValue(values[column]);
+        }
+    }
+
+    /** Rebuilds the captured raw body with a concrete vehicle id in place of its handle. */
+    private static byte[] rawBodyWithVehicleId(long vehicleId) {
+        try (InputStream stream = Thread.currentThread().getContextClassLoader()
+            .getResourceAsStream(RAW_BODY_GOLDEN)) {
+            String capturedBody = new ObjectMapper().readTree(stream).path("body").asText();
+            return capturedBody.replace(RAW_BODY_HANDLE, Long.toString(vehicleId))
+                .getBytes(StandardCharsets.UTF_8);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Could not read " + RAW_BODY_GOLDEN, exception);
         }
     }
 

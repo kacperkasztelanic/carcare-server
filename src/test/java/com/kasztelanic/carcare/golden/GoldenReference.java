@@ -292,6 +292,14 @@ public final class GoldenReference {
         return value.setScale(scale, java.math.RoundingMode.HALF_UP).toPlainString();
     }
 
+    /**
+     * Rewrites ids back to handles in a body that is not parseable JSON. The lookarounds stop a
+     * match inside a longer digit run ({@code 26} within {@code 2026}), but an id that is itself
+     * delimited by non-digits is still replaced — {@code 31} in {@code "2026-03-31"} and
+     * {@code 500} in {@code "error.http.500"} both match. No golden consumes this path today;
+     * anchor the replacement to the {@code "vehicleId"} field before one does. Pinned by
+     * {@code GoldenReferenceTest.rawHandleReplacementDoesNotGuardAnIdDelimitedByNonDigits}.
+     */
     private static String normalizeRawHandles(String rawBody, Map<String, Long> handleToId) {
         String normalized = rawBody;
         List<Map.Entry<String, Long>> entries = new ArrayList<>(handleToId.entrySet());

@@ -162,7 +162,14 @@ namespace prefix belongs in a named constant, not inline.
 `normalizeRawHandles` additionally becomes delimiter-aware: it must replace an id only when the
 match is not flanked by digits, so a two-digit vehicle id cannot be rewritten inside a date, a
 status code, or a longer number. A plain `String.replace` is safe only for the capture's `900000+`
-ids and is wrong for the generated ids the mirror fixture produces. The descending-magnitude
+ids and is wrong for the generated ids the mirror fixture produces.
+
+> **Correction (impl review, 2026-08-28).** The delivered guard achieves only the last of those
+> three cases. `(?<!\d)…(?!\d)` suppresses a match inside a longer digit run (`26` within `2026`),
+> but an id that is itself flanked by non-digits is still replaced: `31` corrupts `"2026-03-31"`
+> and `500` corrupts `"error.http.500"`. No golden consumes the raw path today, so nothing is
+> broken; both behaviours are now pinned by `GoldenReferenceTest`, and anchoring the replacement to
+> the `"vehicleId"` field is the fix before any golden with a textual body relies on it. The descending-magnitude
 ordering stays — it is still needed so a longer id is tried before a shorter one that prefixes it.
 
 One accessor is added: `status()`, returning the captured envelope's `status` as an `int`. Today

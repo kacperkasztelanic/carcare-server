@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -166,6 +167,7 @@ class ReportParityIT extends AbstractSessionIT {
                     PeriodVehicle.of(ids.get("vehicle:zero-consumption"), LocalDate.of(2026, 4, 15), LocalDate.of(2026, 4, 22))
                 ))))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(4)))
             .andExpect(jsonPath("$[0].eventType").value("INSPECTION"))
             .andExpect(jsonPath("$[0].dateThru").value("2026-04-18"))
             .andExpect(jsonPath("$[1].eventType").value("INSURANCE"))

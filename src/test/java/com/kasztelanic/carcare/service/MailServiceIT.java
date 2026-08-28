@@ -5,6 +5,7 @@ import com.kasztelanic.carcare.config.Constants;
 import com.kasztelanic.carcare.CarcareApp;
 import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.domain.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -69,6 +70,15 @@ class MailServiceIT {
         testMessageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
         templateEngine.setTemplateEngineMessageSource(testMessageSource);
         mailService = new MailService(applicationProperties, javaMailSender, testMessageSource, templateEngine);
+    }
+
+    @AfterEach
+    void restoreTemplateEngineMessageSource() {
+        // The engine is a context singleton shared with every other test class in the cached
+        // context. Boot's ThymeleafAutoConfiguration never sets templateEngineMessageSource, so
+        // null is its pristine state: the engine then falls back to the MessageSourceAware
+        // messageSource Spring injected.
+        templateEngine.setTemplateEngineMessageSource(null);
     }
 
     @Test
