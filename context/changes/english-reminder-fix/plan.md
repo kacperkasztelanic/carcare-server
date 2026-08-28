@@ -338,28 +338,28 @@ application start with no data migration — reminder mails are generated fresh 
 
 #### Automated
 
-- [x] 1.1 Test class compiles and runs: `./mvnw verify -Dit.test=MailServiceIT`
-- [x] 1.2 Observed failure set matches the prediction exactly (5 fail, 3 pass)
-- [x] 1.3 The nine pre-existing `MailServiceIT` tests still pass
+- [x] 1.1 Test class compiles and runs: `./mvnw verify -Dit.test=MailServiceIT` — 440850d
+- [x] 1.2 Observed failure set matches the prediction exactly (5 fail, 3 pass) — 440850d
+- [x] 1.3 The nine pre-existing `MailServiceIT` tests still pass — 440850d
 
 #### Manual
 
-- [x] 1.4 `en` service failure message shows the scrambled rendering
-- [x] 1.5 No other test class disturbed by the shared-context template engine
+- [x] 1.4 `en` service failure message shows the scrambled rendering — 440850d
+- [x] 1.5 No other test class disturbed by the shared-context template engine — 440850d
 
 ### Phase 2: Green — the five bundle edits
 
 #### Automated
 
-- [ ] 2.1 All Phase 1 assertions pass: `./mvnw verify -Dit.test=MailServiceIT`
-- [ ] 2.2 Unit tests unaffected: `./mvnw test`
-- [ ] 2.3 Full suite green: `./mvnw verify`
-- [ ] 2.4 Sweep script reports zero order differences, gaps, mojibake, and whitespace separators
-- [ ] 2.5 All three bundles valid UTF-8, 82 keys each
-- [ ] 2.6 `diff messages.properties messages_en.properties` reports no differences
+- [x] 2.1 All Phase 1 assertions pass: `./mvnw verify -Dit.test=MailServiceIT`
+- [x] 2.2 Unit tests unaffected: `./mvnw test`
+- [x] 2.3 Full suite green: `./mvnw verify`
+- [x] 2.4 Sweep script reports zero order differences, gaps, mojibake, and whitespace separators
+- [x] 2.5 All three bundles valid UTF-8, 82 keys each
+- [x] 2.6 `diff messages.properties messages_en.properties` reports no differences
 
 #### Manual
 
-- [ ] 2.7 Native-Polish read of all 82 keys in `messages_pl.properties`
-- [ ] 2.8 `hexdump` confirms line 17 stores `c5 bc`
-- [ ] 2.9 Optional live check via `GET /api/reminder/send`
+- [x] 2.7 Native-Polish read of all 82 keys in `messages_pl.properties`
+- [x] 2.8 `hexdump` confirms line 17 stores `c5 bc`
+- [x] 2.9 Optional live check via `GET /api/reminder/send`
