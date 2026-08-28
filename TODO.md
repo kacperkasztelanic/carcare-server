@@ -5,6 +5,3 @@ TODO:
 - use vavr instead of standard library
 - use basicreporter for reports
 - consider changing domain model
-
-ISSUES:
-- fix EN emails
