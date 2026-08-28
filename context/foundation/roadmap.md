@@ -49,7 +49,7 @@ event types against the same paths, payloads, and status codes as before.
 | F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | done |
 | S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | done |
 | S-07 | `client-server-contract-trial` | trial the real client against the server and fix confirmed compatibility failures | S-01 | FR-004, FR-005, FR-006, FR-008, FR-015 | done |
-| S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch with four explicit API corrections | F-04 | FR-002, FR-007, FR-015 | proposed |
+| S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch with four explicit API corrections | F-04 | FR-002, FR-007, FR-015 | done |
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | done |
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | done |
 | S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | proposed |
@@ -351,7 +351,7 @@ never written.
   the resources here bypass the service layer and advertise their own TODOs. The point of this
   change is to prove nothing moved except the four explicitly authorized API corrections above;
   resist unrelated fixes.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: A user's reports and statistics match the pre-migration baseline
 
@@ -573,3 +573,4 @@ never written.
 - **S-01: an existing owner can log in through the unmodified React client 1.2.5, list and open their vehicles, and create, read, update, and delete all five event types — receiving the same paths, payloads, and status codes as before — while reaching no other user's data on any path.** — Archived 2026-08-28 → `context/archive/2026-08-26-session-parity/`. Lesson: —.
 - **F-02: (foundation) reference report values, statistics figures, and reminder selections exist, produced from commit `6e19b96` — the newest commit that builds and runs — and are comparable against post-migration output.** — Archived 2026-08-28 → `context/archive/2026-08-27-golden-baseline-capture/`. Lesson: —.
 - **S-03: an owner can request consumption, mileage, and cost statistics and both XLSX reports, and receive output matching the F-02 reference at value level — cell values, computed figures, and content type.** — Archived 2026-08-28 → `context/archive/2026-08-28-report-parity/`. Lesson: —.
+- **S-02: an administrator can manage users and authorities, read audit history, maintain lookup tables, generate test data, and trigger reminder dispatch with the existing business, security, and response behavior. This slice explicitly restores four confirmed API contracts: canonical creation `Location` headers for the three lookup/config resources and a usable reminder-advance DELETE binding.** — Archived 2026-08-28 → `context/archive/2026-08-28-admin-surface-parity/`. Lesson: —.
