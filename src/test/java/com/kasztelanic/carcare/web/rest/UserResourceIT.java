@@ -6,6 +6,7 @@ import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.repository.AuthorityRepository;
 import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import com.kasztelanic.carcare.service.MailService;
 import com.kasztelanic.carcare.service.UserService;
 import com.kasztelanic.carcare.service.dto.UserDto;
@@ -47,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -197,6 +199,29 @@ class UserResourceIT {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.login").value("empty-lang"))
             .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY));
+    }
+
+    @Test
+    @Transactional
+    void updateUserWithEmptyLanguageKeyKeepsLookupsUsable() throws Exception {
+        User target = userRepository.findOneByLogin("user").orElseThrow();
+
+        mockMvc.perform(put("/api/users")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content("{\"id\":" + target.getId() + ",\"login\":\"user\","
+                + "\"email\":\"user@localhost\",\"activated\":true,\"langKey\":\"\","
+                + "\"authorities\":[\"ROLE_USER\"]}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY));
+
+        userRepository.flush();
+        assertThat(userRepository.findOneByLogin("user").orElseThrow().getLangKey())
+            .isEqualTo(DEFAULT_LANGKEY);
+
+        // A null lang_key would make Locale.forLanguageTag NPE here and return 500.
+        mockMvc.perform(get("/api/fuel-type").with(user("user").authorities(
+            new SimpleGrantedAuthority(AuthoritiesConstants.USER))))
+            .andExpect(status().isOk());
     }
 
     @Test

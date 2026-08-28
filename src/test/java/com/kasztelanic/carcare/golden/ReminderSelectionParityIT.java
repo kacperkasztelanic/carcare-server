@@ -14,7 +14,11 @@ import com.kasztelanic.carcare.web.rest.AbstractSessionIT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 
 import java.io.IOException;
@@ -34,12 +38,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Verifies reminder selection and typed mail dispatch against the captured baseline. */
+@Import(ReminderSelectionParityIT.FixedClockConfiguration.class)
 class ReminderSelectionParityIT extends AbstractSessionIT {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -53,14 +57,19 @@ class ReminderSelectionParityIT extends AbstractSessionIT {
     @MockBean
     private MailService mailService;
 
-    @MockBean
-    private Clock clock;
-
     @BeforeEach
     void resetReminderCollaborators() {
-        reset(mailService, clock);
-        when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
-        when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
+        reset(mailService);
+    }
+
+    @TestConfiguration
+    static class FixedClockConfiguration {
+
+        @Bean
+        @Primary
+        Clock fixedClock() {
+            return FIXED_CLOCK;
+        }
     }
 
     @Test

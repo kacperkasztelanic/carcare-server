@@ -104,7 +104,7 @@ public class UserService {
         newUser.setLastName(userDto.getLastName());
         newUser.setEmail(userDto.getEmail().toLowerCase());
         newUser.setImageUrl(userDto.getImageUrl());
-        newUser.setLangKey(userDto.getLangKey());
+        newUser.setLangKey(userDto.getLangKey() == null ? Constants.DEFAULT_LANGUAGE : userDto.getLangKey());
         // new user is not active
         newUser.setActivated(false);
         // new user gets registration key
@@ -175,7 +175,7 @@ public class UserService {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
                 user.setEmail(email.toLowerCase());
-                user.setLangKey(langKey);
+                user.setLangKey(langKey == null ? Constants.DEFAULT_LANGUAGE : langKey);
                 user.setImageUrl(imageUrl);
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
@@ -201,7 +201,9 @@ public class UserService {
                 user.setEmail(userDto.getEmail().toLowerCase());
                 user.setImageUrl(userDto.getImageUrl());
                 user.setActivated(userDto.isActivated());
-                user.setLangKey(userDto.getLangKey());
+                user.setLangKey(userDto.getLangKey() == null
+                    ? Constants.DEFAULT_LANGUAGE
+                    : userDto.getLangKey());
                 Set<Authority> managedAuthorities = user.getAuthorities();
                 managedAuthorities.clear();
                 userDto.getAuthorities().stream()

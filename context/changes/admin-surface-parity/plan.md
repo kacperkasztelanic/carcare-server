@@ -328,7 +328,7 @@ golden dataset. Any added fixture helper must remain test-profile-only, preserve
 - The complete unit and integration suite passes with JDK 17 and the required Byte Buddy agent:
   `export JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem && ./mvnw verify -DargLine='-javaagent:/Users/kacper/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.5/byte-buddy-agent-1.14.5.jar -Djava.security.egd=file:/dev/./urandom -Xmx256m -Duser.timezone=UTC'`.
 - The complete change passes whitespace validation, including all planned-new sources:
-  `git add --intent-to-add src/test/java/com/kasztelanic/carcare/web/rest/LookupMaintenanceResourceIT.java src/test/java/com/kasztelanic/carcare/web/rest/TestDataResourceIT.java src/test/java/com/kasztelanic/carcare/web/rest/golden/ReminderSelectionParityIT.java src/main/java/com/kasztelanic/carcare/config/ClockConfiguration.java && git diff --check`.
+  `git add --intent-to-add src/test/java/com/kasztelanic/carcare/web/rest/LookupMaintenanceResourceIT.java src/test/java/com/kasztelanic/carcare/web/rest/TestDataResourceIT.java src/test/java/com/kasztelanic/carcare/golden/ReminderSelectionParityIT.java src/main/java/com/kasztelanic/carcare/config/ClockConfiguration.java && git diff --check`.
 
 ---
 
@@ -374,6 +374,58 @@ repair are the explicitly authorized S-02 compatibility exception and intentiona
 changes; rollback consists of reverting those four controller-owned route strings/bindings.
 Unknown external scripts that assert malformed Locations or expect reminder DELETE to fail may
 need adjustment, while client 1.2.5 is unaffected because it does not consume those mutations.
+
+Two further production changes landed outside those four and are recorded in the addendum below;
+their rollback is described there. Neither requires a data migration, but note that any
+`jhi_user` row whose `lang_key` was set to NULL while the unguarded setter was live is not
+backfilled by this change and will still fail locale resolution until corrected manually.
+
+## Addendum: production changes beyond the authorized four
+
+Recorded during implementation review (2026-08-28). The Overview authorizes exactly four
+corrections and states that all other parity behavior remains unchanged. These changes went
+beyond that boundary and are documented here rather than reverted.
+
+### A1. Blank language keys accepted on user payloads
+
+**Files**: `src/main/java/com/kasztelanic/carcare/service/dto/UserDto.java`,
+`src/main/java/com/kasztelanic/carcare/service/UserService.java`
+
+`UserDto.setLangKey` replaces Lombok's `@Setter` with a setter that coerces blank to null, so
+`@Size(min = 2)` no longer rejects `langKey: ""` from the frozen client. `POST /api/users`
+therefore returns 201 where it previously returned 400.
+
+As first implemented this leaked NULL into `jhi_user.lang_key` on every path that assigns the
+value unconditionally, because only `createUser` guarded for null. A blank langKey on
+`PUT /api/users`, `POST /api/account`, or `POST /api/register` persisted NULL, after which
+`Locale.forLanguageTag(user.getLangKey())` threw NPE — a 500 on `GET /api/fuel-type`,
+`GET /api/insurance-type`, all reminder mail, and report generation for that user. Review fixed
+this by defaulting null to `Constants.DEFAULT_LANGUAGE` at `UserService` lines 107, 178, and 204,
+mirroring the guard already at line 137. `UserResourceIT.updateUserWithEmptyLanguageKeyKeepsLookupsUsable`
+covers the update path and the follow-up lookup; it fails with `expected:<en> but was:<null>` if
+the guard is removed.
+
+**Rollback**: restore `@Setter` on `UserDto.langKey`, revert the three `UserService` guards, and
+drop `createUserWithEmptyLanguageKeyUsesDefaultLanguage` and
+`updateUserWithEmptyLanguageKeyKeepsLookupsUsable`. Blank langKey then returns 400 again — verify
+against the frozen client before doing so, since the client's blank-langKey emission was asserted
+but never cited to a specific client source line.
+
+### A2. Random vehicle generation actually executes
+
+**File**: `src/main/java/com/kasztelanic/carcare/service/impl/RandomDataServiceImpl.java`
+
+`generateRandomVehicles` built its result with `.map(this::generateOne).count()`. On a SIZED
+stream the JDK elides the mapper when only the count is needed, so the side-effecting generator
+never ran and the endpoint returned `true` without persisting anything. Replaced with
+`.mapToInt(... ? 1 : 0).sum()`, which forces evaluation and additionally tightens the contract
+from "N elements seen" to "all N generateOne calls succeeded".
+
+Phase 3's `adminCanGenerateOneRandomVehicleForTheCurrentUser` count-delta assertion depends on
+this fix; reverting it re-breaks that test.
+
+**Rollback**: restore the `.map(...).count()` expression and drop the count-delta assertion from
+`TestDataResourceIT`.
 
 ## References
 
