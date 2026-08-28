@@ -539,27 +539,27 @@ ordering Phase 4 §4 pins with a before/after assertion rather than assuming ine
 
 #### Automated
 
-- [x] 2.1 Stale classes cleared: `./mvnw -o -B clean`
-- [x] 2.2 Mail tests pass: `./mvnw -o -B verify -Dit.test=MailServiceIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — all 9
-- [x] 2.3 Guard test passes: `./mvnw -o -B test -Dtest=ResourceLayeringTest`
-- [x] 2.4 Full suite green: `./mvnw -o -B verify`
+- [x] 2.1 Stale classes cleared: `./mvnw -o -B clean` — 0e50aa7
+- [x] 2.2 Mail tests pass: `./mvnw -o -B verify -Dit.test=MailServiceIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — all 9 — 0e50aa7
+- [x] 2.3 Guard test passes: `./mvnw -o -B test -Dtest=ResourceLayeringTest` — 0e50aa7
+- [x] 2.4 Full suite green: `./mvnw -o -B verify` — 0e50aa7
 
 #### Manual
 
-- [x] 2.5 Reverting either deletion turns `ResourceLayeringTest` red
-- [x] 2.6 The Polish mail assertion compares real Polish characters, not mojibake
+- [x] 2.5 Reverting either deletion turns `ResourceLayeringTest` red — 0e50aa7
+- [x] 2.6 The Polish mail assertion compares real Polish characters, not mojibake — 0e50aa7
 
 ### Phase 3: The golden parity suite
 
 #### Automated
 
-- [ ] 3.1 Suite passes: `./mvnw -o -B verify -Dit.test=ReportParityIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — 11 tests
-- [ ] 3.2 Full suite green, integration count rises from 177 to 188 or higher
+- [x] 3.1 Suite passes: `./mvnw -o -B verify -Dit.test=ReportParityIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — 11 tests
+- [x] 3.2 Full suite green, integration count rises from 177 to 188 or higher
 
 #### Manual
 
-- [ ] 3.3 Perturbing a computed value produces a failure naming the golden file and JSON path
-- [ ] 3.4 The PL test passes alone and after a test that authenticates first
+- [x] 3.3 Perturbing a computed value produces a failure naming the golden file and JSON path
+- [x] 3.4 The PL test passes alone and after a test that authenticates first
 
 ### Phase 4: Ordering determinism
 
