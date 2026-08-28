@@ -729,16 +729,16 @@ manually during capture; it is never applied by Liquibase and never runs in `dev
 
 #### Automated
 
-- [x] 5.1 `./mvnw test` passes at HEAD
-- [x] 5.2 `./mvnw verify` passes at HEAD with no pre-existing test regressed
-- [x] 5.3 `GoldenDatasetMirrorIT` passes
-- [x] 5.4 `WorkbookValues` reproduces the stored structure exactly from a golden XLSX capture
-- [x] 5.5 Existing single-argument `SessionFixtures` builders still produce their previous values
-- [x] 5.6 Golden seeding returns a complete handle→id map; `GoldenReference` resolves ids through it
+- [x] 5.1 `./mvnw test` passes at HEAD — 6e655b0
+- [x] 5.2 `./mvnw verify` passes at HEAD with no pre-existing test regressed — 6e655b0
+- [x] 5.3 `GoldenDatasetMirrorIT` passes — 6e655b0
+- [x] 5.4 `WorkbookValues` reproduces the stored structure exactly from a golden XLSX capture — 6e655b0
+- [x] 5.5 Existing single-argument `SessionFixtures` builders still produce their previous values — 6e655b0
+- [x] 5.6 Golden seeding returns a complete handle→id map; `GoldenReference` resolves ids through it — 6e655b0
 
 #### Manual
 
-- [x] 5.7 Comparison failure message locates the differing cell without opening the workbook
-- [x] 5.8 `reference.md` read cold is enough to start S-03
-- [x] 5.9 Golden seeding confirmed not to run for existing ITs
-- [x] 5.10 Expected-divergences section covers all five `4ad88bd` files; `AGENTS.md` claim corrected
+- [x] 5.7 Comparison failure message locates the differing cell without opening the workbook — 6e655b0
+- [x] 5.8 `reference.md` read cold is enough to start S-03 — 6e655b0
+- [x] 5.9 Golden seeding confirmed not to run for existing ITs — 6e655b0
+- [x] 5.10 Expected-divergences section covers all five `4ad88bd` files; `AGENTS.md` claim corrected — 6e655b0
