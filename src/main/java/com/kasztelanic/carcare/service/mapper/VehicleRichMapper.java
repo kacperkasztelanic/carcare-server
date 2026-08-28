@@ -10,6 +10,7 @@ import com.kasztelanic.carcare.service.dto.VehicleRichDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -63,23 +64,23 @@ public class VehicleRichMapper {
             .vehicleDetails(vehicleDetailsMapper.vehicleDetailsToVehicleDetailsDto(vehicle))//
             .insurance(insuranceRepository.findByVehicleId(vehicle.getId()).stream()//
                 .map(insuranceMapper::insuranceToInsuranceDto)//
-                .collect(Collectors.toSet())//
+                .collect(Collectors.toCollection(LinkedHashSet::new))//
             )//
             .inspection(inspectionRepository.findByVehicleId(vehicle.getId()).stream()//
                 .map(inspectionMapper::inspectionToInspectionDto)//
-                .collect(Collectors.toSet())//
+                .collect(Collectors.toCollection(LinkedHashSet::new))//
             )//
             .routineService(routineServiceRepository.findByVehicleId(vehicle.getId()).stream()//
                 .map(routineServiceMapper::routineServiceToRoutineServiceDto)//
-                .collect(Collectors.toSet())//
+                .collect(Collectors.toCollection(LinkedHashSet::new))//
             )//
             .repair(repairRepository.findByVehicleId(vehicle.getId()).stream()//
                 .map(repairMapper::repairToRepairDto)//
-                .collect(Collectors.toSet())//
+                .collect(Collectors.toCollection(LinkedHashSet::new))//
             )//
             .refuel(refuelRepository.findByVehicleId(vehicle.getId()).stream()//
                 .map(refuelMapper::refuelToRefuelDto)//
-                .collect(Collectors.toSet())//
+                .collect(Collectors.toCollection(LinkedHashSet::new))//
             )//
             .build();
     }

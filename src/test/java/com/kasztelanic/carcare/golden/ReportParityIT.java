@@ -1,9 +1,11 @@
 package com.kasztelanic.carcare.golden;
 
+import com.kasztelanic.carcare.repository.RoutineServiceRepository;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.web.rest.AbstractSessionIT;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.transaction.AfterTransaction;
 
 import java.time.LocalDate;
@@ -20,6 +22,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Permanent value-level parity checks for the captured report and statistics responses. */
 class ReportParityIT extends AbstractSessionIT {
+
+    @Autowired
+    private RoutineServiceRepository routineServiceRepository;
 
     private static final LocalDate DATE_FROM = LocalDate.of(2026, 3, 1);
     private static final LocalDate DATE_TO = LocalDate.of(2026, 3, 31);
@@ -145,6 +150,30 @@ class ReportParityIT extends AbstractSessionIT {
                 .with(user("admin"))
                 .contentType(APPLICATION_JSON)
                 .content(json(costRequest(ids)))).andReturn(), ids);
+    }
+
+    @Test
+    void forthcomingEventsKeepTheCapturedOrdering() throws Exception {
+        Map<String, Long> ids = sessionFixtures.seedGoldenDataset();
+        routineServiceRepository.deleteById(ids.get("routine-service:null-next-date"));
+
+        mockMvc.perform(post("/api/events")
+                .with(user("admin"))
+                .contentType(APPLICATION_JSON)
+                .content(json(List.of(
+                    PeriodVehicle.of(ids.get("vehicle:en-primary"), LocalDate.of(2026, 4, 15), LocalDate.of(2026, 4, 22)),
+                    PeriodVehicle.of(ids.get("vehicle:pl-primary"), LocalDate.of(2026, 4, 15), LocalDate.of(2026, 4, 22)),
+                    PeriodVehicle.of(ids.get("vehicle:zero-consumption"), LocalDate.of(2026, 4, 15), LocalDate.of(2026, 4, 22))
+                ))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].eventType").value("INSPECTION"))
+            .andExpect(jsonPath("$[0].dateThru").value("2026-04-18"))
+            .andExpect(jsonPath("$[1].eventType").value("INSURANCE"))
+            .andExpect(jsonPath("$[1].dateThru").value("2026-04-18"))
+            .andExpect(jsonPath("$[2].eventType").value("SERVICE"))
+            .andExpect(jsonPath("$[2].dateThru").value("2026-04-18"))
+            .andExpect(jsonPath("$[3].eventType").value("INSURANCE"))
+            .andExpect(jsonPath("$[3].dateThru").value("2026-04-19"));
     }
 
     @AfterTransaction

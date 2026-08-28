@@ -553,24 +553,24 @@ ordering Phase 4 §4 pins with a before/after assertion rather than assuming ine
 
 #### Automated
 
-- [x] 3.1 Suite passes: `./mvnw -o -B verify -Dit.test=ReportParityIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — 11 tests
-- [x] 3.2 Full suite green, integration count rises from 177 to 188 or higher
+- [x] 3.1 Suite passes: `./mvnw -o -B verify -Dit.test=ReportParityIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — 11 tests — a47d940
+- [x] 3.2 Full suite green, integration count rises from 177 to 188 or higher — a47d940
 
 #### Manual
 
-- [x] 3.3 Perturbing a computed value produces a failure naming the golden file and JSON path
-- [x] 3.4 The PL test passes alone and after a test that authenticates first
+- [x] 3.3 Perturbing a computed value produces a failure naming the golden file and JSON path — a47d940
+- [x] 3.4 The PL test passes alone and after a test that authenticates first — a47d940
 
 ### Phase 4: Ordering determinism
 
 #### Automated
 
-- [ ] 4.1 Parity suite unchanged and still green — 11 golden tests, 0 failures
-- [ ] 4.2 `/api/events` ordering test recorded before §1/§2 and still green after — 12 tests total
-- [ ] 4.3 `git diff --stat src/test/resources/golden/` is empty across this phase
-- [ ] 4.4 Full suite green: `./mvnw -o -B verify`
+- [x] 4.1 Parity suite unchanged and still green — 11 golden tests, 0 failures
+- [x] 4.2 `/api/events` ordering test recorded before §1/§2 and still green after — 12 tests total
+- [x] 4.3 `git diff --stat src/test/resources/golden/` is empty across this phase
+- [x] 4.4 Full suite green: `./mvnw -o -B verify`
 
 #### Manual
 
-- [ ] 4.5 A temporary same-date event pair produces a stable report across repeated runs
-- [ ] 4.6 The `VehicleRepository` comment is specific enough to diagnose a `cost-en.json` flake
+- [x] 4.5 A temporary same-date event pair produces a stable report across repeated runs
+- [x] 4.6 The `VehicleRepository` comment is specific enough to diagnose a `cost-en.json` flake

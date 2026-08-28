@@ -19,6 +19,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     @Query("select vehicle from Vehicle vehicle where vehicle.id = :id and vehicle.owner.login = ?#{principal.username}")
     Optional<Vehicle> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);
 
+    // Result order feeds cost-en.json's index-exact array. H2 and MariaDB currently return
+    // insertion order by luck, not contract; add "order by vehicle.id" if that assertion flakes.
     @Query("select vehicle from Vehicle vehicle where vehicle.id in :id and vehicle.owner.login = ?#{principal.username}")
     List<Vehicle> findAllByIdAndOwnerIsCurrentUser(@Param("id") Collection<Long> id);
 }

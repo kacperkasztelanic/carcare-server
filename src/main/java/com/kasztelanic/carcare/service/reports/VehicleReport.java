@@ -123,7 +123,8 @@ public class VehicleReport {
         }
 
         List<InsuranceDto> sortedInsurances = insurances.stream()
-            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing((InsuranceDto i) -> i.getVehicleEvent().getDate())
+                .thenComparing(InsuranceDto::getId)).collect(Collectors.toList());
         for (InsuranceDto insurance : sortedInsurances) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -162,7 +163,8 @@ public class VehicleReport {
         }
 
         List<InspectionDto> sortedInspections = inspections.stream()
-            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing((InspectionDto i) -> i.getVehicleEvent().getDate())
+                .thenComparing(InspectionDto::getId)).collect(Collectors.toList());
         for (InspectionDto inspection : sortedInspections) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -195,7 +197,8 @@ public class VehicleReport {
         }
 
         List<RoutineServiceDto> sortedRoutineServices = routineServices.stream()
-            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing((RoutineServiceDto i) -> i.getVehicleEvent().getDate())
+                .thenComparing(RoutineServiceDto::getId)).collect(Collectors.toList());
         for (RoutineServiceDto routineService : sortedRoutineServices) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -232,7 +235,8 @@ public class VehicleReport {
         }
 
         List<RepairDto> sortedRepairs = repairs.stream()
-            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing((RepairDto i) -> i.getVehicleEvent().getDate())
+                .thenComparing(RepairDto::getId)).collect(Collectors.toList());
         for (RepairDto repairDto : sortedRepairs) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
@@ -262,7 +266,8 @@ public class VehicleReport {
         }
 
         List<RefuelDto> sortedRefuels = refuels.stream()
-            .sorted(Comparator.comparing(i -> i.getVehicleEvent().getDate())).collect(Collectors.toList());
+            .sorted(Comparator.comparing((RefuelDto i) -> i.getVehicleEvent().getDate())
+                .thenComparing(RefuelDto::getId)).collect(Collectors.toList());
         for (RefuelDto refuelDto : sortedRefuels) {
             Row row = sheet.createRow(rowNum++);
             Cell cell = row.createCell(0);
