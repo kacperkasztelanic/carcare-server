@@ -436,13 +436,13 @@ Rollback is `git revert` of a single-file change; no state, schema, or artifact 
 
 #### Automated
 
-- [x] 3.1 CI configuration remains valid
-- [x] 3.2 The deprecated token variable is gone
-- [x] 3.3 No token is passed on a command line
-- [x] 3.4 `.m2/` is ignored
-- [x] 3.5 The release path is unchanged one final time
+- [x] 3.1 CI configuration remains valid — 6bf87b5
+- [x] 3.2 The deprecated token variable is gone — 6bf87b5
+- [x] 3.3 No token is passed on a command line — 6bf87b5
+- [x] 3.4 `.m2/` is ignored — 6bf87b5
+- [x] 3.5 The release path is unchanged one final time — 6bf87b5
 
 #### Manual
 
 - [ ] 3.6 The next release tag pushes both images successfully (deferred — will not occur during this change)
-- [x] 3.7 The owner has decided whether to flip "Pipelines must succeed", recorded in `change.md`
+- [x] 3.7 The owner has decided whether to flip "Pipelines must succeed", recorded in `change.md` — 6bf87b5
