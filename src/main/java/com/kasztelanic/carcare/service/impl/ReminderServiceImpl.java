@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -37,12 +38,14 @@ public class ReminderServiceImpl implements ReminderService {
     private RoutineServiceRepository routineServiceRepository;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private Clock clock;
 
     @Override
     @Scheduled(cron = "0 0 8 * * *")
     public void sendReminders() {
         log.info("Email notification dispatch invoked");
-        LocalDate now = LocalDate.now();
+        LocalDate now = LocalDate.now(clock);
         Set<LocalDate> dates = reminderAdvanceRepository.findAll().stream().map(ReminderAdvance::getDays)
             .map(now::plusDays).collect(Collectors.toSet());
         sendInsuranceReminders(dates, now);

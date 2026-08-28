@@ -46,8 +46,9 @@ public class RandomDataServiceImpl {
         VehicleGenerator vehicleGenerator = new VehicleGenerator(prepareFuelTypes());
         List<VehicleTemplate> vehicleTemplates = prepareVehicleTemplates(ObjectMapperFactory.create());
         Collections.shuffle(vehicleTemplates);
-        return vehicleTemplates.stream().limit(numberOfVehicles).map(i -> generateOne(vehicleGenerator, i))
-            .count() == numberOfVehicles;
+        return vehicleTemplates.stream().limit(numberOfVehicles)
+            .mapToInt(i -> generateOne(vehicleGenerator, i) ? 1 : 0)
+            .sum() == numberOfVehicles;
     }
 
     private boolean generateOne(VehicleGenerator generator, VehicleTemplate template) {

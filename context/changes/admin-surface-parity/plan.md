@@ -416,15 +416,15 @@ need adjustment, while client 1.2.5 is unaffected because it does not consume th
 
 #### Automated
 
-- [x] 2.1 Targeted lookup/configuration integration verification passes
-- [x] 2.2 Canonical Locations and enabled reminder DELETE behavior are asserted
-- [x] 2.3 Production and test changes pass whitespace validation
+- [x] 2.1 Targeted lookup/configuration integration verification passes — d9af05b
+- [x] 2.2 Canonical Locations and enabled reminder DELETE behavior are asserted — d9af05b
+- [x] 2.3 Production and test changes pass whitespace validation — d9af05b
 
 ### Phase 3: Operational Endpoints and Reminder Selection
 
 #### Automated
 
-- [ ] 3.1 Targeted operational and reminder verification passes
-- [ ] 3.2 Both reminder references prove exactly six typed mail invocations
-- [ ] 3.3 Complete unit and integration verification passes
-- [ ] 3.4 Complete change passes whitespace validation
+- [x] 3.1 Targeted operational and reminder verification passes
+- [x] 3.2 Both reminder references prove exactly six typed mail invocations
+- [x] 3.3 Complete unit and integration verification passes
+- [x] 3.4 Complete change passes whitespace validation
