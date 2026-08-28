@@ -21,13 +21,12 @@ workflow:
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
         - if: $CI_COMMIT_TAG
-        - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-          when: never
-        - if: $CI_COMMIT_BRANCH
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 test:
     stage: test
     image: eclipse-temurin:17
+    services: []
     script:
         - './mvnw test -s .gitlab/ci_settings.xml'
     rules:
@@ -50,10 +49,12 @@ verify:
                 path: target/jacoco/*/jacoco.xml
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 build:
     stage: build
     image: eclipse-temurin:17
+    services: []
     script:
         - './mvnw deploy -s .gitlab/ci_settings.xml -Pprod -DskipTests'
     artifacts:
