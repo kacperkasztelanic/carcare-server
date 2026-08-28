@@ -712,33 +712,33 @@ manually during capture; it is never applied by Liquibase and never runs in `dev
 
 #### Automated
 
-- [x] 4.1 Both reminder golden files exist and are sorted by the documented total order
-- [x] 4.2 Rows at `+1` and `-1` day from an advance appear in neither file
-- [x] 4.3 The null-`nextByDate` routine service appears in neither file
-- [x] 4.4 Rows exactly on an advance appear in both files, for both owners
-- [x] 4.5 Typed-seam and full-path captures agree entry-for-entry
-- [x] 4.6 Re-running the capture on a different day, clock pinned, produces byte-identical files
-- [x] 4.7 No leftover worktree and no capture container left running
+- [x] 4.1 Both reminder golden files exist and are sorted by the documented total order — 3723bd8
+- [x] 4.2 Rows at `+1` and `-1` day from an advance appear in neither file — 3723bd8
+- [x] 4.3 The null-`nextByDate` routine service appears in neither file — 3723bd8
+- [x] 4.4 Rows exactly on an advance appear in both files, for both owners — 3723bd8
+- [x] 4.5 Typed-seam and full-path captures agree entry-for-entry — 3723bd8
+- [x] 4.6 Re-running the capture on a different day, clock pinned, produces byte-identical files — 3723bd8
+- [x] 4.7 No leftover worktree and no capture container left running — 3723bd8
 
 #### Manual
 
-- [x] 4.8 Captured `diff` values match the configured advances
-- [x] 4.9 `reference.md` alone is sufficient to reproduce every golden file
+- [x] 4.8 Captured `diff` values match the configured advances — 3723bd8
+- [x] 4.9 `reference.md` alone is sufficient to reproduce every golden file — 3723bd8
 
 ### Phase 5: Build the consumption harness at HEAD
 
 #### Automated
 
-- [ ] 5.1 `./mvnw test` passes at HEAD
-- [ ] 5.2 `./mvnw verify` passes at HEAD with no pre-existing test regressed
-- [ ] 5.3 `GoldenDatasetMirrorIT` passes
-- [ ] 5.4 `WorkbookValues` reproduces the stored structure exactly from a golden XLSX capture
-- [ ] 5.5 Existing single-argument `SessionFixtures` builders still produce their previous values
-- [ ] 5.6 Golden seeding returns a complete handle→id map; `GoldenReference` resolves ids through it
+- [x] 5.1 `./mvnw test` passes at HEAD
+- [x] 5.2 `./mvnw verify` passes at HEAD with no pre-existing test regressed
+- [x] 5.3 `GoldenDatasetMirrorIT` passes
+- [x] 5.4 `WorkbookValues` reproduces the stored structure exactly from a golden XLSX capture
+- [x] 5.5 Existing single-argument `SessionFixtures` builders still produce their previous values
+- [x] 5.6 Golden seeding returns a complete handle→id map; `GoldenReference` resolves ids through it
 
 #### Manual
 
-- [ ] 5.7 Comparison failure message locates the differing cell without opening the workbook
-- [ ] 5.8 `reference.md` read cold is enough to start S-03
-- [ ] 5.9 Golden seeding confirmed not to run for existing ITs
-- [ ] 5.10 Expected-divergences section covers all five `4ad88bd` files; `AGENTS.md` claim corrected
+- [x] 5.7 Comparison failure message locates the differing cell without opening the workbook
+- [x] 5.8 `reference.md` read cold is enough to start S-03
+- [x] 5.9 Golden seeding confirmed not to run for existing ITs
+- [x] 5.10 Expected-divergences section covers all five `4ad88bd` files; `AGENTS.md` claim corrected

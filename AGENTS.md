@@ -157,10 +157,13 @@ Commit `6e19b96` (2022-05-20, Spring Boot 2.7.0 / JHipster 7.8.1) is the newest 
 and runs: 22/22 unit tests and 94/102 integration tests pass. Use it to capture reference behaviour
 before changing anything.
 
-Critically, `src/main/java` and `src/main/resources/config/liquibase` are **byte-identical** between
-`3e91ed4` (2022-05-17) and HEAD — every commit since has touched only the POM, Docker files, or
-documentation. Any behavioural difference observed after the platform migration is therefore
-attributable to the migration alone, not to intervening feature work.
+At the migration starting point, `src/main/java` and `src/main/resources/config/liquibase` were
+**byte-identical** between `3e91ed4` (2022-05-17) and the runnable baseline `6e19b96`. HEAD is no
+longer byte-identical: the migration commits changed the platform surface, and `4ad88bd`
+(`fix(session-parity): fix four pre-existing 500s`) added intentional application fixes after the
+baseline. When comparing HEAD with the golden references, treat the five `4ad88bd` fix groups as
+documented expected divergences rather than migration regressions; see
+`context/changes/golden-baseline-capture/reference.md`.
 
 Commits older than `6e19b96` cannot be built: they require client artifact versions below 1.2.3,
 which are no longer retrievable from the private registry.

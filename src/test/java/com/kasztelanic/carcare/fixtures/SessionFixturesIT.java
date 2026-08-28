@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import java.time.LocalDate;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -74,5 +76,40 @@ class SessionFixturesIT extends AbstractSessionIT {
         assertThat(inspectionRepository.count()).isEqualTo(inspectionCount + 2);
         assertThat(insuranceRepository.count()).isEqualTo(insuranceCount + 2);
         assertThat(vehicleRepository.findByOwnerIsCurrentUser()).extracting(Vehicle::getId).contains(userVehicle.getId());
+
+        assertThat(userVehicle.getMake()).startsWith("Fixture make ");
+        assertThat(userVehicle.getModel()).startsWith("Fixture model ");
+        assertThat(userVehicle.getLicensePlate()).matches("FX\\d+");
+        assertThat(refuelRepository.findByVehicleId(userVehicle.getId())).singleElement().satisfies(refuel -> {
+            assertThat(refuel.getVehicleEvent().getMileage()).isEqualTo(10_000);
+            assertThat(refuel.getVehicleEvent().getDate()).isEqualTo(LocalDate.of(2024, 1, 10));
+            assertThat(refuel.getCostInCents()).isEqualTo(15_000);
+            assertThat(refuel.getVolume()).isEqualTo(45_000);
+        });
+        assertThat(repairRepository.findByVehicleId(userVehicle.getId())).singleElement().satisfies(repair -> {
+            assertThat(repair.getVehicleEvent().getMileage()).isEqualTo(10_100);
+            assertThat(repair.getVehicleEvent().getDate()).isEqualTo(LocalDate.of(2024, 2, 10));
+            assertThat(repair.getCostInCents()).isEqualTo(25_000);
+        });
+        assertThat(routineServiceRepository.findByVehicleId(userVehicle.getId())).singleElement().satisfies(service -> {
+            assertThat(service.getVehicleEvent().getMileage()).isEqualTo(10_200);
+            assertThat(service.getVehicleEvent().getDate()).isEqualTo(LocalDate.of(2024, 3, 10));
+            assertThat(service.getCostInCents()).isEqualTo(20_000);
+            assertThat(service.getNextByMileage()).isEqualTo(20_000);
+            assertThat(service.getNextByDate()).isEqualTo(LocalDate.of(2025, 3, 10));
+        });
+        assertThat(inspectionRepository.findByVehicleId(userVehicle.getId())).singleElement().satisfies(inspection -> {
+            assertThat(inspection.getVehicleEvent().getMileage()).isEqualTo(10_300);
+            assertThat(inspection.getVehicleEvent().getDate()).isEqualTo(LocalDate.of(2024, 4, 10));
+            assertThat(inspection.getCostInCents()).isEqualTo(15_000);
+            assertThat(inspection.getValidThru()).isEqualTo(LocalDate.of(2025, 4, 10));
+        });
+        assertThat(insuranceRepository.findByVehicleId(userVehicle.getId())).singleElement().satisfies(insurance -> {
+            assertThat(insurance.getVehicleEvent().getMileage()).isEqualTo(10_400);
+            assertThat(insurance.getVehicleEvent().getDate()).isEqualTo(LocalDate.of(2024, 5, 10));
+            assertThat(insurance.getValidFrom()).isEqualTo(LocalDate.of(2024, 5, 10));
+            assertThat(insurance.getValidThru()).isEqualTo(LocalDate.of(2025, 5, 10));
+            assertThat(insurance.getCostInCents()).isEqualTo(50_000);
+        });
     }
 }

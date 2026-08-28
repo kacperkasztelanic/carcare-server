@@ -301,3 +301,47 @@ The later pinned-clock run produced no `cmp` output (exit status 0) for either f
 docker rm -f carcare-golden-baseline-app-clock carcare-golden-baseline-mariadb-clock
 git worktree remove /private/tmp/carcare-golden-baseline-6e19b96
 ```
+
+## Phase 5 consumption harness
+
+The committed reference is consumed from HEAD-side integration tests, not regenerated. The
+test-only entry points are:
+
+- `com.kasztelanic.carcare.golden.WorkbookValues.extract(byte[])` reduces an XLSX body to the
+  `sheets → rows → cells` structure used by `golden/reports/*.json`.
+- `com.kasztelanic.carcare.golden.GoldenReference.load("golden/<surface>/<name>.json")` loads a
+  response envelope. `assertWorkbookMatches` compares an XLSX MockMvc `MvcResult` (or its
+  `MockHttpServletResponse`) and `assertJsonMatches` compares a JSON MockMvc result/response.
+- `SessionFixtures.seedGoldenDataset()` creates the SQL fixture inside the caller's transaction
+  and returns the 28-entry symbolic-handle → generated-id map. It is never called by the
+  `ApplicationRunner`; existing integration tests receive only the two ordinary lookup rows.
+- `GoldenDatasetMirrorIT` is the field-by-field H2 mirror check. It compares the fixture
+  definition, not report output; report and reminder parity assertions belong to S-03 and S-04.
+
+The value normalisation policy is defined in `WorkbookValues` and `GoldenReference`: POI raw cell
+types are retained, numeric cells with the shared `0.00` style use two decimal places, all other
+numeric cells use six, and `Infinity`/`NaN` are explicit strings. Only the `Costs` sheet's middle
+per-vehicle rows are sorted by their first (vehicle-label) cell; its header and final `Sum` row,
+and every row in every other sheet, retain workbook order. JSON object key order and date strings
+are retained. `GoldenReference` rewrites live numeric `vehicleId` values through the returned
+handle map before exact comparison and reports the first differing JSON path or workbook cell
+path. Metadata comparison is limited to status and `Content-Type`, `Content-Disposition`,
+`Cache-Control`, and `X-Total-Count`; HTTP container headers are intentionally excluded because
+capture uses real HTTP while HEAD consumption uses MockMvc.
+
+## Expected divergences at HEAD
+
+Commit `4ad88bd` contains five intentional post-baseline fix groups. They are not dataset or
+Jakarta-migration regressions and must be considered before treating a difference as evidence of
+platform drift:
+
+| Intentional fix group | Files | Affected surface |
+| --- | --- | --- |
+| Zero-mileage consumption guard | `src/main/java/com/kasztelanic/carcare/service/dto/AverageConsumptionResult.java` | `POST /api/stats/consumption/per-period` for `vehicle:zero-consumption`: HEAD returns a finite zero instead of the baseline serialization failure. |
+| Dual-shape insurance input | `src/main/java/com/kasztelanic/carcare/service/dto/InsuranceTypeDto.java` | Insurance request deserialization accepts the client's bare-string lookup form; no current golden response changes. |
+| Duplicate event-period tiebreak | `src/main/java/com/kasztelanic/carcare/service/impl/EventServiceImpl.java` | `POST /api/events` now keeps the first entry for a duplicate `vehicleId`; this is outside the captured report/stat/reminder responses. |
+| Invalid fuel/insurance lookup handling | `src/main/java/com/kasztelanic/carcare/service/mapper/FuelTypeMapper.java`, `src/main/java/com/kasztelanic/carcare/service/mapper/InsuranceTypeMapper.java` | Invalid lookup values are represented as the typed exception rather than an accidental null mapping. |
+| Invalid lookup translation | `src/main/java/com/kasztelanic/carcare/service/exception/InvalidLookupTypeException.java`, `src/main/java/com/kasztelanic/carcare/web/rest/errors/ExceptionTranslator.java` | The typed lookup error is translated to HTTP 400 instead of the former 500; this is outside the captured surfaces. |
+
+F-02 supplies the reference and this reusable harness. S-03 and S-04 own the parity assertions,
+including the decision about the deliberate zero-mileage and duplicate-`vehicleId` divergences.
