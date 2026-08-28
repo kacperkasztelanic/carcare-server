@@ -13,7 +13,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.MessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -28,7 +28,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,8 +50,6 @@ class MailServiceIT {
     @Autowired
     private ApplicationProperties applicationProperties;
     @Autowired
-    private MessageSource messageSource;
-    @Autowired
     private SpringTemplateEngine templateEngine;
 
     @Spy
@@ -66,7 +64,11 @@ class MailServiceIT {
     void setup() {
         MockitoAnnotations.initMocks(this);
         doNothing().when(javaMailSender).send(any(MimeMessage.class));
-        mailService = new MailService(applicationProperties, javaMailSender, messageSource, templateEngine);
+        ResourceBundleMessageSource testMessageSource = new ResourceBundleMessageSource();
+        testMessageSource.setBasenames("i18n/test-messages", "i18n/messages");
+        testMessageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
+        templateEngine.setTemplateEngineMessageSource(testMessageSource);
+        mailService = new MailService(applicationProperties, javaMailSender, testMessageSource, templateEngine);
     }
 
     @Test
@@ -207,11 +209,11 @@ class MailServiceIT {
             verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
             MimeMessage message = messageCaptor.getValue();
 
-            String propertyFilePath = "i18n/messages_" + getJavaLocale(langKey) + ".properties";
+            String propertyFilePath = "i18n/test-messages_" + getJavaLocale(langKey) + ".properties";
             URL resource = this.getClass().getClassLoader().getResource(propertyFilePath);
             File file = new File(new URI(resource.getFile()).getPath());
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+            properties.load(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 
             String emailTitle = (String) properties.get("email.test.title");
             assertThat(message.getSubject()).isEqualTo(emailTitle);

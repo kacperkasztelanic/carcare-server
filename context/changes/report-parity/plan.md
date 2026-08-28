@@ -525,29 +525,29 @@ ordering Phase 4 §4 pins with a before/after assertion rather than assuming ine
 
 #### Automated
 
-- [x] 1.1 Compiles: `./mvnw -o -B test-compile`
-- [x] 1.2 Golden unit tests pass: `./mvnw -o -B test -Dtest=GoldenReferenceTest`
-- [x] 1.3 Fixture IT passes: `./mvnw -o -B verify -Dit.test=GoldenDatasetMirrorIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false`
-- [x] 1.4 Full suite still green with no test count regression
+- [x] 1.1 Compiles: `./mvnw -o -B test-compile` — cbd11f9
+- [x] 1.2 Golden unit tests pass: `./mvnw -o -B test -Dtest=GoldenReferenceTest` — cbd11f9
+- [x] 1.3 Fixture IT passes: `./mvnw -o -B verify -Dit.test=GoldenDatasetMirrorIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — cbd11f9
+- [x] 1.4 Full suite still green with no test count regression — cbd11f9
 
 #### Manual
 
-- [x] 1.5 The `vehicle:` namespace constant reads as a documented contract, not a magic string
-- [x] 1.6 A colliding non-vehicle handle no longer aborts a comparison
+- [x] 1.5 The `vehicle:` namespace constant reads as a documented contract, not a magic string — cbd11f9
+- [x] 1.6 A colliding non-vehicle handle no longer aborts a comparison — cbd11f9
 
 ### Phase 2: i18n de-shadowing and a guard against recurrence
 
 #### Automated
 
-- [ ] 2.1 Stale classes cleared: `./mvnw -o -B clean`
-- [ ] 2.2 Mail tests pass: `./mvnw -o -B verify -Dit.test=MailServiceIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — all 9
-- [ ] 2.3 Guard test passes: `./mvnw -o -B test -Dtest=ResourceLayeringTest`
-- [ ] 2.4 Full suite green: `./mvnw -o -B verify`
+- [x] 2.1 Stale classes cleared: `./mvnw -o -B clean`
+- [x] 2.2 Mail tests pass: `./mvnw -o -B verify -Dit.test=MailServiceIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false` — all 9
+- [x] 2.3 Guard test passes: `./mvnw -o -B test -Dtest=ResourceLayeringTest`
+- [x] 2.4 Full suite green: `./mvnw -o -B verify`
 
 #### Manual
 
-- [ ] 2.5 Reverting either deletion turns `ResourceLayeringTest` red
-- [ ] 2.6 The Polish mail assertion compares real Polish characters, not mojibake
+- [x] 2.5 Reverting either deletion turns `ResourceLayeringTest` red
+- [x] 2.6 The Polish mail assertion compares real Polish characters, not mojibake
 
 ### Phase 3: The golden parity suite
 
