@@ -44,13 +44,13 @@ event types against the same paths, payloads, and status codes as before.
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 | --- | --- | --- | --- | --- | --- |
 | F-01 | `resolvable-build` | (foundation) Maven resolves every dependency; the compiler runs | — | FR-001, FR-002 | done |
-| F-02 | `golden-baseline-capture` | (foundation) reference output exists from the last runnable commit | — | FR-016 | ready |
+| F-02 | `golden-baseline-capture` | (foundation) reference output exists from the last runnable commit | — | FR-016 | done |
 | F-03 | `jakarta-platform-migration` | (foundation) `src/main` compiles on Jakarta EE 9+ and Spring Security 6, JHipster-free | F-01 | FR-001, FR-002, FR-003, FR-004 | done |
 | F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | done |
-| S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | implemented |
+| S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | done |
 | S-07 | `client-server-contract-trial` | trial the real client against the server and fix confirmed compatibility failures | S-01 | FR-004, FR-005, FR-006, FR-008, FR-015 | done |
 | S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch, unchanged | F-04 | FR-002, FR-007, FR-015 | proposed |
-| S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | implemented |
+| S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | done |
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | done |
 | S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | proposed |
 | S-06 | `merge-request-ci` | (developer) get compile, test, and verify feedback on a merge request | S-01 | FR-015, FR-017 | proposed |
@@ -160,7 +160,7 @@ never written.
   `3e91ed4` and HEAD, so any post-migration difference is attributable to the migration
   alone. Client artifacts below 1.2.3 are no longer retrievable, which bounds how far back
   a baseline could ever be taken; `6e19b96` is inside that bound.
-- **Status:** ready
+- **Status:** done
 
 ### F-03: `src/main` compiles on the declared platform
 
@@ -308,7 +308,7 @@ never written.
   what keeps that from silently locking in a bug. Sequenced first among slices because it is
   the shortest route to a shippable, verifiable claim; a coordinated client release remains a
   deliberate escape hatch if preserving one specific endpoint proves disproportionate.
-- **Status:** proposed
+- **Status:** done
 
 ### S-07: Trial and fix confirmed client-server compatibility failures
 
@@ -368,7 +368,7 @@ never written.
   fetch-behaviour property, so such a regression would go unmeasured by choice.
   Session-parity now reports zero mileage as `0.0` rather than failing: this conflates unknown
   consumption with a real zero and must be judged against F-02's golden baseline at value level.
-- **Status:** implemented
+- **Status:** done
 
 ### S-04: An English-language user receives a correct reminder
 
@@ -567,3 +567,6 @@ never written.
 - **F-04: (foundation) `./mvnw verify` boots a Spring context against H2 and the integration suite runs on its merits instead of erroring at startup — the 20 remaining `javax.*` imports in `src/test` are converted, `tech.jhipster.domain.util.FixedH2Dialect` is replaced, and the schema-validation mismatch beneath it is resolved.** — Archived 2026-08-26 → `context/archive/2026-08-25-test-context-restored/`. Lesson: —.
 - **S-07: the frozen React client can be exercised against a clean MariaDB-backed server in a real browser; every observed client/server mismatch is either fixed with coverage or recorded as a deliberate compatibility decision.** — Archived 2026-08-27 → `context/archive/2026-08-27-client-server-contract-trial/`. Lesson: —.
 - **S-04: an owner whose account language is English receives a correctly rendered reminder naming the vehicle and the expiry, with Polish unaffected and reminder selection semantics unchanged.** — Archived 2026-08-28 → `context/archive/2026-08-28-english-reminder-fix/`. Lesson: —.
+- **S-01: an existing owner can log in through the unmodified React client 1.2.5, list and open their vehicles, and create, read, update, and delete all five event types — receiving the same paths, payloads, and status codes as before — while reaching no other user's data on any path.** — Archived 2026-08-28 → `context/archive/2026-08-26-session-parity/`. Lesson: —.
+- **F-02: (foundation) reference report values, statistics figures, and reminder selections exist, produced from commit `6e19b96` — the newest commit that builds and runs — and are comparable against post-migration output.** — Archived 2026-08-28 → `context/archive/2026-08-27-golden-baseline-capture/`. Lesson: —.
+- **S-03: an owner can request consumption, mileage, and cost statistics and both XLSX reports, and receive output matching the F-02 reference at value level — cell values, computed figures, and content type.** — Archived 2026-08-28 → `context/archive/2026-08-28-report-parity/`. Lesson: —.

@@ -163,7 +163,7 @@ longer byte-identical: the migration commits changed the platform surface, and `
 (`fix(session-parity): fix four pre-existing 500s`) added intentional application fixes after the
 baseline. When comparing HEAD with the golden references, treat the five `4ad88bd` fix groups as
 documented expected divergences rather than migration regressions; see
-`context/changes/golden-baseline-capture/reference.md`.
+`context/archive/2026-08-27-golden-baseline-capture/reference.md`.
 
 Commits older than `6e19b96` cannot be built: they require client artifact versions below 1.2.3,
 which are no longer retrievable from the private registry.
