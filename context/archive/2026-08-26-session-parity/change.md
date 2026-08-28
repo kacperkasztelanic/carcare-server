@@ -1,10 +1,10 @@
 ---
 change_id: session-parity
 title: Session parity
-status: impl_reviewed
+status: archived
 created: 2026-08-26
-updated: 2026-08-27
-archived_at: null
+updated: 2026-08-28
+archived_at: 2026-08-28T14:05:00Z
 ---
 
 ## Notes
