@@ -221,26 +221,36 @@ class MailServiceIT {
         mailService.sendEmail("john.doe@example.com", "testSubject", "testContent", false, false);
     }
 
-    @Test
-    void testSendRoutineServiceReminderEmail() throws Exception {
+    private static User reminderUser() {
         User user = new User();
         user.setLogin("john");
         user.setEmail("john.doe@example.com");
-        Vehicle vehicle = Vehicle.builder()
+        return user;
+    }
+
+    private static Vehicle reminderVehicle() {
+        return Vehicle.builder()
             .make("Toyota")
             .model("Corolla")
             .licensePlate("WX 12345")
             .build();
+    }
+
+    @Test
+    void testSendRoutineServiceReminderEmail() throws Exception {
+        User user = reminderUser();
+        Vehicle vehicle = reminderVehicle();
         RoutineService routineService = RoutineService.builder()
             .nextByDate(REMINDER_DATE)
             .details("Oil change")
             .build();
         SoftAssertions softly = new SoftAssertions();
 
-        for (String langKey : LANGUAGES) {
+        for (int i = 0; i < LANGUAGES.length; i++) {
+            String langKey = LANGUAGES[i];
             user.setLangKey(langKey);
             mailService.sendRoutineServiceReminderEmail(user, vehicle, routineService, 3);
-            verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
+            verify(javaMailSender, times(i + 1)).send(messageCaptor.capture());
             MimeMessage message = messageCaptor.getValue();
             String content = message.getContent().toString();
 
@@ -259,23 +269,18 @@ class MailServiceIT {
 
     @Test
     void testSendInsuranceReminderEmail() throws Exception {
-        User user = new User();
-        user.setLogin("john");
-        user.setEmail("john.doe@example.com");
-        Vehicle vehicle = Vehicle.builder()
-            .make("Toyota")
-            .model("Corolla")
-            .licensePlate("WX 12345")
-            .build();
+        User user = reminderUser();
+        Vehicle vehicle = reminderVehicle();
         Insurance insurance = Insurance.builder()
             .validThru(REMINDER_DATE)
             .build();
         SoftAssertions softly = new SoftAssertions();
 
-        for (String langKey : LANGUAGES) {
+        for (int i = 0; i < LANGUAGES.length; i++) {
+            String langKey = LANGUAGES[i];
             user.setLangKey(langKey);
             mailService.sendInsuranceReminderEmail(user, vehicle, insurance, 3);
-            verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
+            verify(javaMailSender, times(i + 1)).send(messageCaptor.capture());
             MimeMessage message = messageCaptor.getValue();
             String content = message.getContent().toString();
 
@@ -294,23 +299,18 @@ class MailServiceIT {
 
     @Test
     void testSendInspectionReminderEmail() throws Exception {
-        User user = new User();
-        user.setLogin("john");
-        user.setEmail("john.doe@example.com");
-        Vehicle vehicle = Vehicle.builder()
-            .make("Toyota")
-            .model("Corolla")
-            .licensePlate("WX 12345")
-            .build();
+        User user = reminderUser();
+        Vehicle vehicle = reminderVehicle();
         Inspection inspection = Inspection.builder()
             .validThru(REMINDER_DATE)
             .build();
         SoftAssertions softly = new SoftAssertions();
 
-        for (String langKey : LANGUAGES) {
+        for (int i = 0; i < LANGUAGES.length; i++) {
+            String langKey = LANGUAGES[i];
             user.setLangKey(langKey);
             mailService.sendInspectionReminderEmail(user, vehicle, inspection, 3);
-            verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
+            verify(javaMailSender, times(i + 1)).send(messageCaptor.capture());
             MimeMessage message = messageCaptor.getValue();
             String content = message.getContent().toString();
 
