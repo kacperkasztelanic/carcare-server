@@ -565,12 +565,12 @@ ordering Phase 4 §4 pins with a before/after assertion rather than assuming ine
 
 #### Automated
 
-- [x] 4.1 Parity suite unchanged and still green — 11 golden tests, 0 failures
-- [x] 4.2 `/api/events` ordering test recorded before §1/§2 and still green after — 12 tests total
-- [x] 4.3 `git diff --stat src/test/resources/golden/` is empty across this phase
-- [x] 4.4 Full suite green: `./mvnw -o -B verify`
+- [x] 4.1 Parity suite unchanged and still green — 11 golden tests, 0 failures — eef2b50
+- [x] 4.2 `/api/events` ordering test recorded before §1/§2 and still green after — 12 tests total — eef2b50
+- [x] 4.3 `git diff --stat src/test/resources/golden/` is empty across this phase — eef2b50
+- [x] 4.4 Full suite green: `./mvnw -o -B verify` — eef2b50
 
 #### Manual
 
-- [x] 4.5 A temporary same-date event pair produces a stable report across repeated runs
-- [x] 4.6 The `VehicleRepository` comment is specific enough to diagnose a `cost-en.json` flake
+- [x] 4.5 A temporary same-date event pair produces a stable report across repeated runs — eef2b50
+- [x] 4.6 The `VehicleRepository` comment is specific enough to diagnose a `cost-en.json` flake — eef2b50
