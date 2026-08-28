@@ -351,15 +351,15 @@ application start with no data migration — reminder mails are generated fresh 
 
 #### Automated
 
-- [x] 2.1 All Phase 1 assertions pass: `./mvnw verify -Dit.test=MailServiceIT`
-- [x] 2.2 Unit tests unaffected: `./mvnw test`
-- [x] 2.3 Full suite green: `./mvnw verify`
-- [x] 2.4 Sweep script reports zero order differences, gaps, mojibake, and whitespace separators
-- [x] 2.5 All three bundles valid UTF-8, 82 keys each
-- [x] 2.6 `diff messages.properties messages_en.properties` reports no differences
+- [x] 2.1 All Phase 1 assertions pass: `./mvnw verify -Dit.test=MailServiceIT` — 7dae6f1
+- [x] 2.2 Unit tests unaffected: `./mvnw test` — 7dae6f1
+- [x] 2.3 Full suite green: `./mvnw verify` — 7dae6f1
+- [x] 2.4 Sweep script reports zero order differences, gaps, mojibake, and whitespace separators — 7dae6f1
+- [x] 2.5 All three bundles valid UTF-8, 82 keys each — 7dae6f1
+- [x] 2.6 `diff messages.properties messages_en.properties` reports no differences — 7dae6f1
 
 #### Manual
 
-- [x] 2.7 Native-Polish read of all 82 keys in `messages_pl.properties`
-- [x] 2.8 `hexdump` confirms line 17 stores `c5 bc`
-- [x] 2.9 Optional live check via `GET /api/reminder/send`
+- [x] 2.7 Native-Polish read of all 82 keys in `messages_pl.properties` — 7dae6f1
+- [x] 2.8 `hexdump` confirms line 17 stores `c5 bc` — 7dae6f1
+- [x] 2.9 Optional live check via `GET /api/reminder/send` — 7dae6f1
