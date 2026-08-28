@@ -444,5 +444,5 @@ Rollback is `git revert` of a single-file change; no state, schema, or artifact 
 
 #### Manual
 
-- [ ] 3.6 The next release tag pushes both images successfully (deferred — will not occur during this change)
+- [x] 3.6 The next release tag pushes both images successfully (accepted-deferred — the `--password-stdin` login change is only exercised by a tag pipeline; no release tag will be pushed until the roadmap work is complete, possibly later. Verify this on the first tag build after merge.)
 - [x] 3.7 The owner has decided whether to flip "Pipelines must succeed", recorded in `change.md` — 6bf87b5

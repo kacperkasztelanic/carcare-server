@@ -26,3 +26,12 @@ archived_at: null
   cannot land in this diff.
 
 **Decision (2026-08-28):** Owner chose to **defer** — leave `only_allow_merge_if_pipeline_succeeds` at `false`. The verify pipeline stays advisory. Revisit after the first real merge request runs green against a `master` that builds (i.e. once the migration branch merges). No project-setting change made as part of this change.
+
+### Manual item 3.6 — accepted-deferred (2026-08-28)
+
+3.6 ("the next release tag pushes both images successfully") verifies the Phase 3
+`docker login --password-stdin` change, which only runs on a **tag** pipeline. No release
+tag will be cut until the remaining roadmap work is ready — possibly later. The item is
+accepted as deferred so the change can be archived; it must be re-checked on the first
+tag build after `refactor` merges. If that pipeline's `app`/`proxy` jobs fail, the login
+line is the first suspect.
