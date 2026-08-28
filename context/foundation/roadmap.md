@@ -49,7 +49,7 @@ event types against the same paths, payloads, and status codes as before.
 | F-04 | `test-context-restored` | (foundation) `./mvnw verify` boots a Spring context and runs the suite | F-03 | FR-001, FR-002, FR-003, FR-015 | done |
 | S-01 | `session-parity` | log in and run a full vehicle + event session, unchanged, seeing only their own data | F-04 | US-01, FR-004, FR-005, FR-006, FR-008, FR-015 | done |
 | S-07 | `client-server-contract-trial` | trial the real client against the server and fix confirmed compatibility failures | S-01 | FR-004, FR-005, FR-006, FR-008, FR-015 | done |
-| S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch, unchanged | F-04 | FR-002, FR-007, FR-015 | proposed |
+| S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch with four explicit API corrections | F-04 | FR-002, FR-007, FR-015 | proposed |
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | done |
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | done |
 | S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | proposed |
@@ -329,8 +329,10 @@ never written.
 ### S-02: The administrator's surface is unchanged
 
 - **Outcome:** an administrator can manage users and authorities, read audit history,
-  maintain lookup tables, generate test data, and trigger reminder dispatch exactly as
-  before.
+  maintain lookup tables, generate test data, and trigger reminder dispatch with the
+  existing business, security, and response behavior. This slice explicitly restores four
+  confirmed API contracts: canonical creation `Location` headers for the three lookup/config
+  resources and a usable reminder-advance DELETE binding.
 - **Change ID:** `admin-surface-parity`
 - **PRD refs:** FR-002, FR-007, FR-015
 - **Prerequisites:** F-04
@@ -346,8 +348,9 @@ never written.
   `X-carcareApp-*` alert names, while `UserResource` remains on its baseline `X-carcare-*`
   contract. This slice verifies the latter's admin header, pagination, and response parity; it
   must not assume one alert-header namespace for both surfaces. The main hazard is scope creep:
-  the resources here bypass the service layer and advertise their own TODOs, and the point of this
-  change is to prove nothing moved. Resist fixing them.
+  the resources here bypass the service layer and advertise their own TODOs. The point of this
+  change is to prove nothing moved except the four explicitly authorized API corrections above;
+  resist unrelated fixes.
 - **Status:** proposed
 
 ### S-03: A user's reports and statistics match the pre-migration baseline
@@ -444,7 +447,7 @@ never written.
 | F-03 | `jakarta-platform-migration` | Migrate `src/main` to Jakarta EE 9+ and Spring Security 6, remove JHipster | done | Delivered 2026-08-25; see `context/archive/jakarta-platform-migration/`. Implementation review found and fixed 10 issues — read `reviews/impl-review.md` before F-04 |
 | F-04 | `test-context-restored` | Restore the integration-test Spring context under H2 | yes | Unblocked 2026-08-25 — F-03 delivered. Run `/10x-plan test-context-restored`; start from the F-04 handoff in `context/archive/jakarta-platform-migration/change.md` |
 | S-01 | `session-parity` | Prove a full user session is unchanged through client 1.2.5 | no | Waits on F-04 |
-| S-02 | `admin-surface-parity` | Prove the administrator surface is unchanged | no | Waits on F-04 |
+| S-02 | `admin-surface-parity` | Prove the administrator surface is unchanged apart from four explicit API corrections | no | Waits on F-04 |
 | S-03 | `report-parity` | Verify statistics and XLSX reports against the golden baseline | no | Waits on F-02 and F-04 |
 | S-04 | `english-reminder-fix` | Fix English reminder and account e-mail rendering | no | Waits on F-02 and F-04 |
 | S-05 | `vehicle-archiving` | Add vehicle archiving with history retention | no | Waits on S-01, S-03, S-04 |
