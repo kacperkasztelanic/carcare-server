@@ -419,30 +419,30 @@ Rollback is `git revert` of a single-file change; no state, schema, or artifact 
 
 #### Automated
 
-- [x] 2.1 CI configuration remains valid
-- [x] 2.2 The release path is still intact after adding the job
-- [x] 2.3 The referenced report paths are the ones the build actually produces
-- [x] 2.4 The command the job runs is green locally
+- [x] 2.1 CI configuration remains valid — 98952d0
+- [x] 2.2 The release path is still intact after adding the job — 98952d0
+- [x] 2.3 The referenced report paths are the ones the build actually produces — 98952d0
+- [x] 2.4 The command the job runs is green locally — 98952d0
 
 #### Manual
 
-- [x] 2.5 A throwaway merge request produces exactly one job, `verify`
-- [x] 2.6 The pipeline's Tests tab reports 255 tests, not zero
-- [x] 2.7 Coverage annotations appear on changed lines in the MR diff
-- [x] 2.8 A second commit cancels the first run rather than queuing
-- [x] 2.9 A deliberately broken test is named in the Tests tab
+- [x] 2.5 A throwaway merge request produces exactly one job, `verify` — 98952d0
+- [x] 2.6 The pipeline's Tests tab reports 255 tests, not zero — 98952d0
+- [x] 2.7 Coverage annotations appear on changed lines in the MR diff — 98952d0
+- [x] 2.8 A second commit cancels the first run rather than queuing — 98952d0
+- [x] 2.9 A deliberately broken test is named in the Tests tab — 98952d0
 
 ### Phase 3: Release-Path Hygiene and the Merge Gate
 
 #### Automated
 
-- [ ] 3.1 CI configuration remains valid
-- [ ] 3.2 The deprecated token variable is gone
-- [ ] 3.3 No token is passed on a command line
-- [ ] 3.4 `.m2/` is ignored
-- [ ] 3.5 The release path is unchanged one final time
+- [x] 3.1 CI configuration remains valid
+- [x] 3.2 The deprecated token variable is gone
+- [x] 3.3 No token is passed on a command line
+- [x] 3.4 `.m2/` is ignored
+- [x] 3.5 The release path is unchanged one final time
 
 #### Manual
 
 - [ ] 3.6 The next release tag pushes both images successfully (deferred — will not occur during this change)
-- [ ] 3.7 The owner has decided whether to flip "Pipelines must succeed", recorded in `change.md`
+- [x] 3.7 The owner has decided whether to flip "Pipelines must succeed", recorded in `change.md`

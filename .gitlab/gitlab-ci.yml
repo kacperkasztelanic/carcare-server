@@ -67,7 +67,7 @@ app:
         - cp target/*.war app.war
         - cp src/main/docker/Dockerfile Dockerfile
         - cp src/main/docker/entrypoint.sh entrypoint.sh
-        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - echo "$CI_JOB_TOKEN" | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
         - docker build -t $IMAGE_NAME_APP .
         - IMAGE_ID=$(docker images | grep $IMAGE_NAME_APP | awk '{print $3}')
         - docker tag $IMAGE_ID $IMAGE_NAME_APP:$CI_COMMIT_TAG
@@ -80,7 +80,7 @@ proxy:
     stage: docker
     script:
         - cp src/main/docker/reverseproxy/* .
-        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - echo "$CI_JOB_TOKEN" | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
         - docker build -t $IMAGE_NAME_PROXY .
         - IMAGE_ID=$(docker images | grep $IMAGE_NAME_PROXY | awk '{print $3}')
         - docker tag $IMAGE_ID $IMAGE_NAME_PROXY:$CI_COMMIT_TAG
