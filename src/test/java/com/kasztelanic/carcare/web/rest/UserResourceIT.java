@@ -3,6 +3,7 @@ package com.kasztelanic.carcare.web.rest;
 import com.kasztelanic.carcare.CarcareApp;
 import com.kasztelanic.carcare.domain.Authority;
 import com.kasztelanic.carcare.domain.User;
+import com.kasztelanic.carcare.repository.AuthorityRepository;
 import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.service.MailService;
@@ -34,15 +35,21 @@ import java.util.Set;
 import jakarta.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Integration tests for the {@link UserResource} REST controller.
@@ -53,6 +60,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserResourceIT {
 
     private static final String DEFAULT_LOGIN = "johndoe";
+    private static final String CREATED_LOGIN = "john@doe";
+    private static final String CREATED_EMAIL = "john@doe.local";
     private static final String UPDATED_LOGIN = "jhipster";
 
     private static final Long DEFAULT_ID = 1L;
@@ -79,6 +88,8 @@ class UserResourceIT {
     private MockMvc mockMvc;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AuthorityRepository authorityRepository;
     @Autowired
     private UserService userService;
     @Autowired
@@ -132,11 +143,11 @@ class UserResourceIT {
 
         // Create the User
         ManagedUserVm managedUserVM = new ManagedUserVm();
-        managedUserVM.setLogin(DEFAULT_LOGIN);
+        managedUserVM.setLogin(CREATED_LOGIN);
         managedUserVM.setPassword(DEFAULT_PASSWORD);
         managedUserVM.setFirstName(DEFAULT_FIRSTNAME);
         managedUserVM.setLastName(DEFAULT_LASTNAME);
-        managedUserVM.setEmail(DEFAULT_EMAIL);
+        managedUserVM.setEmail(CREATED_EMAIL);
         managedUserVM.setActivated(true);
         managedUserVM.setImageUrl(DEFAULT_IMAGEURL);
         managedUserVM.setLangKey(DEFAULT_LANGKEY);
@@ -145,18 +156,47 @@ class UserResourceIT {
         mockMvc.perform(post("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
-            .andExpect(status().isCreated());
+            .andExpect(status().isCreated())
+            .andExpect(header().string("Location", "/api/users/" + CREATED_LOGIN))
+            .andExpect(header().string("X-carcare-alert", "userManagement.created"))
+            .andExpect(header().string("X-carcare-params", "john%40doe"))
+            .andExpect(jsonPath("$.login").value(CREATED_LOGIN))
+            .andExpect(jsonPath("$.firstName").value(DEFAULT_FIRSTNAME))
+            .andExpect(jsonPath("$.lastName").value(DEFAULT_LASTNAME))
+            .andExpect(jsonPath("$.email").value(CREATED_EMAIL))
+            .andExpect(jsonPath("$.activated").value(true))
+            .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY))
+            .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGEURL))
+            .andExpect(jsonPath("$.password").doesNotExist())
+            .andExpect(jsonPath("$.authorities").doesNotExist());
 
         // Validate the User in the database
         List<User> userList = userRepository.findAll();
         assertThat(userList).hasSize(databaseSizeBeforeCreate + 1);
         User testUser = userList.get(userList.size() - 1);
-        assertThat(testUser.getLogin()).isEqualTo(DEFAULT_LOGIN);
+        assertThat(testUser.getLogin()).isEqualTo(CREATED_LOGIN);
         assertThat(testUser.getFirstName()).isEqualTo(DEFAULT_FIRSTNAME);
         assertThat(testUser.getLastName()).isEqualTo(DEFAULT_LASTNAME);
-        assertThat(testUser.getEmail()).isEqualTo(DEFAULT_EMAIL);
+        assertThat(testUser.getEmail()).isEqualTo(CREATED_EMAIL);
         assertThat(testUser.getImageUrl()).isEqualTo(DEFAULT_IMAGEURL);
         assertThat(testUser.getLangKey()).isEqualTo(DEFAULT_LANGKEY);
+        assertThat(testUser.isActivated()).isTrue();
+        assertThat(testUser.getPassword()).hasSize(60).isNotEqualTo(DEFAULT_PASSWORD);
+        assertThat(testUser.getResetKey()).isNotBlank();
+        verify(mailService, times(1)).sendCreationEmail(any(User.class));
+    }
+
+    @Test
+    @Transactional
+    void createUserWithEmptyLanguageKeyUsesDefaultLanguage() throws Exception {
+        mockMvc.perform(post("/api/users")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content("{\"login\":\"empty-lang\",\"firstName\":\"Empty\",\"lastName\":\"Language\","
+                + "\"email\":\"empty-lang@example.com\",\"activated\":true,\"langKey\":\"\","
+                + "\"authorities\":[\"ROLE_USER\"]}"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.login").value("empty-lang"))
+            .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY));
     }
 
     @Test
@@ -250,6 +290,7 @@ class UserResourceIT {
     @WithMockUser(authorities = AuthoritiesConstants.USER)
     void getAllUsers() throws Exception {
         // Initialize the database
+        user.setAuthorities(Collections.singleton(authorityRepository.findById(AuthoritiesConstants.USER).orElseThrow()));
         userRepository.saveAndFlush(user);
 
         // Get all the users
@@ -262,7 +303,54 @@ class UserResourceIT {
             .andExpect(jsonPath("$.[*].lastName").value(hasItem(DEFAULT_LASTNAME)))
             .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
             .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGEURL)))
-            .andExpect(jsonPath("$.[*].langKey").value(hasItem(DEFAULT_LANGKEY)));
+            .andExpect(jsonPath("$.[*].langKey").value(hasItem(DEFAULT_LANGKEY)))
+            .andExpect(jsonPath("$.[*].authorities").exists())
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem("user")))
+            .andExpect(jsonPath("$.[*].createdDate").exists())
+            .andExpect(jsonPath("$.[*].lastModifiedBy").value(hasItem("user")))
+            .andExpect(jsonPath("$.[*].lastModifiedDate").exists());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthoritiesConstants.USER)
+    void getAllUsersIncludesPaginationLinks() throws Exception {
+        userRepository.saveAndFlush(user);
+        User anotherUser = createEntity(em);
+        anotherUser.setLogin("paginationuser");
+        anotherUser.setEmail("paginationuser@localhost");
+        userRepository.saveAndFlush(anotherUser);
+
+        mockMvc.perform(get("/api/users")
+            .param("page", "0")
+            .param("size", "1")
+            .param("sort", "id,asc"))
+            .andExpect(status().isOk())
+            .andExpect(header().exists("X-Total-Count"))
+            .andExpect(header().string("Link", containsString("page=1")))
+            .andExpect(header().string("Link", containsString("rel=\"next\"")))
+            .andExpect(header().string("Link", containsString("rel=\"last\"")))
+            .andExpect(header().string("Link", containsString("rel=\"first\"")))
+            .andExpect(header().string("Link", containsString("size=1")));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthoritiesConstants.USER)
+    void getAllUsersReturnsStableLinksForEmptyPage() throws Exception {
+        userRepository.deleteAll();
+        userRepository.flush();
+
+        mockMvc.perform(get("/api/users")
+            .param("page", "0")
+            .param("size", "1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isEmpty())
+            .andExpect(header().string("X-Total-Count", "0"))
+            .andExpect(header().string("Link", containsString("page=0")))
+            .andExpect(header().string("Link", containsString("rel=\"last\"")))
+            .andExpect(header().string("Link", containsString("rel=\"first\"")))
+            .andExpect(header().string("Link", not(containsString("rel=\"next\""))));
     }
 
     @Test
@@ -270,6 +358,7 @@ class UserResourceIT {
     @WithMockUser(authorities = AuthoritiesConstants.USER)
     void getUser() throws Exception {
         // Initialize the database
+        user.setAuthorities(Collections.singleton(authorityRepository.findById(AuthoritiesConstants.USER).orElseThrow()));
         userRepository.saveAndFlush(user);
 
         assertThat(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).get(user.getLogin())).isNull();
@@ -283,7 +372,13 @@ class UserResourceIT {
             .andExpect(jsonPath("$.lastName").value(DEFAULT_LASTNAME))
             .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
             .andExpect(jsonPath("$.imageUrl").value(DEFAULT_IMAGEURL))
-            .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY));
+            .andExpect(jsonPath("$.langKey").value(DEFAULT_LANGKEY))
+            .andExpect(jsonPath("$.activated").value(true))
+            .andExpect(jsonPath("$.authorities").value(hasItem(AuthoritiesConstants.USER)))
+            .andExpect(jsonPath("$.createdBy").value("user"))
+            .andExpect(jsonPath("$.createdDate").exists())
+            .andExpect(jsonPath("$.lastModifiedBy").value("user"))
+            .andExpect(jsonPath("$.lastModifiedDate").exists());
 
         assertThat(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).get(user.getLogin())).isNotNull();
     }
@@ -327,6 +422,44 @@ class UserResourceIT {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthoritiesConstants.USER)
+    void updateUserAsUserIsForbidden() throws Exception {
+        ManagedUserVm managedUserVM = new ManagedUserVm();
+        managedUserVM.setId(1L);
+        managedUserVM.setLogin(DEFAULT_LOGIN);
+        managedUserVM.setPassword(UPDATED_PASSWORD);
+        managedUserVM.setFirstName(UPDATED_FIRSTNAME);
+        managedUserVM.setLastName(UPDATED_LASTNAME);
+        managedUserVM.setEmail(UPDATED_EMAIL);
+        managedUserVM.setActivated(true);
+        managedUserVM.setImageUrl(UPDATED_IMAGEURL);
+        managedUserVM.setLangKey(UPDATED_LANGKEY);
+        managedUserVM.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
+
+        mockMvc.perform(put("/api/users")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthoritiesConstants.USER)
+    void deleteUserAsUserIsForbidden() throws Exception {
+        mockMvc.perform(delete("/api/users/{login}", DEFAULT_LOGIN))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthoritiesConstants.USER)
+    void getAuthoritiesAsUserIsForbidden() throws Exception {
+        mockMvc.perform(get("/api/users/authorities"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
     void updateUser() throws Exception {
         // Initialize the database
         userRepository.saveAndFlush(user);
@@ -354,7 +487,22 @@ class UserResourceIT {
         mockMvc.perform(put("/api/users")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-carcare-alert", "userManagement.updated"))
+            .andExpect(header().string("X-carcare-params", updatedUser.getLogin()))
+            .andExpect(jsonPath("$.id").value(updatedUser.getId()))
+            .andExpect(jsonPath("$.login").value(updatedUser.getLogin()))
+            .andExpect(jsonPath("$.firstName").value(UPDATED_FIRSTNAME))
+            .andExpect(jsonPath("$.lastName").value(UPDATED_LASTNAME))
+            .andExpect(jsonPath("$.email").value(UPDATED_EMAIL))
+            .andExpect(jsonPath("$.imageUrl").value(UPDATED_IMAGEURL))
+            .andExpect(jsonPath("$.activated").value(updatedUser.isActivated()))
+            .andExpect(jsonPath("$.langKey").value(UPDATED_LANGKEY))
+            .andExpect(jsonPath("$.createdBy").value(updatedUser.getCreatedBy()))
+            .andExpect(jsonPath("$.createdDate").exists())
+            .andExpect(jsonPath("$.lastModifiedBy").value(updatedUser.getLastModifiedBy()))
+            .andExpect(jsonPath("$.lastModifiedDate").exists())
+            .andExpect(jsonPath("$.authorities").value(hasItem(AuthoritiesConstants.USER)));
 
         // Validate the User in the database
         List<User> userList = userRepository.findAll();
@@ -504,13 +652,24 @@ class UserResourceIT {
         // Delete the user
         mockMvc.perform(delete("/api/users/{login}", user.getLogin())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isNoContent())
+            .andExpect(header().string("X-carcare-alert", "userManagement.deleted"))
+            .andExpect(header().string("X-carcare-params", user.getLogin()));
 
         assertThat(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).get(user.getLogin())).isNull();
 
         // Validate the database is empty
         List<User> userList = userRepository.findAll();
         assertThat(userList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    void deleteNonExistingUserStillReturnsDeletionContract() throws Exception {
+        mockMvc.perform(delete("/api/users/{login}", "missinguser"))
+            .andExpect(status().isNoContent())
+            .andExpect(header().string("X-carcare-alert", "userManagement.deleted"))
+            .andExpect(header().string("X-carcare-params", "missinguser"));
     }
 
     @Test

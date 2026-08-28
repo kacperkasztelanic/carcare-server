@@ -404,13 +404,13 @@ need adjustment, while client 1.2.5 is unaffected because it does not consume th
 
 #### Automated
 
-- [ ] 1.1 Targeted user and audit integration verification passes
-- [ ] 1.2 Modified test sources pass whitespace validation
+- [x] 1.1 Targeted user and audit integration verification passes
+- [x] 1.2 Modified test sources pass whitespace validation
 
 #### Manual
 
-- [ ] 1.3 Frozen-client user management smoke passes
-- [ ] 1.4 Frozen-client audit history smoke passes
+- [x] 1.3 Frozen-client user management smoke passes
+- [x] 1.4 Frozen-client audit history smoke passes
 
 ### Phase 2: Lookup and Configuration Routes
 

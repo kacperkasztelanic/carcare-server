@@ -17,9 +17,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,6 +54,7 @@ class AuditResourceIT {
         auditEvent.setAuditEventType(SAMPLE_TYPE);
         auditEvent.setPrincipal(SAMPLE_PRINCIPAL);
         auditEvent.setAuditEventDate(SAMPLE_TIMESTAMP);
+        auditEvent.setData(Map.of("remoteAddress", "127.0.0.1", "sessionId", "session", "sample", "value"));
     }
 
     @Test
@@ -62,7 +66,12 @@ class AuditResourceIT {
         restAuditMockMvc.perform(get("/management/audits"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
+            .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)))
+            .andExpect(jsonPath("$[0].timestamp").value(SAMPLE_TIMESTAMP.toString()))
+            .andExpect(jsonPath("$[0].type").value(SAMPLE_TYPE))
+            .andExpect(jsonPath("$[0].data.remoteAddress").value("127.0.0.1"))
+            .andExpect(jsonPath("$[0].data.sessionId").value("session"))
+            .andExpect(jsonPath("$[0].data.sample").value("value"));
     }
 
     @Test
@@ -74,7 +83,12 @@ class AuditResourceIT {
         restAuditMockMvc.perform(get("/management/audits/{id}", auditEvent.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.principal").value(SAMPLE_PRINCIPAL));
+            .andExpect(jsonPath("$.timestamp").value(SAMPLE_TIMESTAMP.toString()))
+            .andExpect(jsonPath("$.principal").value(SAMPLE_PRINCIPAL))
+            .andExpect(jsonPath("$.type").value(SAMPLE_TYPE))
+            .andExpect(jsonPath("$.data.remoteAddress").value("127.0.0.1"))
+            .andExpect(jsonPath("$.data.sessionId").value("session"))
+            .andExpect(jsonPath("$.data.sample").value("value"));
     }
 
     @Test
@@ -90,7 +104,10 @@ class AuditResourceIT {
         restAuditMockMvc.perform(get("/management/audits?fromDate="+fromDate+"&toDate="+toDate))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)));
+            .andExpect(jsonPath("$.[*].principal").value(hasItem(SAMPLE_PRINCIPAL)))
+            .andExpect(jsonPath("$[0].timestamp").value(SAMPLE_TIMESTAMP.toString()))
+            .andExpect(jsonPath("$[0].type").value(SAMPLE_TYPE))
+            .andExpect(jsonPath("$[0].data.sample").value("value"));
     }
 
     @Test
@@ -106,7 +123,44 @@ class AuditResourceIT {
         restAuditMockMvc.perform(get("/management/audits?fromDate=" + fromDate + "&toDate=" + toDate))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(header().string("X-Total-Count", "0"));
+            .andExpect(jsonPath("$").isEmpty())
+            .andExpect(header().string("X-Total-Count", "0"))
+            .andExpect(header().string("Link", containsString("page=0")))
+            .andExpect(header().string("Link", containsString("rel=\"last\"")))
+            .andExpect(header().string("Link", containsString("rel=\"first\"")))
+            .andExpect(header().string("Link", not(containsString("rel=\"next\""))));
+    }
+
+    @Test
+    void getAuditsRetainsPagingAndDateQueryParameters() throws Exception {
+        for (int i = 0; i < 3; i++) {
+            PersistentAuditEvent event = new PersistentAuditEvent();
+            event.setAuditEventType(SAMPLE_TYPE + i);
+            event.setPrincipal(SAMPLE_PRINCIPAL + i);
+            event.setAuditEventDate(SAMPLE_TIMESTAMP.plusSeconds(i));
+            event.setData(Map.of("index", Integer.toString(i)));
+            auditEventRepository.save(event);
+        }
+        auditEventRepository.flush();
+
+        restAuditMockMvc.perform(get("/management/audits?fromDate=2015-08-03&toDate=2015-08-05&page=0&size=1&sort=id,asc"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Total-Count", "3"))
+            .andExpect(header().string("Link", containsString("fromDate=2015-08-03")))
+            .andExpect(header().string("Link", containsString("toDate=2015-08-05")))
+            .andExpect(header().string("Link", containsString("page=1")))
+            .andExpect(header().string("Link", containsString("size=1")))
+            .andExpect(header().string("Link", containsString("sort=id%2Casc")))
+            .andExpect(header().string("Link", containsString("rel=\"next\"")))
+            .andExpect(header().string("Link", containsString("rel=\"last\"")))
+            .andExpect(header().string("Link", containsString("rel=\"first\"")));
+
+        restAuditMockMvc.perform(get("/management/audits?fromDate=2015-08-03&toDate=2015-08-05&page=1&size=1&sort=id,asc"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("Link", containsString("page=0")))
+            .andExpect(header().string("Link", containsString("page=2")))
+            .andExpect(header().string("Link", containsString("rel=\"prev\"")))
+            .andExpect(header().string("Link", containsString("rel=\"next\"")));
     }
 
     @Test

@@ -58,8 +58,11 @@ public class UserDto {
 
     @Size(min = 2, max = 6)
     @Getter
-    @Setter
     private String langKey;
+
+    public void setLangKey(String langKey) {
+        this.langKey = langKey == null || langKey.isBlank() ? null : langKey;
+    }
 
     @Getter
     @Setter
