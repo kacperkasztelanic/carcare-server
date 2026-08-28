@@ -25,6 +25,7 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -58,6 +60,7 @@ public class SessionFixtures implements ApplicationRunner {
         "insurance:reminder-plus-one", "routine-service:null-next-date", "routine-service:null-next-mileage",
         "routine-service:en-reminder-plus-three", "routine-service:pl-reminder-plus-seven"
     );
+    private static final Set<String> GOLDEN_OWNER_LOGINS = Set.of("admin", "user");
 
     private final FuelTypeRepository fuelTypeRepository;
     private final InsuranceTypeRepository insuranceTypeRepository;
@@ -69,6 +72,7 @@ public class SessionFixtures implements ApplicationRunner {
     private final RoutineServiceRepository routineServiceRepository;
     private final InspectionRepository inspectionRepository;
     private final InsuranceRepository insuranceRepository;
+    private final CacheManager cacheManager;
 
     private final AtomicLong fixtureSequence = new AtomicLong();
 
@@ -286,6 +290,7 @@ public class SessionFixtures implements ApplicationRunner {
         User user = ownerFor("user");
         user.setLangKey("pl");
         userRepository.save(user);
+        evictGoldenOwnerCaches();
 
         Vehicle en = goldenVehicle("Ford", "Focus", "EN 1001", "Titanium", "Golden EN vehicle",
             "REG-EN-001", "CARD-EN", "ENPRIMARY00000001", 110, 1997, 1420, admin, diesel);
@@ -352,6 +357,17 @@ public class SessionFixtures implements ApplicationRunner {
             23_000, 7_000, LocalDate.of(2026, 4, 22), "PL Service", "Due in seven").getId());
 
         return Collections.unmodifiableMap(handles);
+    }
+
+    /**
+     * Evicts direct fixture writes from the login cache so later readers observe their persisted
+     * language keys, including readers in a different transaction or test class.
+     */
+    public void evictGoldenOwnerCaches() {
+        var usersByLogin = Objects.requireNonNull(
+            cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE),
+            "usersByLogin cache is not configured");
+        GOLDEN_OWNER_LOGINS.forEach(usersByLogin::evict);
     }
 
     private Vehicle goldenVehicle(String make, String model, String licensePlate, String modelSuffix, String notes,

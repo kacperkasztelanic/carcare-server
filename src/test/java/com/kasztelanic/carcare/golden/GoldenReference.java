@@ -21,6 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Loads a committed golden response and compares it with a live response.
@@ -37,6 +39,8 @@ public final class GoldenReference {
         .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
     private static final List<String> CAPTURED_HEADERS = List.of(
         "Content-Type", "Content-Disposition", "Cache-Control", "X-Total-Count");
+    /** Namespace for handles that represent ids serialized in vehicleId fields and raw bodies. */
+    private static final String VEHICLE_HANDLE_NAMESPACE = "vehicle:";
 
     private final String resourceName;
     private final JsonNode expected;
@@ -63,6 +67,10 @@ public final class GoldenReference {
 
     public String resourceName() {
         return resourceName;
+    }
+
+    public int status() {
+        return expected.path("status").asInt();
     }
 
     /** Compares a JSON response represented by a MockMvc response. */
@@ -206,6 +214,9 @@ public final class GoldenReference {
             if (entry.getKey() == null || entry.getValue() == null) {
                 throw new IllegalArgumentException("Golden handle map cannot contain null keys or values");
             }
+            if (!entry.getKey().startsWith(VEHICLE_HANDLE_NAMESPACE)) {
+                continue;
+            }
             String previous = seenIds.put(entry.getValue(), entry.getKey());
             if (previous != null && !previous.equals(entry.getKey())) {
                 throw new IllegalArgumentException("Golden handle map resolves id " + entry.getValue()
@@ -286,7 +297,8 @@ public final class GoldenReference {
         List<Map.Entry<String, Long>> entries = new ArrayList<>(handleToId.entrySet());
         entries.sort((left, right) -> Long.compare(right.getValue(), left.getValue()));
         for (Map.Entry<String, Long> entry : entries) {
-            normalized = normalized.replace(Long.toString(entry.getValue()), entry.getKey());
+            String id = Pattern.quote(Long.toString(entry.getValue()));
+            normalized = normalized.replaceAll("(?<!\\d)" + id + "(?!\\d)", Matcher.quoteReplacement(entry.getKey()));
         }
         return normalized;
     }

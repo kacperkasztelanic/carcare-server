@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class GoldenReferenceTest {
 
@@ -21,23 +22,40 @@ class GoldenReferenceTest {
     @Test
     void resolvesLiveVehicleIdAndComparesFixedPrecisionJsonValues() {
         GoldenReference reference = GoldenReference.load("golden/stats/consumption-period-en.json");
-        byte[] body = """
-            {
-              "periodVehicle": {
-                "vehicleId": 412,
-                "dateFrom": "2026-03-01",
-                "dateTo": "2026-03-31"
-              },
-              "volume": 87.0,
-              "mileage": 1000,
-              "averageConsumption": 8.7
-            }
-            """.getBytes(StandardCharsets.UTF_8);
+        byte[] body = consumptionPeriodBody(412);
 
         GoldenReference.Comparison comparison = reference.compareJson(200, HEADERS, body, HANDLES);
 
         assertThat(comparison.matches()).isTrue();
         assertThat(comparison.message()).contains("matches");
+    }
+
+    @Test
+    void acceptsCrossTableIdCollisionsOutsideTheVehicleNamespace() {
+        GoldenReference reference = GoldenReference.load("golden/stats/consumption-period-en.json");
+        Map<String, Long> handles = Map.of(
+            "vehicle:en-primary", 412L,
+            "fuel-type:diesel", 412L,
+            "insurance-type:oc", 412L
+        );
+
+        GoldenReference.Comparison comparison = reference.compareJson(200, HEADERS, consumptionPeriodBody(412), handles);
+
+        assertThat(comparison.matches()).isTrue();
+    }
+
+    @Test
+    void rejectsCollidingVehicleHandles() {
+        GoldenReference reference = GoldenReference.load("golden/stats/consumption-period-en.json");
+        Map<String, Long> handles = Map.of(
+            "vehicle:en-primary", 412L,
+            "vehicle:pl-primary", 412L
+        );
+
+        assertThatThrownBy(() -> reference.compareJson(200, HEADERS, consumptionPeriodBody(412), handles))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("vehicle:en-primary")
+            .hasMessageContaining("vehicle:pl-primary");
     }
 
     @Test
@@ -106,5 +124,20 @@ class GoldenReferenceTest {
             cell.setCellStyle(money);
             cell.setCellValue(values[column]);
         }
+    }
+
+    private static byte[] consumptionPeriodBody(long vehicleId) {
+        return ("""
+            {
+              "periodVehicle": {
+                "vehicleId": %d,
+                "dateFrom": "2026-03-01",
+                "dateTo": "2026-03-31"
+              },
+              "volume": 87.0,
+              "mileage": 1000,
+              "averageConsumption": 8.7
+            }
+            """.formatted(vehicleId)).getBytes(StandardCharsets.UTF_8);
     }
 }

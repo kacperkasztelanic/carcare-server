@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /** Proves that the H2-side builders mirror the rows captured from the baseline SQL fixture. */
 class GoldenDatasetMirrorIT extends AbstractSessionIT {
@@ -160,6 +161,15 @@ class GoldenDatasetMirrorIT extends AbstractSessionIT {
             22_000, 12_000, LocalDate.of(2026, 4, 18), "EN Service", "Due in three");
         assertRoutineService(ids, "routine-service:pl-reminder-plus-seven", pl, 4_950, LocalDate.of(2026, 3, 14),
             23_000, 7_000, LocalDate.of(2026, 4, 22), "PL Service", "Due in seven");
+    }
+
+    @Test
+    void goldenHandleMapIsAcceptedByGoldenReference() {
+        Map<String, Long> ids = sessionFixtures.seedGoldenDataset();
+        GoldenReference reference = GoldenReference.load("golden/stats/consumption-period-en.json");
+
+        assertThatCode(() -> reference.compareJson(0, Map.of(), new byte[0], ids))
+            .doesNotThrowAnyException();
     }
 
     private Vehicle vehicle(Map<String, Long> ids, String handle) {

@@ -525,15 +525,15 @@ ordering Phase 4 §4 pins with a before/after assertion rather than assuming ine
 
 #### Automated
 
-- [ ] 1.1 Compiles: `./mvnw -o -B test-compile`
-- [ ] 1.2 Golden unit tests pass: `./mvnw -o -B test -Dtest=GoldenReferenceTest`
-- [ ] 1.3 Fixture IT passes: `./mvnw -o -B verify -Dit.test=GoldenDatasetMirrorIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false`
-- [ ] 1.4 Full suite still green with no test count regression
+- [x] 1.1 Compiles: `./mvnw -o -B test-compile`
+- [x] 1.2 Golden unit tests pass: `./mvnw -o -B test -Dtest=GoldenReferenceTest`
+- [x] 1.3 Fixture IT passes: `./mvnw -o -B verify -Dit.test=GoldenDatasetMirrorIT -DskipUTs -Dsurefire.failIfNoSpecifiedTests=false`
+- [x] 1.4 Full suite still green with no test count regression
 
 #### Manual
 
-- [ ] 1.5 The `vehicle:` namespace constant reads as a documented contract, not a magic string
-- [ ] 1.6 A colliding non-vehicle handle no longer aborts a comparison
+- [x] 1.5 The `vehicle:` namespace constant reads as a documented contract, not a magic string
+- [x] 1.6 A colliding non-vehicle handle no longer aborts a comparison
 
 ### Phase 2: i18n de-shadowing and a guard against recurrence
 
