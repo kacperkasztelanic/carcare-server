@@ -199,6 +199,102 @@ Repeatability was verified from a newly created `carcare` database: stop the app
 the app so Liquibase recreates the schema, reload `golden-dataset.sql`, then run the throwaway
 driver and reducers again. All eleven reduced JSON files compared byte-for-byte with this set.
 
+## Phase 4 reminder capture
+
+The reminder runner is the throwaway
+`src/test/java/com/kasztelanic/carcare/golden/ReminderCaptureMain.java` in the baseline
+worktree. It executes the baseline `ReminderServiceImpl` directly, with repository proxies
+returning the Phase 2 rows and a synchronous `MailService` subclass collecting the three typed
+send methods. This removes the `@Async` proxy from the observation point while keeping the
+selection code itself unchanged. The repository proxies apply the same `findBy…In` membership
+filters as the JPA repositories, including the null-safe exclusion for
+`routine-service:null-next-date`.
+
+The exact runner preparation and fixed-clock invocation were:
+
+```bash
+cd /private/tmp/carcare-golden-baseline-6e19b96
+export JAVA_HOME=/Users/kacper/.sdkman/candidates/java/17.0.20-tem
+./mvnw -o -B -DskipTests test-compile
+
+war_dir=$(mktemp -d /private/tmp/carcare-golden-war.XXXXXX)
+unzip -q target/carcare-1.3.5.war -d "$war_dir"
+docker exec carcare-golden-baseline-app-clock sh -lc \
+  'mkdir -p /tmp/carcare-golden-war /tmp/carcare-golden-runner'
+docker cp "$war_dir/WEB-INF" \
+  carcare-golden-baseline-app-clock:/tmp/carcare-golden-war/
+docker cp target/test-classes/com \
+  carcare-golden-baseline-app-clock:/tmp/carcare-golden-runner/
+
+docker exec carcare-golden-baseline-app-clock sh -lc '
+  export LD_PRELOAD="$(find /usr/lib -name libfaketime.so.1 -print -quit)"
+  export FAKETIME="@2026-04-15 12:00:00"
+  export FAKETIME_DONT_FAKE_MONOTONIC=1
+  date -u
+  rm -rf /tmp/carcare-golden-reminders
+  mkdir -p /tmp/carcare-golden-reminders
+  exec java -Duser.timezone=UTC \
+    -cp "/tmp/carcare-golden-war/WEB-INF/classes:/tmp/carcare-golden-war/WEB-INF/lib/*:/tmp/carcare-golden-runner" \
+    com.kasztelanic.carcare.golden.ReminderCaptureMain \
+    /tmp/carcare-golden-reminders/typed-seam.json \
+    /tmp/carcare-golden-reminders/full-path.json
+'
+mkdir -p /private/tmp/carcare-golden-reminders
+docker cp carcare-golden-baseline-app-clock:/tmp/carcare-golden-reminders/typed-seam.json \
+  /private/tmp/carcare-golden-reminders/typed-seam.json
+docker cp carcare-golden-baseline-app-clock:/tmp/carcare-golden-reminders/full-path.json \
+  /private/tmp/carcare-golden-reminders/full-path.json
+```
+
+The runner first calls `sendInsuranceReminders`, `sendInspectionReminders`, and
+`sendRoutineServiceReminders` with `now = 2026-04-15` and
+`dates = [2026-04-18, 2026-04-22]`, then clears the collector and calls `sendReminders()`. The
+second call derives those dates from the two `reminder_advances` rows while `LocalDate.now()` is
+held at the same value by `libfaketime`. Its startup line is
+`Wed Apr 15 12:00:00 PM UTC 2026`; a separate `docker exec … date` is not evidence because exec
+processes do not inherit the app/runner preload environment.
+
+| Golden file | Capture path | Entries |
+| --- | --- | --- |
+| `src/test/resources/golden/reminders/typed-seam.json` | Explicit-date calls on all three typed methods | 6 |
+| `src/test/resources/golden/reminders/full-path.json` | `sendReminders()` with fixed `LocalDate.now()` | 6 |
+
+Both files carry `referenceDate`, the sorted `dates` set, the configured advances `[3, 7]`, and
+entries sorted by `(eventType, ownerLogin, vehicleHandle, eventHandle)`. The selected rows are
+the `+3` and `+7` insurance, inspection, and routine-service rows, once for each owner. The
+`+1` insurance row (`insurance:reminder-plus-one`), the `-1` inspection row
+(`inspection:reminder-minus-one`), and the null-date routine service
+(`routine-service:null-next-date`) are absent from both files. The typed and full-path files were
+compared entry-for-entry and byte-for-byte.
+
+To repeat the run on a later host calendar day while preserving the reference date, keep the
+same `FAKETIME` invocation and use a separate output directory:
+
+```bash
+docker exec carcare-golden-baseline-app-clock sh -lc '
+  export LD_PRELOAD="$(find /usr/lib -name libfaketime.so.1 -print -quit)"
+  export FAKETIME="@2026-04-15 12:00:00"
+  export FAKETIME_DONT_FAKE_MONOTONIC=1
+  rm -rf /tmp/carcare-golden-reminders-repeat
+  mkdir -p /tmp/carcare-golden-reminders-repeat
+  exec java -Duser.timezone=UTC \
+    -cp "/tmp/carcare-golden-war/WEB-INF/classes:/tmp/carcare-golden-war/WEB-INF/lib/*:/tmp/carcare-golden-runner" \
+    com.kasztelanic.carcare.golden.ReminderCaptureMain \
+    /tmp/carcare-golden-reminders-repeat/typed-seam.json \
+    /tmp/carcare-golden-reminders-repeat/full-path.json
+'
+docker cp carcare-golden-baseline-app-clock:/tmp/carcare-golden-reminders-repeat/typed-seam.json \
+  /private/tmp/carcare-golden-reminders-repeat-typed.json
+docker cp carcare-golden-baseline-app-clock:/tmp/carcare-golden-reminders-repeat/full-path.json \
+  /private/tmp/carcare-golden-reminders-repeat-full.json
+cmp -s /private/tmp/carcare-golden-reminders/typed-seam.json \
+  /private/tmp/carcare-golden-reminders-repeat-typed.json
+cmp -s /private/tmp/carcare-golden-reminders/full-path.json \
+  /private/tmp/carcare-golden-reminders-repeat-full.json
+```
+
+The later pinned-clock run produced no `cmp` output (exit status 0) for either file.
+
 ## Teardown (after Phase 4)
 
 ```bash

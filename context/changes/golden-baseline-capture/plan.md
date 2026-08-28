@@ -695,35 +695,35 @@ manually during capture; it is never applied by Liquibase and never runs in `dev
 
 #### Automated
 
-- [x] 3.1 Every endpoint call returns the status recorded in `reference.md`, 5xx included
-- [x] 3.2 A golden file exists for every call listed in `reference.md`
-- [x] 3.3 Re-running the capture produces byte-identical golden files
-- [x] 3.4 Every number parses as fixed-precision decimal or is a documented sentinel
-- [x] 3.5 No golden file contains a raw entity id; identities are Phase 2 handles
+- [x] 3.1 Every endpoint call returns the status recorded in `reference.md`, 5xx included — 1a32eaf
+- [x] 3.2 A golden file exists for every call listed in `reference.md` — 1a32eaf
+- [x] 3.3 Re-running the capture produces byte-identical golden files — 1a32eaf
+- [x] 3.4 Every number parses as fixed-precision decimal or is a documented sentinel — 1a32eaf
+- [x] 3.5 No golden file contains a raw entity id; identities are Phase 2 handles — 1a32eaf
 
 #### Manual
 
-- [x] 3.6 Both report locales captured with differing sheet names
-- [x] 3.7 Zero-volume refuel unit-price cell shows the `Infinity` sentinel
-- [x] 3.8 Zero-mileage consumption and same-date mileage merge are visible in captured values
-- [x] 3.9 Three captured figures hand-verified against the fixture rows
+- [x] 3.6 Both report locales captured with differing sheet names — 1a32eaf
+- [x] 3.7 Zero-volume refuel unit-price cell shows the `Infinity` sentinel — 1a32eaf
+- [x] 3.8 Zero-mileage consumption and same-date mileage merge are visible in captured values — 1a32eaf
+- [x] 3.9 Three captured figures hand-verified against the fixture rows — 1a32eaf
 
 ### Phase 4: Capture reminder selection
 
 #### Automated
 
-- [ ] 4.1 Both reminder golden files exist and are sorted by the documented total order
-- [ ] 4.2 Rows at `+1` and `-1` day from an advance appear in neither file
-- [ ] 4.3 The null-`nextByDate` routine service appears in neither file
-- [ ] 4.4 Rows exactly on an advance appear in both files, for both owners
-- [ ] 4.5 Typed-seam and full-path captures agree entry-for-entry
-- [ ] 4.6 Re-running the capture on a different day, clock pinned, produces byte-identical files
-- [ ] 4.7 No leftover worktree and no capture container left running
+- [x] 4.1 Both reminder golden files exist and are sorted by the documented total order
+- [x] 4.2 Rows at `+1` and `-1` day from an advance appear in neither file
+- [x] 4.3 The null-`nextByDate` routine service appears in neither file
+- [x] 4.4 Rows exactly on an advance appear in both files, for both owners
+- [x] 4.5 Typed-seam and full-path captures agree entry-for-entry
+- [x] 4.6 Re-running the capture on a different day, clock pinned, produces byte-identical files
+- [x] 4.7 No leftover worktree and no capture container left running
 
 #### Manual
 
-- [ ] 4.8 Captured `diff` values match the configured advances
-- [ ] 4.9 `reference.md` alone is sufficient to reproduce every golden file
+- [x] 4.8 Captured `diff` values match the configured advances
+- [x] 4.9 `reference.md` alone is sufficient to reproduce every golden file
 
 ### Phase 5: Build the consumption harness at HEAD
 

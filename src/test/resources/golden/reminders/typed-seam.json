@@ -1,0 +1,54 @@
+{
+  "referenceDate" : "2026-04-15",
+  "dates" : [ "2026-04-18", "2026-04-22" ],
+  "configuredAdvances" : [ 3, 7 ],
+  "entries" : [ {
+    "eventType" : "INSPECTION",
+    "ownerLogin" : "admin",
+    "ownerLangKey" : "en",
+    "vehicleHandle" : "vehicle:en-primary",
+    "eventHandle" : "inspection:en-reminder-plus-three",
+    "dueDate" : "2026-04-18",
+    "diff" : 3
+  }, {
+    "eventType" : "INSPECTION",
+    "ownerLogin" : "user",
+    "ownerLangKey" : "pl",
+    "vehicleHandle" : "vehicle:pl-primary",
+    "eventHandle" : "inspection:pl-reminder-plus-seven",
+    "dueDate" : "2026-04-22",
+    "diff" : 7
+  }, {
+    "eventType" : "INSURANCE",
+    "ownerLogin" : "admin",
+    "ownerLangKey" : "en",
+    "vehicleHandle" : "vehicle:en-primary",
+    "eventHandle" : "insurance:en-reminder-plus-three",
+    "dueDate" : "2026-04-18",
+    "diff" : 3
+  }, {
+    "eventType" : "INSURANCE",
+    "ownerLogin" : "user",
+    "ownerLangKey" : "pl",
+    "vehicleHandle" : "vehicle:pl-primary",
+    "eventHandle" : "insurance:pl-reminder-plus-seven",
+    "dueDate" : "2026-04-22",
+    "diff" : 7
+  }, {
+    "eventType" : "ROUTINE_SERVICE",
+    "ownerLogin" : "admin",
+    "ownerLangKey" : "en",
+    "vehicleHandle" : "vehicle:en-primary",
+    "eventHandle" : "routine-service:en-reminder-plus-three",
+    "dueDate" : "2026-04-18",
+    "diff" : 3
+  }, {
+    "eventType" : "ROUTINE_SERVICE",
+    "ownerLogin" : "user",
+    "ownerLangKey" : "pl",
+    "vehicleHandle" : "vehicle:pl-primary",
+    "eventHandle" : "routine-service:pl-reminder-plus-seven",
+    "dueDate" : "2026-04-22",
+    "diff" : 7
+  } ]
+}
