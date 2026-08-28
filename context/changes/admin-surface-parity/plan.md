@@ -404,21 +404,21 @@ need adjustment, while client 1.2.5 is unaffected because it does not consume th
 
 #### Automated
 
-- [x] 1.1 Targeted user and audit integration verification passes
-- [x] 1.2 Modified test sources pass whitespace validation
+- [x] 1.1 Targeted user and audit integration verification passes — 5c38b47
+- [x] 1.2 Modified test sources pass whitespace validation — 5c38b47
 
 #### Manual
 
-- [x] 1.3 Frozen-client user management smoke passes
-- [x] 1.4 Frozen-client audit history smoke passes
+- [x] 1.3 Frozen-client user management smoke passes — 5c38b47
+- [x] 1.4 Frozen-client audit history smoke passes — 5c38b47
 
 ### Phase 2: Lookup and Configuration Routes
 
 #### Automated
 
-- [ ] 2.1 Targeted lookup/configuration integration verification passes
-- [ ] 2.2 Canonical Locations and enabled reminder DELETE behavior are asserted
-- [ ] 2.3 Production and test changes pass whitespace validation
+- [x] 2.1 Targeted lookup/configuration integration verification passes
+- [x] 2.2 Canonical Locations and enabled reminder DELETE behavior are asserted
+- [x] 2.3 Production and test changes pass whitespace validation
 
 ### Phase 3: Operational Endpoints and Reminder Selection
 

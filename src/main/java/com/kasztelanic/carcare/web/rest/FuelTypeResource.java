@@ -57,7 +57,7 @@ public class FuelTypeResource {
                 fuelTypeDto.getPolishTranslation()//
             )//
         );
-        return ResponseEntity.created(UriUtil.buildURI(String.format("/api/fuelType/%s", fuelType.getType())))
+        return ResponseEntity.created(UriUtil.buildURI(String.format("/api/fuel-type/%s", fuelType.getType())))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, fuelType.getType()))
             .body(fuelType.getType());
     }

@@ -37,13 +37,13 @@ public class ReminderAdvanceResource {
     public ResponseEntity<Integer> addReminderAdvance(@PathVariable Integer days) {
         ReminderAdvance reminderAdvance = reminderAdvanceRepository.save(ReminderAdvance.of(days));
         return ResponseEntity
-            .created(UriUtil.buildURI(String.format("/api/insuranceType/%s", reminderAdvance.getDays())))
+            .created(UriUtil.buildURI(String.format("/api/reminder-advance/%s", reminderAdvance.getDays())))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, String.valueOf(reminderAdvance.getDays())))
             .body(reminderAdvance.getDays());
     }
 
     @Transactional
-    @DeleteMapping("/{type}")
+    @DeleteMapping("/{days}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteReminderAdvance(@PathVariable Integer days) {
         Optional<ReminderAdvance> reminderAdvance = reminderAdvanceRepository.findByDays(days);
