@@ -53,7 +53,7 @@ event types against the same paths, payloads, and status codes as before.
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | done |
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | done |
 | S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | proposed |
-| S-06 | `merge-request-ci` | (developer) get compile, test, and verify feedback on a merge request | S-01 | FR-015, FR-017 | proposed |
+| S-06 | `merge-request-ci` | (developer) get compile, test, and verify feedback on a merge request | S-01 | FR-015, FR-017 | done |
 
 ## Streams
 
@@ -436,7 +436,7 @@ never written.
   regression suite built across S-01 to S-05 would never execute in CI. That is the same
   mechanism by which a total suite outage went unnoticed from 2022-08-01 onward. Sequenced
   after S-01 because a green pipeline over a suite that does not yet exist proves nothing.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -574,3 +574,4 @@ never written.
 - **F-02: (foundation) reference report values, statistics figures, and reminder selections exist, produced from commit `6e19b96` — the newest commit that builds and runs — and are comparable against post-migration output.** — Archived 2026-08-28 → `context/archive/2026-08-27-golden-baseline-capture/`. Lesson: —.
 - **S-03: an owner can request consumption, mileage, and cost statistics and both XLSX reports, and receive output matching the F-02 reference at value level — cell values, computed figures, and content type.** — Archived 2026-08-28 → `context/archive/2026-08-28-report-parity/`. Lesson: —.
 - **S-02: an administrator can manage users and authorities, read audit history, maintain lookup tables, generate test data, and trigger reminder dispatch with the existing business, security, and response behavior. This slice explicitly restores four confirmed API contracts: canonical creation `Location` headers for the three lookup/config resources and a usable reminder-advance DELETE binding.** — Archived 2026-08-28 → `context/archive/2026-08-28-admin-surface-parity/`. Lesson: —.
+- **S-06: a developer opening a merge request receives automated compile, test, and verify results, rather than verification running only on tags.** — Archived 2026-08-28 → `context/archive/2026-08-28-merge-request-ci/`. Lesson: —.
