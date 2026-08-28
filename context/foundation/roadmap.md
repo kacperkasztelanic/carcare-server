@@ -3,7 +3,7 @@ project: "CarCare Server"
 version: 1
 status: draft
 created: 2026-08-24
-updated: 2026-08-27
+updated: 2026-08-28
 prd_version: 1
 main_goal: speed
 top_blocker: none
@@ -51,7 +51,7 @@ event types against the same paths, payloads, and status codes as before.
 | S-07 | `client-server-contract-trial` | trial the real client against the server and fix confirmed compatibility failures | S-01 | FR-004, FR-005, FR-006, FR-008, FR-015 | done |
 | S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch, unchanged | F-04 | FR-002, FR-007, FR-015 | proposed |
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | proposed |
-| S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | proposed |
+| S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | done |
 | S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | proposed |
 | S-06 | `merge-request-ci` | (developer) get compile, test, and verify feedback on a merge request | S-01 | FR-015, FR-017 | proposed |
 
@@ -392,7 +392,7 @@ never written.
   an explicit stop condition rather than an estimate. Reminder selection is compared against
   F-02's reference so that "only rendering changed" is a verified claim rather than an
   intention.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: An owner archives a vehicle that has history
 
@@ -566,3 +566,4 @@ never written.
 
 - **F-04: (foundation) `./mvnw verify` boots a Spring context against H2 and the integration suite runs on its merits instead of erroring at startup — the 20 remaining `javax.*` imports in `src/test` are converted, `tech.jhipster.domain.util.FixedH2Dialect` is replaced, and the schema-validation mismatch beneath it is resolved.** — Archived 2026-08-26 → `context/archive/2026-08-25-test-context-restored/`. Lesson: —.
 - **S-07: the frozen React client can be exercised against a clean MariaDB-backed server in a real browser; every observed client/server mismatch is either fixed with coverage or recorded as a deliberate compatibility decision.** — Archived 2026-08-27 → `context/archive/2026-08-27-client-server-contract-trial/`. Lesson: —.
+- **S-04: an owner whose account language is English receives a correctly rendered reminder naming the vehicle and the expiry, with Polish unaffected and reminder selection semantics unchanged.** — Archived 2026-08-28 → `context/archive/2026-08-28-english-reminder-fix/`. Lesson: —.
