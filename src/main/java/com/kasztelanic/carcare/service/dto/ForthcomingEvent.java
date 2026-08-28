@@ -30,8 +30,13 @@ public class ForthcomingEvent implements Comparable<ForthcomingEvent> {
 
     @Override
     public int compareTo(ForthcomingEvent o) {
+        // Both fields are nullable: a routine service can carry no next date and no next mileage.
+        // Order nulls last rather than dereferencing them.
+        if (dateThru == null || o.dateThru == null) {
+            return dateThru == o.dateThru ? 0 : (dateThru == null ? 1 : -1);
+        }
         int result = dateThru.compareTo(o.dateThru);
-        if (result == 0 && mileageThru > 0 && o.mileageThru > 0) {
+        if (result == 0 && mileageThru != null && o.mileageThru != null && mileageThru > 0 && o.mileageThru > 0) {
             return mileageThru - o.mileageThru;
         }
         return result;

@@ -1,11 +1,9 @@
 package com.kasztelanic.carcare.golden;
 
-import com.kasztelanic.carcare.repository.RoutineServiceRepository;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import com.kasztelanic.carcare.web.rest.AbstractSessionIT;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.transaction.AfterTransaction;
 
 import java.time.LocalDate;
@@ -23,9 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Permanent value-level parity checks for the captured report and statistics responses. */
 class ReportParityIT extends AbstractSessionIT {
-
-    @Autowired
-    private RoutineServiceRepository routineServiceRepository;
 
     private static final LocalDate DATE_FROM = LocalDate.of(2026, 3, 1);
     private static final LocalDate DATE_TO = LocalDate.of(2026, 3, 31);
@@ -156,7 +151,8 @@ class ReportParityIT extends AbstractSessionIT {
     @Test
     void forthcomingEventsKeepTheCapturedOrdering() throws Exception {
         Map<String, Long> ids = sessionFixtures.seedGoldenDataset();
-        routineServiceRepository.deleteById(ids.get("routine-service:null-next-date"));
+        // routine-service:null-next-date stays in the fixture: it is the shape that used to 500
+        // this endpoint, and it must now be filtered out rather than sorted.
 
         mockMvc.perform(post("/api/events")
                 .with(user("admin"))

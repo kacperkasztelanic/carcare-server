@@ -87,7 +87,10 @@ public class EventServiceImpl implements EventService {
     private Stream<ForthcomingEvent> findForthcomingRoutineServices(PeriodVehicle periodVehicle,
                                                                     Collection<RoutineServiceDto> routineServices) {
         return routineServices.stream()//
-            .filter(x -> x.getNextByDate() == null || !x.getNextByDate().isBefore(periodVehicle.getDateFrom())//
+            // `==  null ||` used to read as a null guard, but `&&` binds tighter, so it admitted
+            // every dateless routine service into the window and then NPEd in the sort. A routine
+            // service with no next date has nothing forthcoming: exclude it.
+            .filter(x -> x.getNextByDate() != null && !x.getNextByDate().isBefore(periodVehicle.getDateFrom())//
                 && !x.getNextByDate().isAfter(periodVehicle.getDateTo()))//
             .map(x -> ForthcomingEvent.builder()//
                 .vehicleId(periodVehicle.getVehicleId())//
