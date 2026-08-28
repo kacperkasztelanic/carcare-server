@@ -405,15 +405,15 @@ Rollback is `git revert` of a single-file change; no state, schema, or artifact 
 
 #### Automated
 
-- [ ] 1.1 CI configuration is syntactically valid
-- [ ] 1.2 A tag ref still produces all four release jobs
-- [ ] 1.3 A plain branch ref produces none of the four release jobs
-- [ ] 1.4 No `only:` or `except:` key remains in the file
-- [ ] 1.5 The tag rule is present in the workflow block
+- [x] 1.1 CI configuration is syntactically valid
+- [x] 1.2 A tag ref still produces all four release jobs
+- [x] 1.3 A plain branch ref produces none of the four release jobs
+- [x] 1.4 No `only:` or `except:` key remains in the file
+- [x] 1.5 The tag rule is present in the workflow block
 
 #### Manual
 
-- [ ] 1.6 Diff confirms no job's `script:` block changed
+- [x] 1.6 Diff confirms no job's `script:` block changed
 
 ### Phase 2: The Merge-Request Verify Job
 

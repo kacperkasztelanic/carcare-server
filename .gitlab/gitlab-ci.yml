@@ -1,9 +1,13 @@
-image: docker:latest
-services:
-    - docker:dind
-cache:
-    paths:
-        - .m2/repository
+default:
+    image: docker:latest
+    services:
+        - docker:dind
+    cache:
+        key:
+            files:
+                - pom.xml
+        paths:
+            - .m2/repository
 variables:
     IMAGE_NAME_APP: "registry.gitlab.com/kkasztel_carcare/server/app"
     IMAGE_NAME_PROXY: "registry.gitlab.com/kkasztel_carcare/server/proxy"
@@ -13,15 +17,21 @@ stages:
     - build
     - docker
 
+workflow:
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        - if: $CI_COMMIT_TAG
+        - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+          when: never
+        - if: $CI_COMMIT_BRANCH
+
 test:
     stage: test
     image: eclipse-temurin:17
     script:
         - './mvnw test -s .gitlab/ci_settings.xml'
-    only:
-        - tags
-    except:
-        - branches
+    rules:
+        - if: $CI_COMMIT_TAG
 build:
     stage: build
     image: eclipse-temurin:17
@@ -30,10 +40,8 @@ build:
     artifacts:
         paths:
             - target/*.war
-    only:
-        - tags
-    except:
-        - branches
+    rules:
+        - if: $CI_COMMIT_TAG
 app:
     stage: docker
     script:
@@ -47,10 +55,8 @@ app:
         - docker tag $IMAGE_ID $IMAGE_NAME_APP:latest
         - docker push $IMAGE_NAME_APP:$CI_COMMIT_TAG
         - docker push $IMAGE_NAME_APP:latest
-    only:
-        - tags
-    except:
-        - branches
+    rules:
+        - if: $CI_COMMIT_TAG
 proxy:
     stage: docker
     script:
@@ -62,7 +68,5 @@ proxy:
         - docker tag $IMAGE_ID $IMAGE_NAME_PROXY:latest
         - docker push $IMAGE_NAME_PROXY:$CI_COMMIT_TAG
         - docker push $IMAGE_NAME_PROXY:latest
-    only:
-        - tags
-    except:
-        - branches
+    rules:
+        - if: $CI_COMMIT_TAG
