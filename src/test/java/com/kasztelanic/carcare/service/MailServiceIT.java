@@ -4,10 +4,15 @@ import com.kasztelanic.carcare.config.Constants;
 
 import com.kasztelanic.carcare.CarcareApp;
 import com.kasztelanic.carcare.config.ApplicationProperties;
+import com.kasztelanic.carcare.domain.Inspection;
+import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.domain.RoutineService;
 import com.kasztelanic.carcare.domain.User;
+import com.kasztelanic.carcare.domain.Vehicle;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.assertj.core.api.SoftAssertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
@@ -30,6 +35,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +51,7 @@ import static org.mockito.Mockito.*;
 class MailServiceIT {
 
     private static final String[] LANGUAGES = { "en", "pl" };
+    private static final LocalDate REMINDER_DATE = LocalDate.of(2026, 4, 18);
     private static final Pattern PATTERN_LOCALE_3 = Pattern.compile("([a-z]{2})-([a-zA-Z]{4})-([a-z]{2})");
     private static final Pattern PATTERN_LOCALE_2 = Pattern.compile("([a-z]{2})-([a-z]{2})");
 
@@ -185,6 +192,12 @@ class MailServiceIT {
         assertThat(message.getFrom()[0].toString()).isEqualTo(applicationProperties.getMail().getFrom());
         assertThat(message.getContent().toString()).isNotEmpty();
         assertThat(message.getDataHandler().getContentType()).isEqualTo("text/html;charset=UTF-8");
+
+        user.setLangKey("pl");
+        mailService.sendCreationEmail(user);
+        verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
+        message = messageCaptor.getValue();
+        assertThat(message.getContent().toString()).contains("kliknij poniższy link");
     }
 
     @Test
@@ -206,6 +219,112 @@ class MailServiceIT {
     void testSendEmailWithException() throws Exception {
         doThrow(MailSendException.class).when(javaMailSender).send(any(MimeMessage.class));
         mailService.sendEmail("john.doe@example.com", "testSubject", "testContent", false, false);
+    }
+
+    @Test
+    void testSendRoutineServiceReminderEmail() throws Exception {
+        User user = new User();
+        user.setLogin("john");
+        user.setEmail("john.doe@example.com");
+        Vehicle vehicle = Vehicle.builder()
+            .make("Toyota")
+            .model("Corolla")
+            .licensePlate("WX 12345")
+            .build();
+        RoutineService routineService = RoutineService.builder()
+            .nextByDate(REMINDER_DATE)
+            .details("Oil change")
+            .build();
+        SoftAssertions softly = new SoftAssertions();
+
+        for (String langKey : LANGUAGES) {
+            user.setLangKey(langKey);
+            mailService.sendRoutineServiceReminderEmail(user, vehicle, routineService, 3);
+            verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
+            MimeMessage message = messageCaptor.getValue();
+            String content = message.getContent().toString();
+
+            softly.assertThat(message.getSubject()).isEqualTo(langKey.equals("en")
+                ? "CarCare - service reminder"
+                : "CarCare - przypomnienie o obsłudze");
+            softly.assertThat(content).contains(langKey.equals("en")
+                ? "Hello john,"
+                : "Cześć john,");
+            softly.assertThat(content).contains(langKey.equals("en")
+                ? "Please bear in mind that in 3 days i.e. 2026-04-18 the following services should be carried out for your vehicle Toyota Corolla (WX 12345): Oil change."
+                : "W systemie zaznaczono, że w pojeździe Toyota Corolla (WX 12345) w ciągu 3 dni, tj. 2026-04-18, powinna zostać wykonana następująca obsługa: Oil change.");
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    void testSendInsuranceReminderEmail() throws Exception {
+        User user = new User();
+        user.setLogin("john");
+        user.setEmail("john.doe@example.com");
+        Vehicle vehicle = Vehicle.builder()
+            .make("Toyota")
+            .model("Corolla")
+            .licensePlate("WX 12345")
+            .build();
+        Insurance insurance = Insurance.builder()
+            .validThru(REMINDER_DATE)
+            .build();
+        SoftAssertions softly = new SoftAssertions();
+
+        for (String langKey : LANGUAGES) {
+            user.setLangKey(langKey);
+            mailService.sendInsuranceReminderEmail(user, vehicle, insurance, 3);
+            verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
+            MimeMessage message = messageCaptor.getValue();
+            String content = message.getContent().toString();
+
+            softly.assertThat(message.getSubject()).isEqualTo(langKey.equals("en")
+                ? "CarCare - insurance reminder"
+                : "CarCare - przypomnienie o ubezpieczeniu");
+            softly.assertThat(content).contains(langKey.equals("en")
+                ? "Hello john,"
+                : "Cześć john,");
+            softly.assertThat(content).contains(langKey.equals("en")
+                ? "Please bear in mind that the insurance for your vehicle Toyota Corolla (WX 12345) will expire in 3 days i.e. 2026-04-18."
+                : "Ważność polisy ubezpieczeniowej dla Twojego pojazdu Toyota Corolla (WX 12345) zakończy się w ciągu 3 dni, tj. 2026-04-18.");
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    void testSendInspectionReminderEmail() throws Exception {
+        User user = new User();
+        user.setLogin("john");
+        user.setEmail("john.doe@example.com");
+        Vehicle vehicle = Vehicle.builder()
+            .make("Toyota")
+            .model("Corolla")
+            .licensePlate("WX 12345")
+            .build();
+        Inspection inspection = Inspection.builder()
+            .validThru(REMINDER_DATE)
+            .build();
+        SoftAssertions softly = new SoftAssertions();
+
+        for (String langKey : LANGUAGES) {
+            user.setLangKey(langKey);
+            mailService.sendInspectionReminderEmail(user, vehicle, inspection, 3);
+            verify(javaMailSender, atLeastOnce()).send(messageCaptor.capture());
+            MimeMessage message = messageCaptor.getValue();
+            String content = message.getContent().toString();
+
+            softly.assertThat(message.getSubject()).isEqualTo(langKey.equals("en")
+                ? "CarCare - inspection reminder"
+                : "CarCare - przypomnienie o przeglądzie");
+            softly.assertThat(content).contains(langKey.equals("en")
+                ? "Hello john,"
+                : "Cześć john,");
+            softly.assertThat(content).contains(langKey.equals("en")
+                ? "Please bear in mind that the technical inspection of your vehicle Toyota Corolla (WX 12345) should be carried out in 3 days i.e. 2026-04-18."
+                : "Ważność przeglądu technicznego Twojego pojazdu Toyota Corolla (WX 12345) zakończy się w ciągu 3 dni, tj. 2026-04-18.");
+        }
+        softly.assertAll();
     }
 
     @Test
