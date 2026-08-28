@@ -405,32 +405,32 @@ Rollback is `git revert` of a single-file change; no state, schema, or artifact 
 
 #### Automated
 
-- [x] 1.1 CI configuration is syntactically valid
-- [x] 1.2 A tag ref still produces all four release jobs
-- [x] 1.3 A plain branch ref produces none of the four release jobs
-- [x] 1.4 No `only:` or `except:` key remains in the file
-- [x] 1.5 The tag rule is present in the workflow block
+- [x] 1.1 CI configuration is syntactically valid — 8532231
+- [x] 1.2 A tag ref still produces all four release jobs — 8532231
+- [x] 1.3 A plain branch ref produces none of the four release jobs — 8532231
+- [x] 1.4 No `only:` or `except:` key remains in the file — 8532231
+- [x] 1.5 The tag rule is present in the workflow block — 8532231
 
 #### Manual
 
-- [x] 1.6 Diff confirms no job's `script:` block changed
+- [x] 1.6 Diff confirms no job's `script:` block changed — 8532231
 
 ### Phase 2: The Merge-Request Verify Job
 
 #### Automated
 
-- [ ] 2.1 CI configuration remains valid
-- [ ] 2.2 The release path is still intact after adding the job
-- [ ] 2.3 The referenced report paths are the ones the build actually produces
-- [ ] 2.4 The command the job runs is green locally
+- [x] 2.1 CI configuration remains valid
+- [x] 2.2 The release path is still intact after adding the job
+- [x] 2.3 The referenced report paths are the ones the build actually produces
+- [x] 2.4 The command the job runs is green locally
 
 #### Manual
 
-- [ ] 2.5 A throwaway merge request produces exactly one job, `verify`
-- [ ] 2.6 The pipeline's Tests tab reports 255 tests, not zero
-- [ ] 2.7 Coverage annotations appear on changed lines in the MR diff
-- [ ] 2.8 A second commit cancels the first run rather than queuing
-- [ ] 2.9 A deliberately broken test is named in the Tests tab
+- [x] 2.5 A throwaway merge request produces exactly one job, `verify`
+- [x] 2.6 The pipeline's Tests tab reports 255 tests, not zero
+- [x] 2.7 Coverage annotations appear on changed lines in the MR diff
+- [x] 2.8 A second commit cancels the first run rather than queuing
+- [x] 2.9 A deliberately broken test is named in the Tests tab
 
 ### Phase 3: Release-Path Hygiene and the Merge Gate
 
