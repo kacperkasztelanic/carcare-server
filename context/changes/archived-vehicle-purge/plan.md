@@ -581,9 +581,9 @@ integration count.
 
 #### Automated
 
-- [x] 3.1 Clean full `./mvnw verify` from scratch green
-- [x] 3.2 `grep -n "S-08" context/foundation/roadmap.md` finds the new entry
+- [x] 3.1 Clean full `./mvnw verify` from scratch green — 7bc82e3
+- [x] 3.2 `grep -n "S-08" context/foundation/roadmap.md` finds the new entry — 7bc82e3
 
 #### Manual
 
-- [x] 3.3 Combined end-to-end: create user+vehicles+events → delete user → purge tombstone-owned vehicles → archived list empty, cost report reflects documented removal
+- [x] 3.3 Combined end-to-end: create user+vehicles+events → delete user → purge tombstone-owned vehicles → archived list empty, cost report reflects documented removal — 7bc82e3
