@@ -460,12 +460,12 @@ highest-risk assertions are:
 
 #### Automated
 
-- [x] 4.1 Run targeted unit/integration tests for vehicle, all five direct event resources, composite events, admin, exception, reminder, report, and statistics behavior.
-- [x] 4.2 Run `./mvnw verify` with `JAVA_HOME` set to the installed Java 17 distribution and the project’s existing Byte Buddy/JVM argument configuration.
-- [x] 4.3 Run `git diff --check`, inspect test reports, and verify no files under the golden fixture data changed; any golden diff is a release-blocking regression requiring investigation.
+- [x] 4.1 Run targeted unit/integration tests for vehicle, all five direct event resources, composite events, admin, exception, reminder, report, and statistics behavior. — d16cdf3
+- [x] 4.2 Run `./mvnw verify` with `JAVA_HOME` set to the installed Java 17 distribution and the project’s existing Byte Buddy/JVM argument configuration. — d16cdf3
+- [x] 4.3 Run `git diff --check`, inspect test reports, and verify no files under the golden fixture data changed; any golden diff is a release-blocking regression requiring investigation. — d16cdf3
 
 #### Manual
 
-- [x] 4.4 Exercise the full archive → list omission → direct `410` → admin discovery → restore → normal operation flow against a disposable app/database.
-- [x] 4.5 Confirm the frozen client still deletes successfully and reloads the active vehicle list without needing a client artifact or i18n change.
-- [x] 4.6 Review migration rollback notes and confirm no physical vehicle/event deletion is present.
+- [x] 4.4 Exercise the full archive → list omission → direct `410` → admin discovery → restore → normal operation flow against a disposable app/database. — d16cdf3
+- [x] 4.5 Confirm the frozen client still deletes successfully and reloads the active vehicle list without needing a client artifact or i18n change. — d16cdf3
+- [x] 4.6 Review migration rollback notes and confirm no physical vehicle/event deletion is present. — d16cdf3

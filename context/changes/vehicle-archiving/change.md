@@ -1,7 +1,7 @@
 ---
 change_id: vehicle-archiving
 title: Vehicle archiving
-status: implementing
+status: implemented
 created: 2026-08-28
 updated: 2026-08-29
 archived_at: null
