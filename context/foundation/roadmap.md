@@ -3,7 +3,7 @@ project: "CarCare Server"
 version: 1
 status: draft
 created: 2026-08-24
-updated: 2026-08-28
+updated: 2026-08-29
 prd_version: 1
 main_goal: speed
 top_blocker: none
@@ -52,7 +52,7 @@ event types against the same paths, payloads, and status codes as before.
 | S-02 | `admin-surface-parity` | administer users, authorities, audits, lookups, test data, and reminder dispatch with four explicit API corrections | F-04 | FR-002, FR-007, FR-015 | done |
 | S-03 | `report-parity` | request statistics and both XLSX reports and get baseline-matching values | F-02, F-04 | FR-013, FR-015, FR-016 | done |
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | done |
-| S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | proposed |
+| S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | done |
 | S-06 | `merge-request-ci` | (developer) get compile, test, and verify feedback on a merge request | S-01 | FR-015, FR-017 | done |
 
 ## Streams
@@ -418,7 +418,7 @@ never written.
   queries F-03 rewrites, which is why this waits until all three parity slices have landed
   and are test-covered: archive-filter changes are never interleaved with namespace changes
   in the same query.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: A merge request gets automated compile, test, and verify feedback
 
@@ -572,6 +572,7 @@ never written.
 - **S-04: an owner whose account language is English receives a correctly rendered reminder naming the vehicle and the expiry, with Polish unaffected and reminder selection semantics unchanged.** — Archived 2026-08-28 → `context/archive/2026-08-28-english-reminder-fix/`. Lesson: —.
 - **S-01: an existing owner can log in through the unmodified React client 1.2.5, list and open their vehicles, and create, read, update, and delete all five event types — receiving the same paths, payloads, and status codes as before — while reaching no other user's data on any path.** — Archived 2026-08-28 → `context/archive/2026-08-26-session-parity/`. Lesson: —.
 - **F-02: (foundation) reference report values, statistics figures, and reminder selections exist, produced from commit `6e19b96` — the newest commit that builds and runs — and are comparable against post-migration output.** — Archived 2026-08-28 → `context/archive/2026-08-27-golden-baseline-capture/`. Lesson: —.
+- **S-05: an owner can archive a vehicle carrying refuel, repair, routine-service, inspection, and insurance records — it disappears from their vehicle list, from upcoming events, and from reminders, while its costs and statistics continue to count toward historical reporting.** — Archived 2026-08-29 → `context/archive/2026-08-28-vehicle-archiving/`. Lesson: —.
 - **S-03: an owner can request consumption, mileage, and cost statistics and both XLSX reports, and receive output matching the F-02 reference at value level — cell values, computed figures, and content type.** — Archived 2026-08-28 → `context/archive/2026-08-28-report-parity/`. Lesson: —.
 - **S-02: an administrator can manage users and authorities, read audit history, maintain lookup tables, generate test data, and trigger reminder dispatch with the existing business, security, and response behavior. This slice explicitly restores four confirmed API contracts: canonical creation `Location` headers for the three lookup/config resources and a usable reminder-advance DELETE binding.** — Archived 2026-08-28 → `context/archive/2026-08-28-admin-surface-parity/`. Lesson: —.
 - **S-06: a developer opening a merge request receives automated compile, test, and verify results, rather than verification running only on tags.** — Archived 2026-08-28 → `context/archive/2026-08-28-merge-request-ci/`. Lesson: —.

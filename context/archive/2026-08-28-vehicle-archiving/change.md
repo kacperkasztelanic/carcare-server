@@ -1,10 +1,10 @@
 ---
 change_id: vehicle-archiving
 title: Vehicle archiving
-status: impl_reviewed
+status: archived
 created: 2026-08-28
 updated: 2026-08-29
-archived_at: null
+archived_at: 2026-08-29T12:10:32Z
 ---
 
 ## Notes
