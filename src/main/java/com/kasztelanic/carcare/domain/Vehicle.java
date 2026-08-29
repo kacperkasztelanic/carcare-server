@@ -22,6 +22,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.Instant;
 
 @Entity
 @Table(name = "vehicles")
@@ -77,6 +78,11 @@ public class Vehicle implements Serializable {
     @NotNull
     @ManyToOne(optional = false)
     private User owner;
+
+    @Getter
+    @Setter
+    @Column(name = "archived_at", nullable = true)
+    private Instant archivedAt;
 
     @PersistenceConstructor
     @SuppressWarnings("all")

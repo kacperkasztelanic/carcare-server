@@ -14,7 +14,9 @@ import java.util.Optional;
 @Repository
 public interface RoutineServiceRepository extends JpaRepository<RoutineService, Long> {
 
-    List<RoutineService> findByNextByDateIn(Collection<LocalDate> dates);
+    @Query("select routineService from RoutineService routineService join routineService.vehicle vehicle " +
+        "where routineService.nextByDate in :dates and vehicle.archivedAt is null")
+    List<RoutineService> findByNextByDateIn(@Param("dates") Collection<LocalDate> dates);
 
     @Query("select routineService from RoutineService routineService join routineService.vehicle where routineService.id = :id and routineService.vehicle.owner.login = ?#{principal.username}")
     Optional<RoutineService> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);

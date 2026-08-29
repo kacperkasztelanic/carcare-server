@@ -14,7 +14,9 @@ import java.util.Optional;
 @Repository
 public interface InspectionRepository extends JpaRepository<Inspection, Long> {
 
-    List<Inspection> findByValidThruIn(Collection<LocalDate> dates);
+    @Query("select inspection from Inspection inspection join inspection.vehicle vehicle " +
+        "where inspection.validThru in :dates and vehicle.archivedAt is null")
+    List<Inspection> findByValidThruIn(@Param("dates") Collection<LocalDate> dates);
 
     @Query("select inspection from Inspection inspection join inspection.vehicle where inspection.id = :id and inspection.vehicle.owner.login = ?#{principal.username}")
     Optional<Inspection> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);

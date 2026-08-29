@@ -14,7 +14,9 @@ import java.util.Optional;
 @Repository
 public interface InsuranceRepository extends JpaRepository<Insurance, Long> {
 
-    List<Insurance> findByValidThruIn(Collection<LocalDate> dates);
+    @Query("select insurance from Insurance insurance join insurance.vehicle vehicle " +
+        "where insurance.validThru in :dates and vehicle.archivedAt is null")
+    List<Insurance> findByValidThruIn(@Param("dates") Collection<LocalDate> dates);
 
     @Query("select insurance from Insurance insurance join insurance.vehicle where insurance.id = :id and insurance.vehicle.owner.login = ?#{principal.username}")
     Optional<Insurance> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);

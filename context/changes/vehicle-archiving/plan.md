@@ -418,14 +418,14 @@ highest-risk assertions are:
 
 #### Automated
 
-- [ ] 1.1 Compile and run the repository/schema-focused tests with Java 17.
-- [ ] 1.2 Run `HibernateTimeZoneIT` and the existing golden dataset mirror guard to confirm the migration validates under H2 and does not alter golden fixture cardinality.
-- [ ] 1.3 Run `git diff --check` and inspect generated Liquibase SQL/schema metadata where available.
+- [x] 1.1 Compile and run the repository/schema-focused tests with Java 17.
+- [x] 1.2 Run `HibernateTimeZoneIT` and the existing golden dataset mirror guard to confirm the migration validates under H2 and does not alter golden fixture cardinality.
+- [x] 1.3 Run `git diff --check` and inspect generated Liquibase SQL/schema metadata where available.
 
 #### Manual
 
-- [ ] 1.4 Inspect the migration and confirm existing rows receive `NULL`, the column is nullable, and all five event date query paths have appropriate indexes.
-- [ ] 1.5 Start the application against a disposable database and verify the normal vehicle JSON has no new archive field.
+- [x] 1.4 Inspect the migration and confirm existing rows receive `NULL`, the column is nullable, and all five event date query paths have appropriate indexes.
+- [x] 1.5 Start the application against a disposable database and verify the normal vehicle JSON has no new archive field.
 
 ### Phase 2: Archive Lifecycle, 410 Responses, and Admin Restore
 

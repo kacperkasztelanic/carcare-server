@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet author="Kacper" id="20260828120000-1">
+        <addColumn tableName="vehicles">
+            <column name="archived_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <createIndex indexName="idx_vehicles_archived_at" tableName="vehicles" unique="false">
+            <column name="archived_at"/>
+        </createIndex>
+        <createIndex indexName="idx_refuels_vehicle_date" tableName="refuels" unique="false">
+            <column name="vehicle_id"/>
+            <column name="date"/>
+        </createIndex>
+        <createIndex indexName="idx_insurances_vehicle_date" tableName="insurances" unique="false">
+            <column name="vehicle_id"/>
+            <column name="date"/>
+        </createIndex>
+        <createIndex indexName="idx_inspections_vehicle_date" tableName="inspections" unique="false">
+            <column name="vehicle_id"/>
+            <column name="date"/>
+        </createIndex>
+        <createIndex indexName="idx_repairs_vehicle_date" tableName="repairs" unique="false">
+            <column name="vehicle_id"/>
+            <column name="date"/>
+        </createIndex>
+        <createIndex indexName="idx_routine_services_vehicle_date" tableName="routine_services" unique="false">
+            <column name="vehicle_id"/>
+            <column name="date"/>
+        </createIndex>
+
+        <!-- Safe only before archive timestamps are written; restore archived data before dropping this column. -->
+        <rollback>
+            <dropIndex indexName="idx_routine_services_vehicle_date" tableName="routine_services"/>
+            <dropIndex indexName="idx_repairs_vehicle_date" tableName="repairs"/>
+            <dropIndex indexName="idx_inspections_vehicle_date" tableName="inspections"/>
+            <dropIndex indexName="idx_insurances_vehicle_date" tableName="insurances"/>
+            <dropIndex indexName="idx_refuels_vehicle_date" tableName="refuels"/>
+            <dropIndex indexName="idx_vehicles_archived_at" tableName="vehicles"/>
+            <dropColumn tableName="vehicles" columnName="archived_at"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
