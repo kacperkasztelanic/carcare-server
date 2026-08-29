@@ -1,8 +1,24 @@
 package com.kasztelanic.carcare.service.impl;
 
+import com.kasztelanic.carcare.domain.Inspection;
+import com.kasztelanic.carcare.domain.Insurance;
+import com.kasztelanic.carcare.domain.PersistentAuditEvent;
+import com.kasztelanic.carcare.domain.Refuel;
+import com.kasztelanic.carcare.domain.Repair;
+import com.kasztelanic.carcare.domain.RoutineService;
+import com.kasztelanic.carcare.domain.Vehicle;
+import com.kasztelanic.carcare.repository.InspectionRepository;
+import com.kasztelanic.carcare.repository.InsuranceRepository;
+import com.kasztelanic.carcare.repository.PersistenceAuditEventRepository;
+import com.kasztelanic.carcare.repository.RefuelRepository;
+import com.kasztelanic.carcare.repository.RepairRepository;
+import com.kasztelanic.carcare.repository.RoutineServiceRepository;
 import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.security.SecurityUtils;
 import com.kasztelanic.carcare.service.AdminVehicleService;
+import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.service.dto.AdminVehicleDto;
+import com.kasztelanic.carcare.service.exception.VehicleNotArchivedException;
 import com.kasztelanic.carcare.service.mapper.AdminVehicleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,13 +27,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.Clock;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class AdminVehicleServiceImpl implements AdminVehicleService {
+
+    static final String PURGE_AUDIT_EVENT_TYPE = "VEHICLE_PURGED";
 
     /**
      * Applied when the caller supplies no sort. Kept here rather than in the query so an explicit
@@ -27,6 +52,14 @@ public class AdminVehicleServiceImpl implements AdminVehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final AdminVehicleMapper adminVehicleMapper;
+    private final RefuelRepository refuelRepository;
+    private final RepairRepository repairRepository;
+    private final RoutineServiceRepository routineServiceRepository;
+    private final InspectionRepository inspectionRepository;
+    private final InsuranceRepository insuranceRepository;
+    private final ImageStorageService imageStorageService;
+    private final PersistenceAuditEventRepository persistenceAuditEventRepository;
+    private final Clock clock;
 
     @Override
     @Transactional(readOnly = true)
@@ -51,5 +84,62 @@ public class AdminVehicleServiceImpl implements AdminVehicleService {
                 vehicle.setArchivedAt(null);
                 return adminVehicleMapper.vehicleToAdminVehicleDto(vehicleRepository.save(vehicle));
             });
+    }
+
+    @Override
+    public void purgeVehicle(Long id) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Vehicle " + id + " does not exist"));
+        if (vehicle.getArchivedAt() == null) {
+            throw new VehicleNotArchivedException(id);
+        }
+
+        // Read the image filename before any row delete; the file is removed only after commit.
+        String image = vehicle.getVehicleDetails() == null ? null : vehicle.getVehicleDetails().getImage();
+
+        List<Refuel> refuels = refuelRepository.findByVehicleId(id);
+        List<Repair> repairs = repairRepository.findByVehicleId(id);
+        List<RoutineService> routineServices = routineServiceRepository.findByVehicleId(id);
+        List<Inspection> inspections = inspectionRepository.findByVehicleId(id);
+        List<Insurance> insurances = insuranceRepository.findByVehicleId(id);
+
+        Map<String, String> auditData = new LinkedHashMap<>();
+        auditData.put("vehicleId", String.valueOf(id));
+        auditData.put("ownerLogin", vehicle.getOwner().getLogin());
+        auditData.put("refuels", String.valueOf(refuels.size()));
+        auditData.put("repairs", String.valueOf(repairs.size()));
+        auditData.put("routineServices", String.valueOf(routineServices.size()));
+        auditData.put("inspections", String.valueOf(inspections.size()));
+        auditData.put("insurances", String.valueOf(insurances.size()));
+        auditData.put("image", image == null ? "" : image);
+
+        // File delete is unrecoverable on rollback, so defer it to a committed transaction only.
+        // ImageStorageService.delete is idempotent and never throws, so no error handling is needed.
+        if (image != null && !image.isEmpty()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == STATUS_COMMITTED) {
+                        imageStorageService.delete(image);
+                    }
+                }
+            });
+        }
+
+        // Entity-level deletes only (no bulk delete queries) so Hibernate's EntityDeleteAction keeps the
+        // ehcache L2 regions coherent in dev/prod. Events before the vehicle: FKs are per-statement.
+        refuelRepository.deleteAll(refuels);
+        repairRepository.deleteAll(repairs);
+        routineServiceRepository.deleteAll(routineServices);
+        inspectionRepository.deleteAll(inspections);
+        insuranceRepository.deleteAll(insurances);
+        vehicleRepository.delete(vehicle);
+
+        PersistentAuditEvent auditEvent = new PersistentAuditEvent();
+        auditEvent.setPrincipal(SecurityUtils.getCurrentUserLogin().orElse("unknown"));
+        auditEvent.setAuditEventType(PURGE_AUDIT_EVENT_TYPE);
+        auditEvent.setAuditEventDate(clock.instant());
+        auditEvent.setData(auditData);
+        persistenceAuditEventRepository.save(auditEvent);
     }
 }

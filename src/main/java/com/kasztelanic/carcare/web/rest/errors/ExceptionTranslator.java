@@ -4,6 +4,7 @@ import com.kasztelanic.carcare.service.exception.ArchivedResourceException;
 import com.kasztelanic.carcare.service.exception.InvalidLookupTypeException;
 import com.kasztelanic.carcare.service.exception.ProtectedLoginException;
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
+import com.kasztelanic.carcare.service.exception.VehicleNotArchivedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -142,6 +143,14 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle(ex.getMessage());
         return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(VehicleNotArchivedException.class)
+    public ResponseEntity<Object> handleVehicleNotArchivedException(VehicleNotArchivedException ex, WebRequest request) {
+        // The purge interlock rejecting a live vehicle is a rejected client request, not a fault.
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle(ex.getMessage());
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
     /**

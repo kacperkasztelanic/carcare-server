@@ -137,15 +137,7 @@ class UserDeletionDispositionIT extends AbstractSessionIT {
     }
 
     private void purgeRows(Long... vehicleIds) {
-        inTransaction(() -> {
-            for (Long id : vehicleIds) {
-                for (String table : new String[] {"refuels", "repairs", "routine_services", "inspections",
-                    "insurances"}) {
-                    jdbcTemplate.update("delete from " + table + " where vehicle_id = ?", id);
-                }
-                jdbcTemplate.update("delete from vehicles where id = ?", id);
-            }
-        });
+        sessionFixtures.purgeRowsFor(List.of(vehicleIds));
     }
 
     private void deleteUserIfPresent(String login) {

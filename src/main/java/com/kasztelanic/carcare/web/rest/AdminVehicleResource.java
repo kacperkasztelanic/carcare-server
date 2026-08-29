@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -47,5 +48,13 @@ public class AdminVehicleResource {
     public ResponseEntity<AdminVehicleDto> restoreVehicle(@PathVariable Long id) {
         return ResponseUtil.wrapOrNotFound(adminVehicleService.restoreVehicle(id),
             HeaderUtil.createEntityUpdateAlert("vehicle", id.toString()));
+    }
+
+    @DeleteMapping("/{id}/purge")
+    public ResponseEntity<Void> purgeVehicle(@PathVariable Long id) {
+        adminVehicleService.purgeVehicle(id);
+        return ResponseEntity.noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert("vehicle", id.toString()))
+            .build();
     }
 }

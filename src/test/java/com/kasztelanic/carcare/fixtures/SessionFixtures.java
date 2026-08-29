@@ -22,15 +22,20 @@ import com.kasztelanic.carcare.repository.RepairRepository;
 import com.kasztelanic.carcare.repository.RoutineServiceRepository;
 import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.repository.VehicleRepository;
+import com.kasztelanic.carcare.service.ImageStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -74,6 +79,9 @@ public class SessionFixtures implements ApplicationRunner {
     private final InspectionRepository inspectionRepository;
     private final InsuranceRepository insuranceRepository;
     private final CacheManager cacheManager;
+    private final ImageStorageService imageStorageService;
+    private final JdbcTemplate jdbcTemplate;
+    private final PlatformTransactionManager transactionManager;
 
     private final AtomicLong fixtureSequence = new AtomicLong();
 
@@ -139,6 +147,35 @@ public class SessionFixtures implements ApplicationRunner {
 
     public Vehicle archivedVehicleFor(String ownerLogin, Instant archivedAt) {
         return archive(vehicleFor(ownerLogin), archivedAt);
+    }
+
+    /**
+     * Saves {@code bytes} as a real PNG on disk via {@link ImageStorageService}, records the
+     * returned filename on the vehicle's details, and persists the vehicle. Used by the purge IT,
+     * which must prove the file is deleted after commit.
+     */
+    public Vehicle imageFor(Vehicle vehicle, byte[] bytes) {
+        String fileName = imageStorageService.save(bytes, "image/png");
+        vehicle.getVehicleDetails().setImage(fileName);
+        return vehicleRepository.save(vehicle);
+    }
+
+    /**
+     * try/finally cleanup for non-transactional ({@code NOT_SUPPORTED}) ITs: deletes the five event
+     * tables' rows then the vehicle rows, FK-safe, by id. Wrapped in a {@link TransactionTemplate}
+     * because the test datasource runs with hikari {@code auto-commit=false}, so raw JDBC statements
+     * outside a Spring transaction are never committed. Safe in tests — L2 is off in this profile.
+     */
+    public void purgeRowsFor(Collection<Long> vehicleIds) {
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            for (Long id : vehicleIds) {
+                for (String table : new String[] {"refuels", "repairs", "routine_services", "inspections",
+                    "insurances"}) {
+                    jdbcTemplate.update("delete from " + table + " where vehicle_id = ?", id);
+                }
+                jdbcTemplate.update("delete from vehicles where id = ?", id);
+            }
+        });
     }
 
     public Vehicle vehicleWithEventsFor(String ownerLogin) {

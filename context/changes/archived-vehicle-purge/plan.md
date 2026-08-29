@@ -555,27 +555,27 @@ integration count.
 
 #### Automated
 
-- [x] 1.1 `./mvnw verify -Dit.test=UserDeletionDispositionIT` passes
-- [x] 1.2 `./mvnw verify -Dit.test='UserResourceIT,LookupMaintenanceResourceIT'` passes with new guard and lookup-409 cases
-- [x] 1.3 Full `./mvnw verify` green with no regression in the leak-sensitive set (AdminVehicleResourceIT, ReminderSelectionParityIT, ReportParityIT, UserResourceIT)
-- [x] 1.4 ArchTest green (new exceptions carry no web imports)
+- [x] 1.1 `./mvnw verify -Dit.test=UserDeletionDispositionIT` passes — 63b4030
+- [x] 1.2 `./mvnw verify -Dit.test='UserResourceIT,LookupMaintenanceResourceIT'` passes with new guard and lookup-409 cases — 63b4030
+- [x] 1.3 Full `./mvnw verify` green with no regression in the leak-sensitive set (AdminVehicleResourceIT, ReminderSelectionParityIT, ReportParityIT, UserResourceIT) — 63b4030
+- [x] 1.4 ArchTest green (new exceptions carry no web imports) — 63b4030
 
 #### Manual
 
-- [x] 1.5 Dev MariaDB smoke: delete a vehicle-owning user → 204, vehicles appear in admin archived list as anonymoususer-owned
-- [x] 1.6 Reminder schedule unaffected (tombstone-owned vehicles are archived, hence excluded)
+- [x] 1.5 Dev MariaDB smoke: delete a vehicle-owning user → 204, vehicles appear in admin archived list as anonymoususer-owned — 63b4030
+- [x] 1.6 Reminder schedule unaffected (tombstone-owned vehicles are archived, hence excluded) — 63b4030
 
 ### Phase 2: Admin Purge Endpoint — Interlock, Audit, Image Cleanup
 
 #### Automated
 
-- [ ] 2.1 `./mvnw verify -Dit.test=AdminVehiclePurgeIT` passes including image-file and audit assertions
-- [ ] 2.2 Full `./mvnw verify` green; absolute-count assertions unaffected (no shared-H2 leak)
-- [ ] 2.3 `grep -rn "@Modifying" src/main/java` returns nothing
+- [x] 2.1 `./mvnw verify -Dit.test=AdminVehiclePurgeIT` passes including image-file and audit assertions
+- [x] 2.2 Full `./mvnw verify` green; absolute-count assertions unaffected (no shared-H2 leak)
+- [x] 2.3 `grep -rn "@Modifying" src/main/java` returns nothing
 
 #### Manual
 
-- [ ] 2.4 Dev MariaDB smoke with L2 on: purge archived vehicle → immediate 404, image file gone, VEHICLE_PURGED audit event present
+- [x] 2.4 Dev MariaDB smoke with L2 on: purge archived vehicle → immediate 404, image file gone, VEHICLE_PURGED audit event present
 
 ### Phase 3: Documentation & Full Verification
 
