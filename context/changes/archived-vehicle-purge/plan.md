@@ -45,8 +45,11 @@ housekeeping (P1: no legal or compliance driver exists in either direction).
 - `PersistentAuditEvent` + `PersistenceAuditEventRepository` allow writing an audit row directly
   (setters on principal/auditEventType/auditEventDate/data); the actuator path
   (`CustomAuditEventRepository.add`) is `REQUIRES_NEW` and would commit the audit even when the
-  purge rolls back — write the entity directly instead. `AuditResourceIT` uses containment
-  assertions (`hasItem`), so committed audit rows from purge tests do not break it.
+  purge rolls back — write the entity directly instead. `AuditResourceIT` mixes containment
+  assertions with positional `$[0]` checks on an unfiltered `GET /management/audits`
+  (`AuditResourceIT.java:70-74`), and its `@BeforeEach deleteAll()` rolls back — so committed
+  audit rows are not provably harmless. The purge IT must therefore clean up its own
+  `VEHICLE_PURGED` row (Phase 2 §5).
 - `User` has no Lombok builder — plain class with setters (`domain/User.java:38,131`).
   `VehicleDetails` fields carry `@Getter @Setter` (`domain/VehicleDetails.java`), so the image
   filename is mutable. `ImageStorageService.save(byte[], fileType)` returns the stored filename;
@@ -199,7 +202,11 @@ exception (routine client behaviour — no error-level stack trace, matching the
 recorded on `handleArchivedResourceException`), routed through `handleExceptionInternal`. The
 message falls back to `error.http.409`; whether the frozen client renders that key is a known
 cosmetic limitation consistent with existing handled 4xx (e.g. `InvalidLookupTypeException`) —
-accept it, do not mint new keys.
+accept it, do not mint new keys. Blast-radius note: as a class-level handler it also flips
+create-path unique-constraint races — `registerUser`'s duplicate-race flush
+(UserService.java:86-97) and the lookup-type unique columns (`UC_FUEL_TYPESENGLISH`/`POLISH`/`TYPE`)
+— from error-logged 500 to warn 409. No existing test pins a 500 on any DIV path (verified), so
+this is an accepted improvement.
 
 #### 4. UserService.deleteUser — guards + tombstone reassignment
 
@@ -266,8 +273,12 @@ of the FK bug class — in-use lookup deletion, which is currently untested.
   with the expected title. Transactional is fine — the guard rejects before any write.
 - `LookupMaintenanceResourceIT`: one `NOT_SUPPORTED` method — create a committed vehicle on a
   dedicated fuel type, then `DELETE /api/fuel-type/{type}` via the API → **409**, and the fuel type
-  row still exists (the delete rolled back). try/finally cleans the vehicle rows. The failed delete
-  persists nothing, so no user cleanup is needed.
+  row still exists (the delete rolled back). `SessionFixtures.vehicleFor(String)` hardcodes the
+  shared `fixture-fuel` row, so Phase 1 first adds a `vehicleFor(String ownerLogin, FuelType
+  fuelType)` overload to `SessionFixtures` (the dedicated type is created via the API or a
+  repository save). try/finally cleans the vehicle rows **then the dedicated fuel-type row** —
+  FK-safe order, per the leak discipline. The failed delete persists nothing, so no user cleanup
+  is needed.
 
 ### Success Criteria:
 
@@ -351,8 +362,9 @@ event repositories, `ImageStorageService`, `PersistenceAuditEventRepository`, `C
 3. Capture `vehicle.getVehicleDetails().getImage()` **before** any delete.
 4. Load the five event lists via the existing `findByVehicleId(id)` selects.
 5. Register a `TransactionSynchronization` (`TransactionSynchronizationManager`) whose
-   `afterCompletion` deletes the image file **only on `STATUS_COMMITTED`** — `deleteQuietly` never
-   throws, so the hook needs no error handling.
+   `afterCompletion` deletes the image file **only on `STATUS_COMMITTED`** —
+   `ImageStorageService.delete` is idempotent and never throws (the impl delegates to Commons-IO
+   `FileUtils.deleteQuietly`), so the hook needs no error handling.
 6. `deleteAll` each event list, then `vehicleRepository.delete(vehicle)` — entity-level only; no
    `@Modifying` anywhere (see Critical Implementation Details).
 7. Save a `PersistentAuditEvent` **inside this transaction**: type `VEHICLE_PURGED`, principal =
@@ -382,7 +394,9 @@ transaction never runs `afterCompletion` with `STATUS_COMMITTED`, so the image a
 vacuous).
 
 **Contract**: extends `AbstractSessionIT`; committing methods `@Transactional(propagation =
-NOT_SUPPORTED)` + try/finally cleanup via the `SessionFixtures` JDBC helper. Use the seeded `user`
+NOT_SUPPORTED)` + try/finally cleanup via the `SessionFixtures` JDBC helper **and deletion of the
+committed `VEHICLE_PURGED` audit row** (child rows in `jhi_persistent_audit_evt_data` first, then
+the parent — the only committed audit rows the purge tests create). Use the seeded `user`
 as owner (no user cleanup needed; the seeded account must survive). Cases:
 
 - Purge an archived vehicle carrying all five event types and a real image file → **204**, header
@@ -544,10 +558,12 @@ integration count.
 - [ ] 1.1 `./mvnw verify -Dit.test=UserDeletionDispositionIT` passes
 - [ ] 1.2 `./mvnw verify -Dit.test='UserResourceIT,LookupMaintenanceResourceIT'` passes with new guard and lookup-409 cases
 - [ ] 1.3 Full `./mvnw verify` green with no regression in the leak-sensitive set (AdminVehicleResourceIT, ReminderSelectionParityIT, ReportParityIT, UserResourceIT)
+- [ ] 1.4 ArchTest green (new exceptions carry no web imports)
 
 #### Manual
 
-- [ ] 1.4 Dev MariaDB smoke: delete a vehicle-owning user → 204, vehicles appear in admin archived list as anonymoususer-owned
+- [ ] 1.5 Dev MariaDB smoke: delete a vehicle-owning user → 204, vehicles appear in admin archived list as anonymoususer-owned
+- [ ] 1.6 Reminder schedule unaffected (tombstone-owned vehicles are archived, hence excluded)
 
 ### Phase 2: Admin Purge Endpoint — Interlock, Audit, Image Cleanup
 
