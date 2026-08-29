@@ -690,6 +690,24 @@ class UserResourceIT {
 
     @Test
     @Transactional
+    void deleteSystemUserIsRejectedAsProtected() throws Exception {
+        mockMvc.perform(delete("/api/users/{login}", "system"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.title").value(containsString("system")));
+        assertThat(userRepository.findOneByLogin("system")).isPresent();
+    }
+
+    @Test
+    @Transactional
+    void deleteAnonymousUserIsRejectedAsProtected() throws Exception {
+        mockMvc.perform(delete("/api/users/{login}", "anonymoususer"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.title").value(containsString("anonymoususer")));
+        assertThat(userRepository.findOneByLogin("anonymoususer")).isPresent();
+    }
+
+    @Test
+    @Transactional
     void deleteNonExistingUserStillReturnsDeletionContract() throws Exception {
         mockMvc.perform(delete("/api/users/{login}", "missinguser"))
             .andExpect(status().isNoContent())

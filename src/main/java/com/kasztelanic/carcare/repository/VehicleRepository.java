@@ -22,6 +22,12 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     @Query("select vehicle from Vehicle vehicle where vehicle.id = :id and vehicle.owner.login = ?#{principal.username}")
     Optional<Vehicle> findByIdAndOwnerIsCurrentUser(@Param("id") Long id);
 
+    // Deliberately un-scoped: UserService.deleteUser runs under the acting admin's principal, so a
+    // ?#{principal.username} query would resolve to the admin and miss the deleted user's vehicles.
+    // No archived filter either — the tombstone disposition reassigns active and archived alike.
+    @Query("select vehicle from Vehicle vehicle where vehicle.owner.login = :login")
+    List<Vehicle> findAllByOwnerLogin(@Param("login") String login);
+
     // Result order feeds cost-en.json's index-exact array. H2 and MariaDB currently return
     // insertion order by luck, not contract; add "order by vehicle.id" if that assertion flakes.
     @Query("select vehicle from Vehicle vehicle where vehicle.id in :id and vehicle.owner.login = ?#{principal.username}")

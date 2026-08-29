@@ -555,15 +555,15 @@ integration count.
 
 #### Automated
 
-- [ ] 1.1 `./mvnw verify -Dit.test=UserDeletionDispositionIT` passes
-- [ ] 1.2 `./mvnw verify -Dit.test='UserResourceIT,LookupMaintenanceResourceIT'` passes with new guard and lookup-409 cases
-- [ ] 1.3 Full `./mvnw verify` green with no regression in the leak-sensitive set (AdminVehicleResourceIT, ReminderSelectionParityIT, ReportParityIT, UserResourceIT)
-- [ ] 1.4 ArchTest green (new exceptions carry no web imports)
+- [x] 1.1 `./mvnw verify -Dit.test=UserDeletionDispositionIT` passes
+- [x] 1.2 `./mvnw verify -Dit.test='UserResourceIT,LookupMaintenanceResourceIT'` passes with new guard and lookup-409 cases
+- [x] 1.3 Full `./mvnw verify` green with no regression in the leak-sensitive set (AdminVehicleResourceIT, ReminderSelectionParityIT, ReportParityIT, UserResourceIT)
+- [x] 1.4 ArchTest green (new exceptions carry no web imports)
 
 #### Manual
 
-- [ ] 1.5 Dev MariaDB smoke: delete a vehicle-owning user → 204, vehicles appear in admin archived list as anonymoususer-owned
-- [ ] 1.6 Reminder schedule unaffected (tombstone-owned vehicles are archived, hence excluded)
+- [x] 1.5 Dev MariaDB smoke: delete a vehicle-owning user → 204, vehicles appear in admin archived list as anonymoususer-owned
+- [x] 1.6 Reminder schedule unaffected (tombstone-owned vehicles are archived, hence excluded)
 
 ### Phase 2: Admin Purge Endpoint — Interlock, Audit, Image Cleanup
 

@@ -2,11 +2,13 @@ package com.kasztelanic.carcare.web.rest.errors;
 
 import com.kasztelanic.carcare.service.exception.ArchivedResourceException;
 import com.kasztelanic.carcare.service.exception.InvalidLookupTypeException;
+import com.kasztelanic.carcare.service.exception.ProtectedLoginException;
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -132,6 +134,31 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.GONE);
         problemDetail.setTitle(ex.getMessage());
         return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.GONE, request);
+    }
+
+    @ExceptionHandler(ProtectedLoginException.class)
+    public ResponseEntity<Object> handleProtectedLoginException(ProtectedLoginException ex, WebRequest request) {
+        // Deleting a protected account is a rejected client request, not a fault — no stack trace.
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle(ex.getMessage());
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    /**
+     * Class-level translation of the FK / unique-constraint violation bug class to 409 (P5).
+     * Besides the user-deletion path that motivated it, this also covers in-use lookup-type
+     * deletion and create-path unique-constraint races ({@code registerUser}'s duplicate-race
+     * flush, the fuel/insurance-type unique columns) — those move from an error-logged 500 to a
+     * warn-logged 409, an improvement; no existing test pins a 500 on any of these paths.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex, WebRequest request) {
+        // Routine client behaviour (deleting a referenced row); log at warn without a stack trace,
+        // matching handleArchivedResourceException's rationale.
+        log.warn("Data integrity violation mapped to 409", ex);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Data integrity violation");
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
     @ExceptionHandler(BadRequestAlertException.class)

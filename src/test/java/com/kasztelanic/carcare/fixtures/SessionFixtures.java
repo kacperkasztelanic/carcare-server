@@ -98,12 +98,18 @@ public class SessionFixtures implements ApplicationRunner {
     }
 
     public Vehicle vehicleFor(String ownerLogin) {
+        return vehicleFor(ownerLogin, defaultFuelType());
+    }
+
+    /** Same as {@link #vehicleFor(String)} but on an explicit fuel type — used by the in-use
+     * lookup-deletion (409) coverage, which needs a dedicated, disposable {@link FuelType}. */
+    public Vehicle vehicleFor(String ownerLogin, FuelType fuelType) {
         long sequence = fixtureSequence.incrementAndGet();
         Vehicle vehicle = Vehicle.builder()
             .make("Fixture make " + sequence)
             .model("Fixture model " + sequence)
             .licensePlate("FX" + sequence)
-            .fuelType(defaultFuelType())
+            .fuelType(fuelType)
             .vehicleDetails(VehicleDetails.builder()
                 .modelSuffix("")
                 .vinNumber("")

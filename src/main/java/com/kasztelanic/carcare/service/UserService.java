@@ -3,13 +3,16 @@ package com.kasztelanic.carcare.service;
 import com.kasztelanic.carcare.config.Constants;
 import com.kasztelanic.carcare.domain.Authority;
 import com.kasztelanic.carcare.domain.User;
+import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.AuthorityRepository;
 import com.kasztelanic.carcare.repository.UserRepository;
+import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.security.SecurityUtils;
 import com.kasztelanic.carcare.service.dto.UserDto;
 import com.kasztelanic.carcare.service.exception.EmailAlreadyUsedException;
 import com.kasztelanic.carcare.service.exception.InvalidPasswordException;
+import com.kasztelanic.carcare.service.exception.ProtectedLoginException;
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
 import com.kasztelanic.carcare.service.util.RandomUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -44,6 +48,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthorityRepository authorityRepository;
     private final CacheManager cacheManager;
+    private final VehicleRepository vehicleRepository;
+    private final Clock clock;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -219,7 +225,23 @@ public class UserService {
     }
 
     public void deleteUser(String login) {
+        if (Constants.SYSTEM_ACCOUNT.equals(login) || Constants.ANONYMOUS_USER.equals(login)) {
+            throw new ProtectedLoginException(login);
+        }
         userRepository.findOneByLogin(login).ifPresent(user -> {
+            // Tombstone disposition (P2): reassign every owned vehicle — active and archived — to
+            // anonymoususer, archiving the previously active ones, so the commit-time owner_id FK
+            // never fires. Entity-level saves keep the Vehicle L2 region coherent in dev/prod.
+            User tombstone = userRepository.findOneByLogin(Constants.ANONYMOUS_USER)
+                .orElseThrow(() -> new IllegalStateException("Tombstone account '" + Constants.ANONYMOUS_USER
+                    + "' is missing"));
+            for (Vehicle vehicle : vehicleRepository.findAllByOwnerLogin(login)) {
+                vehicle.setOwner(tombstone);
+                if (vehicle.getArchivedAt() == null) {
+                    vehicle.setArchivedAt(clock.instant());
+                }
+                vehicleRepository.save(vehicle);
+            }
             userRepository.delete(user);
             this.clearUserCaches(user);
             log.debug("Deleted User: {}", user);

@@ -3,6 +3,7 @@ package com.kasztelanic.carcare.web.rest;
 import com.kasztelanic.carcare.domain.FuelType;
 import com.kasztelanic.carcare.domain.InsuranceType;
 import com.kasztelanic.carcare.domain.ReminderAdvance;
+import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.fixtures.SessionFixtures;
 import com.kasztelanic.carcare.repository.FuelTypeRepository;
 import com.kasztelanic.carcare.repository.InsuranceTypeRepository;
@@ -14,8 +15,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -39,6 +45,10 @@ class LookupMaintenanceResourceIT extends AbstractSessionIT {
     private InsuranceTypeRepository insuranceTypeRepository;
     @Autowired
     private ReminderAdvanceRepository reminderAdvanceRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @Test
     @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
@@ -172,6 +182,28 @@ class LookupMaintenanceResourceIT extends AbstractSessionIT {
         assertThat(fuelTypeRepository.count()).isEqualTo(fuelCount);
         assertThat(insuranceTypeRepository.count()).isEqualTo(insuranceCount);
         assertThat(reminderAdvanceRepository.count()).isEqualTo(reminderCount);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void deletingAnInUseFuelTypeReturns409AndRollsBack() throws Exception {
+        String type = "INUSE-FUEL-" + System.nanoTime();
+        FuelType fuelType = fuelTypeRepository.saveAndFlush(FuelType.of(type, "In use", "W użyciu"));
+        Vehicle vehicle = sessionFixtures.vehicleFor("user", fuelType);
+        try {
+            mockMvc.perform(delete("/api/fuel-type/{type}", type))
+                .andExpect(status().isConflict());
+            // The in-use FK aborted the delete: the row is still there.
+            assertThat(fuelTypeRepository.findByType(type)).isPresent();
+        } finally {
+            // hikari auto-commit=false: raw JDBC cleanup must run inside a transaction.
+            // FK-safe order: vehicle rows first, then the dedicated fuel-type row.
+            new TransactionTemplate(transactionManager).executeWithoutResult(s -> {
+                jdbcTemplate.update("delete from vehicles where id = ?", vehicle.getId());
+                jdbcTemplate.update("delete from fuel_types where type = ?", type);
+            });
+        }
     }
 
     @Test
