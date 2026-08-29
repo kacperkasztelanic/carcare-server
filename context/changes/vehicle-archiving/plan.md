@@ -446,26 +446,26 @@ highest-risk assertions are:
 
 #### Automated
 
-- [x] 3.1 Extend `EventResourceIT` for active-only request filtering and composite `200` omission behavior, including the case where no active rows remain.
-- [x] 3.2 Add a focused `VehicleArchivingAnalyticsIT` for inclusive period boundaries, archived vehicles with each event type, deterministic append order, no duplicates, owner isolation, and the historical single-vehicle/statistics paths.
-- [x] 3.3 Extend `ReminderSelectionParityIT` with an archived vehicle whose event would otherwise be due; assert it is not selected while existing active selection remains unchanged.
-- [x] 3.4 Run `ReportParityIT`, `GoldenDatasetMirrorIT`, and the existing statistics/report integration coverage without modifying golden fixtures.
+- [x] 3.1 Extend `EventResourceIT` for active-only request filtering and composite `200` omission behavior, including the case where no active rows remain. — 3da00f1
+- [x] 3.2 Add a focused `VehicleArchivingAnalyticsIT` for inclusive period boundaries, archived vehicles with each event type, deterministic append order, no duplicates, owner isolation, and the historical single-vehicle/statistics paths. — 3da00f1
+- [x] 3.3 Extend `ReminderSelectionParityIT` with an archived vehicle whose event would otherwise be due; assert it is not selected while existing active selection remains unchanged. — 3da00f1
+- [x] 3.4 Run `ReportParityIT`, `GoldenDatasetMirrorIT`, and the existing statistics/report integration coverage without modifying golden fixtures. — 3da00f1
 
 #### Manual
 
-- [x] 3.5 Compare a cost report/statistics request before and after archiving a vehicle with an in-period event: the archived row appears at the end; an out-of-period archived vehicle does not.
-- [x] 3.6 Verify mileage/consumption and single-vehicle report requests still read retained archived data, while forthcoming events and reminders omit it.
+- [x] 3.5 Compare a cost report/statistics request before and after archiving a vehicle with an in-period event: the archived row appears at the end; an out-of-period archived vehicle does not. — 3da00f1
+- [x] 3.6 Verify mileage/consumption and single-vehicle report requests still read retained archived data, while forthcoming events and reminders omit it. — 3da00f1
 
 ### Phase 4: Fixtures, Integration Contracts, and Regression Verification
 
 #### Automated
 
-- [ ] 4.1 Run targeted unit/integration tests for vehicle, all five direct event resources, composite events, admin, exception, reminder, report, and statistics behavior.
-- [ ] 4.2 Run `./mvnw verify` with `JAVA_HOME` set to the installed Java 17 distribution and the project’s existing Byte Buddy/JVM argument configuration.
-- [ ] 4.3 Run `git diff --check`, inspect test reports, and verify no files under the golden fixture data changed; any golden diff is a release-blocking regression requiring investigation.
+- [x] 4.1 Run targeted unit/integration tests for vehicle, all five direct event resources, composite events, admin, exception, reminder, report, and statistics behavior.
+- [x] 4.2 Run `./mvnw verify` with `JAVA_HOME` set to the installed Java 17 distribution and the project’s existing Byte Buddy/JVM argument configuration.
+- [x] 4.3 Run `git diff --check`, inspect test reports, and verify no files under the golden fixture data changed; any golden diff is a release-blocking regression requiring investigation.
 
 #### Manual
 
-- [ ] 4.4 Exercise the full archive → list omission → direct `410` → admin discovery → restore → normal operation flow against a disposable app/database.
-- [ ] 4.5 Confirm the frozen client still deletes successfully and reloads the active vehicle list without needing a client artifact or i18n change.
-- [ ] 4.6 Review migration rollback notes and confirm no physical vehicle/event deletion is present.
+- [x] 4.4 Exercise the full archive → list omission → direct `410` → admin discovery → restore → normal operation flow against a disposable app/database.
+- [x] 4.5 Confirm the frozen client still deletes successfully and reloads the active vehicle list without needing a client artifact or i18n change.
+- [x] 4.6 Review migration rollback notes and confirm no physical vehicle/event deletion is present.
