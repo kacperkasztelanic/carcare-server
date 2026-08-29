@@ -569,21 +569,21 @@ integration count.
 
 #### Automated
 
-- [x] 2.1 `./mvnw verify -Dit.test=AdminVehiclePurgeIT` passes including image-file and audit assertions
-- [x] 2.2 Full `./mvnw verify` green; absolute-count assertions unaffected (no shared-H2 leak)
-- [x] 2.3 `grep -rn "@Modifying" src/main/java` returns nothing
+- [x] 2.1 `./mvnw verify -Dit.test=AdminVehiclePurgeIT` passes including image-file and audit assertions — 8beabb4
+- [x] 2.2 Full `./mvnw verify` green; absolute-count assertions unaffected (no shared-H2 leak) — 8beabb4
+- [x] 2.3 `grep -rn "@Modifying" src/main/java` returns nothing — 8beabb4
 
 #### Manual
 
-- [x] 2.4 Dev MariaDB smoke with L2 on: purge archived vehicle → immediate 404, image file gone, VEHICLE_PURGED audit event present
+- [x] 2.4 Dev MariaDB smoke with L2 on: purge archived vehicle → immediate 404, image file gone, VEHICLE_PURGED audit event present — 8beabb4
 
 ### Phase 3: Documentation & Full Verification
 
 #### Automated
 
-- [ ] 3.1 Clean full `./mvnw verify` from scratch green
-- [ ] 3.2 `grep -n "S-08" context/foundation/roadmap.md` finds the new entry
+- [x] 3.1 Clean full `./mvnw verify` from scratch green
+- [x] 3.2 `grep -n "S-08" context/foundation/roadmap.md` finds the new entry
 
 #### Manual
 
-- [ ] 3.3 Combined end-to-end: create user+vehicles+events → delete user → purge tombstone-owned vehicles → archived list empty, cost report reflects documented removal
+- [x] 3.3 Combined end-to-end: create user+vehicles+events → delete user → purge tombstone-owned vehicles → archived list empty, cost report reflects documented removal
