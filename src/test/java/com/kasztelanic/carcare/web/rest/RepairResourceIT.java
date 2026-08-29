@@ -86,6 +86,24 @@ class RepairResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void rejectsEveryRepairOperationForAnArchivedVehicle() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleFor("user");
+        Repair repair = sessionFixtures.repairFor(vehicle);
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId())).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/repair/{id}", repair.getId())).andExpect(status().isGone());
+        mockMvc.perform(get("/api/repair/all/{vehicleId}", vehicle.getId())).andExpect(status().isGone());
+        mockMvc.perform(post("/api/repair/{vehicleId}", vehicle.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(put("/api/repair/{id}", repair.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(delete("/api/repair/{id}", repair.getId())).andExpect(status().isGone());
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void returnsNotFoundForUnknownRepair() throws Exception {
         mockMvc.perform(get("/api/repair/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }

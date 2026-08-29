@@ -86,6 +86,24 @@ class RoutineServiceResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void rejectsEveryRoutineServiceOperationForAnArchivedVehicle() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleFor("user");
+        RoutineService routineService = sessionFixtures.routineServiceFor(vehicle);
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId())).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/routine-service/{id}", routineService.getId())).andExpect(status().isGone());
+        mockMvc.perform(get("/api/routine-service/all/{vehicleId}", vehicle.getId())).andExpect(status().isGone());
+        mockMvc.perform(post("/api/routine-service/{vehicleId}", vehicle.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(put("/api/routine-service/{id}", routineService.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(delete("/api/routine-service/{id}", routineService.getId())).andExpect(status().isGone());
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void returnsNotFoundForUnknownRoutineService() throws Exception {
         mockMvc.perform(get("/api/routine-service/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }

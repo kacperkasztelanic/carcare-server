@@ -134,6 +134,26 @@ class InsuranceResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void rejectsEveryInsuranceOperationForAnArchivedVehicle() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleFor("user");
+        Insurance insurance = sessionFixtures.insuranceFor(vehicle);
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId())).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/insurance/{id}", insurance.getId())).andExpect(status().isGone());
+        mockMvc.perform(get("/api/insurance/all/{vehicleId}", vehicle.getId())).andExpect(status().isGone());
+        mockMvc.perform(post("/api/insurance/{vehicleId}", vehicle.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(request("Archived insurer", "Archived number", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(put("/api/insurance/{id}", insurance.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(request("Archived insurer", "Archived number", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(delete("/api/insurance/{id}", insurance.getId())).andExpect(status().isGone());
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void returnsNotFoundForUnknownInsurance() throws Exception {
         mockMvc.perform(get("/api/insurance/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }

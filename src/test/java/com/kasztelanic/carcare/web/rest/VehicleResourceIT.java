@@ -5,15 +5,12 @@ import com.kasztelanic.carcare.fixtures.SessionFixtures;
 import com.kasztelanic.carcare.service.dto.FuelTypeDto;
 import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,7 +147,7 @@ class VehicleResourceIT extends AbstractSessionIT {
             .andExpect(jsonPath("$.id").value(vehicle.getId()));
 
         mockMvc.perform(get("/api/vehicle/{id}", vehicle.getId()))
-            .andExpect(status().isNotFound());
+            .andExpect(status().isGone());
     }
 
     @Test
@@ -162,27 +159,24 @@ class VehicleResourceIT extends AbstractSessionIT {
             .andExpect(header().doesNotExist(HttpHeaders.CONTENT_TYPE));
     }
 
-    @Disabled("S-05 vehicle-archiving owns deleting vehicles with event history")
     @Test
     @WithMockUser(username = "user")
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void deletingVehicleWithHistoryCurrentlyViolatesForeignKeys() throws Exception {
+    void archivesVehicleWithHistoryAndReturnsGoneForDirectAccess() throws Exception {
         Vehicle vehicle = sessionFixtures.vehicleWithEventsFor("user");
-        try {
-            mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId()))
-                .andExpect(status().is5xxServerError());
-        } finally {
-            // This test runs outside the class-level transaction, so its rows are committed to the
-            // JVM-wide H2 instance (DB_CLOSE_DELAY=-1) and must be removed by hand.
-            purgeVehicle(vehicle.getId());
-        }
-    }
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId()))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-carcareApp-alert", "carcareApp.vehicle.deleted"))
+            .andExpect(jsonPath("$.id").value(vehicle.getId()));
 
-    private void purgeVehicle(Long vehicleId) {
-        for (String table : new String[] { "refuels", "repairs", "routine_services", "inspections", "insurances" }) {
-            jdbcTemplate.update("delete from " + table + " where vehicle_id = ?", vehicleId);
-        }
-        jdbcTemplate.update("delete from vehicles where id = ?", vehicleId);
+        mockMvc.perform(get("/api/vehicle/{id}", vehicle.getId()))
+            .andExpect(status().isGone())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.http.410"));
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId()))
+            .andExpect(status().isGone());
+
+        assertThat(jdbcTemplate.queryForObject("select count(*) from vehicles where id = ?", Integer.class,
+            vehicle.getId())).isEqualTo(1);
     }
 
     private static VehicleDto vehicleRequest(String make) {

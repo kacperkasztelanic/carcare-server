@@ -86,6 +86,24 @@ class RefuelResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void rejectsEveryRefuelOperationForAnArchivedVehicle() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleFor("user");
+        Refuel refuel = sessionFixtures.refuelFor(vehicle);
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId())).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/refuel/{id}", refuel.getId())).andExpect(status().isGone());
+        mockMvc.perform(get("/api/refuel/all/{vehicleId}", vehicle.getId())).andExpect(status().isGone());
+        mockMvc.perform(post("/api/refuel/{vehicleId}", vehicle.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(put("/api/refuel/{id}", refuel.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(delete("/api/refuel/{id}", refuel.getId())).andExpect(status().isGone());
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void returnsNotFoundForUnknownRefuel() throws Exception {
         mockMvc.perform(get("/api/refuel/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }

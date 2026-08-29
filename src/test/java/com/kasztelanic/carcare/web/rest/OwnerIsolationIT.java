@@ -86,6 +86,34 @@ class OwnerIsolationIT extends AbstractSessionIT {
     }
 
     @Test
+    void archivedVehicleAndEventsRemainNotFoundToAnotherOwner() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleWithEventsFor(OWNER);
+        Refuel refuel = sessionFixtures.refuelFor(vehicle);
+        Repair repair = sessionFixtures.repairFor(vehicle);
+        RoutineService routineService = sessionFixtures.routineServiceFor(vehicle);
+        Inspection inspection = sessionFixtures.inspectionFor(vehicle);
+        Insurance insurance = sessionFixtures.insuranceFor(vehicle);
+
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId()).with(user(OWNER)))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/vehicle/{id}", vehicle.getId()).with(user(OTHER_OWNER)))
+            .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId()).with(user(OTHER_OWNER)))
+            .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/refuel/{id}", refuel.getId()).with(user(OTHER_OWNER)))
+            .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/repair/{id}", repair.getId()).with(user(OTHER_OWNER)))
+            .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/routine-service/{id}", routineService.getId()).with(user(OTHER_OWNER)))
+            .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/inspection/{id}", inspection.getId()).with(user(OTHER_OWNER)))
+            .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/insurance/{id}", insurance.getId()).with(user(OTHER_OWNER)))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     void refuelRowsAndForeignParentAreInvisible() throws Exception {
         Vehicle vehicle = sessionFixtures.vehicleFor(OWNER);
         Refuel refuel = sessionFixtures.refuelFor(vehicle);

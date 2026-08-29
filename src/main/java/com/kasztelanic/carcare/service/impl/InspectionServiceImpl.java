@@ -2,8 +2,8 @@ package com.kasztelanic.carcare.service.impl;
 
 import com.kasztelanic.carcare.domain.Inspection;
 import com.kasztelanic.carcare.repository.InspectionRepository;
-import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.InspectionService;
+import com.kasztelanic.carcare.service.VehicleScopeService;
 import com.kasztelanic.carcare.service.dto.InspectionDto;
 import com.kasztelanic.carcare.service.mapper.InspectionMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InspectionServiceImpl implements InspectionService {
 
-    private final VehicleRepository vehicleRepository;
+    private final VehicleScopeService vehicleScopeService;
     private final InspectionRepository inspectionRepository;
     private final InspectionMapper inspectionMapper;
 
@@ -26,22 +26,27 @@ public class InspectionServiceImpl implements InspectionService {
     @Transactional(readOnly = true)
     public Optional<InspectionDto> getInspection(Long id) {
         return inspectionRepository.findByIdAndOwnerIsCurrentUser(id)//
-            .map(inspectionMapper::inspectionToInspectionDto);
+            .map(inspection -> {
+                vehicleScopeService.assertActiveVehicle(inspection.getVehicle());
+                return inspectionMapper.inspectionToInspectionDto(inspection);
+            });
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<InspectionDto> getAllInspections(Long vehicleId) {
-        return inspectionRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()//
-            .map(inspectionMapper::inspectionToInspectionDto)//
-            .collect(Collectors.toList());
+        return vehicleScopeService.findActiveOwnedVehicle(vehicleId)
+            .map(vehicle -> inspectionRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
+                .map(inspectionMapper::inspectionToInspectionDto)
+                .collect(Collectors.toList()))
+            .orElseGet(List::of);
     }
 
 
     @Override
     @Transactional
     public Optional<InspectionDto> addInspection(Long vehicleId, InspectionDto inspectionDto) {
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId)//
+        return vehicleScopeService.findActiveOwnedVehicle(vehicleId)//
             .map(v -> inspectionMapper.inspectionDtoToInspection(inspectionDto).setVehicle(v))//
             .map(inspectionRepository::save)//
             .map(inspectionMapper::inspectionToInspectionDto);
@@ -51,7 +56,10 @@ public class InspectionServiceImpl implements InspectionService {
     @Transactional
     public Optional<InspectionDto> editInspection(Long id, InspectionDto inspectionDto) {
         return inspectionRepository.findByIdAndOwnerIsCurrentUser(id)//
-            .map(i -> updateInspection(i, inspectionMapper.inspectionDtoToInspection(inspectionDto)))//
+            .map(inspection -> {
+                vehicleScopeService.assertActiveVehicle(inspection.getVehicle());
+                return updateInspection(inspection, inspectionMapper.inspectionDtoToInspection(inspectionDto));
+            })//
             .map(inspectionRepository::save)//
             .map(inspectionMapper::inspectionToInspectionDto);
     }
@@ -59,8 +67,11 @@ public class InspectionServiceImpl implements InspectionService {
     @Override
     @Transactional
     public Optional<InspectionDto> deleteInspection(Long id) {
-        Optional<InspectionDto> inspection = inspectionRepository.findByIdAndOwnerIsCurrentUser(id)//
-            .map(inspectionMapper::inspectionToInspectionDto);
+        Optional<InspectionDto> inspection = inspectionRepository.findByIdAndOwnerIsCurrentUser(id)
+            .map(entity -> {
+                vehicleScopeService.assertActiveVehicle(entity.getVehicle());
+                return inspectionMapper.inspectionToInspectionDto(entity);
+            });
         inspection.ifPresent(i -> inspectionRepository.deleteById(id));
         return inspection;
     }

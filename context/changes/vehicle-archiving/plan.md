@@ -418,29 +418,29 @@ highest-risk assertions are:
 
 #### Automated
 
-- [x] 1.1 Compile and run the repository/schema-focused tests with Java 17.
-- [x] 1.2 Run `HibernateTimeZoneIT` and the existing golden dataset mirror guard to confirm the migration validates under H2 and does not alter golden fixture cardinality.
-- [x] 1.3 Run `git diff --check` and inspect generated Liquibase SQL/schema metadata where available.
+- [x] 1.1 Compile and run the repository/schema-focused tests with Java 17. — 718a011
+- [x] 1.2 Run `HibernateTimeZoneIT` and the existing golden dataset mirror guard to confirm the migration validates under H2 and does not alter golden fixture cardinality. — 718a011
+- [x] 1.3 Run `git diff --check` and inspect generated Liquibase SQL/schema metadata where available. — 718a011
 
 #### Manual
 
-- [x] 1.4 Inspect the migration and confirm existing rows receive `NULL`, the column is nullable, and all five event date query paths have appropriate indexes.
-- [x] 1.5 Start the application against a disposable database and verify the normal vehicle JSON has no new archive field.
+- [x] 1.4 Inspect the migration and confirm existing rows receive `NULL`, the column is nullable, and all five event date query paths have appropriate indexes. — 718a011
+- [x] 1.5 Start the application against a disposable database and verify the normal vehicle JSON has no new archive field. — 718a011
 
 ### Phase 2: Archive Lifecycle, 410 Responses, and Admin Restore
 
 #### Automated
 
-- [ ] 2.1 Extend `VehicleResourceIT` for archive success, retained body/alert, archived `410`, repeated archive `410`, and unknown/foreign `404` behavior.
-- [ ] 2.2 Add `AdminVehicleResourceIT` covering admin authorization, pagination, DTO shape, restore, active idempotency, and unknown-id `404`; verify a normal user cannot use either admin route.
-- [ ] 2.3 Extend `ExceptionTranslatorIT` and its test controller fixture if needed with a `410` response contract assertion.
-- [ ] 2.4 Extend `RefuelResourceIT`, `RepairResourceIT`, `RoutineServiceResourceIT`, `InspectionResourceIT`, and `InsuranceResourceIT` with an owned-archived matrix covering create, vehicle-scoped list, direct get, update, and delete behavior as `410 Gone`.
-- [ ] 2.5 Run `OwnerIsolationIT` to ensure the same archived vehicle and event targets remain `404` to another owner and do not leak archive status.
+- [x] 2.1 Extend `VehicleResourceIT` for archive success, retained body/alert, archived `410`, repeated archive `410`, and unknown/foreign `404` behavior.
+- [x] 2.2 Add `AdminVehicleResourceIT` covering admin authorization, pagination, DTO shape, restore, active idempotency, and unknown-id `404`; verify a normal user cannot use either admin route.
+- [x] 2.3 Extend `ExceptionTranslatorIT` and its test controller fixture if needed with a `410` response contract assertion.
+- [x] 2.4 Extend `RefuelResourceIT`, `RepairResourceIT`, `RoutineServiceResourceIT`, `InspectionResourceIT`, and `InsuranceResourceIT` with an owned-archived matrix covering create, vehicle-scoped list, direct get, update, and delete behavior as `410 Gone`.
+- [x] 2.5 Run `OwnerIsolationIT` to ensure the same archived vehicle and event targets remain `404` to another owner and do not leak archive status.
 
 #### Manual
 
-- [ ] 2.6 Archive an active vehicle, confirm it disappears from the owner list, then request its detail and an event route and verify the RFC7807 `410` response.
-- [ ] 2.7 Restore it through the admin list/restore API, confirm `archivedAt` becomes null, and verify the owner can see and operate on it again.
+- [x] 2.6 Archive an active vehicle, confirm it disappears from the owner list, then request its detail and an event route and verify the RFC7807 `410` response.
+- [x] 2.7 Restore it through the admin list/restore API, confirm `archivedAt` becomes null, and verify the owner can see and operate on it again.
 
 ### Phase 3: Forward and Historical Consumer Behavior
 

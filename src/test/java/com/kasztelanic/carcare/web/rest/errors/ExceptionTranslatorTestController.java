@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
+import com.kasztelanic.carcare.service.exception.ArchivedResourceException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -42,6 +43,11 @@ public class ExceptionTranslatorTestController {
     @GetMapping("/test/response-status")
     public void exceptionWithResponseStatus() {
         throw new TestResponseStatusException();
+    }
+
+    @GetMapping("/test/archived")
+    public void archivedResource() {
+        throw new ArchivedResourceException();
     }
 
     @GetMapping("/test/internal-server-error")

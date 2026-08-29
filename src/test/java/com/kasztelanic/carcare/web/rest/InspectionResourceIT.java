@@ -86,6 +86,24 @@ class InspectionResourceIT extends AbstractSessionIT {
 
     @Test
     @WithMockUser(username = "user")
+    void rejectsEveryInspectionOperationForAnArchivedVehicle() throws Exception {
+        Vehicle vehicle = sessionFixtures.vehicleFor("user");
+        Inspection inspection = sessionFixtures.inspectionFor(vehicle);
+        mockMvc.perform(delete("/api/vehicle/{id}", vehicle.getId())).andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/inspection/{id}", inspection.getId())).andExpect(status().isGone());
+        mockMvc.perform(get("/api/inspection/all/{vehicleId}", vehicle.getId())).andExpect(status().isGone());
+        mockMvc.perform(post("/api/inspection/{vehicleId}", vehicle.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(put("/api/inspection/{id}", inspection.getId())
+                .contentType(MediaType.APPLICATION_JSON).content(json(request("Archived station", "Archived details"))))
+            .andExpect(status().isGone());
+        mockMvc.perform(delete("/api/inspection/{id}", inspection.getId())).andExpect(status().isGone());
+    }
+
+    @Test
+    @WithMockUser(username = "user")
     void returnsNotFoundForUnknownInspection() throws Exception {
         mockMvc.perform(get("/api/inspection/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }

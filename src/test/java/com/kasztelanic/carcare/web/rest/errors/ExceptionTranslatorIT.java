@@ -97,6 +97,16 @@ class ExceptionTranslatorIT {
     }
 
     @Test
+    void testArchivedResource() throws Exception {
+        mockMvc.perform(get("/test/archived"))
+            .andExpect(status().isGone())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.message").value("error.http.410"))
+            .andExpect(jsonPath("$.path").value("/test/archived"))
+            .andExpect(jsonPath("$.title").value("Resource is archived"));
+    }
+
+    @Test
     void testInternalServerError() throws Exception {
         mockMvc.perform(get("/test/internal-server-error"))
             .andExpect(status().isInternalServerError())

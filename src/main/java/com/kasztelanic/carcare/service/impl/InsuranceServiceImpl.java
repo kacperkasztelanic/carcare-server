@@ -2,8 +2,8 @@ package com.kasztelanic.carcare.service.impl;
 
 import com.kasztelanic.carcare.domain.Insurance;
 import com.kasztelanic.carcare.repository.InsuranceRepository;
-import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.InsuranceService;
+import com.kasztelanic.carcare.service.VehicleScopeService;
 import com.kasztelanic.carcare.service.dto.InsuranceDto;
 import com.kasztelanic.carcare.service.mapper.InsuranceMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InsuranceServiceImpl implements InsuranceService {
 
-    private final VehicleRepository vehicleRepository;
+    private final VehicleScopeService vehicleScopeService;
     private final InsuranceRepository insuranceRepository;
     private final InsuranceMapper insuranceMapper;
 
@@ -26,20 +26,26 @@ public class InsuranceServiceImpl implements InsuranceService {
     @Transactional(readOnly = true)
     public Optional<InsuranceDto> getInsurance(Long id) {
         return insuranceRepository.findByIdAndOwnerIsCurrentUser(id)//
-            .map(insuranceMapper::insuranceToInsuranceDto);
+            .map(insurance -> {
+                vehicleScopeService.assertActiveVehicle(insurance.getVehicle());
+                return insuranceMapper.insuranceToInsuranceDto(insurance);
+            });
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<InsuranceDto> getAllInsurances(Long vehicleId) {
-        return insuranceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
-            .map(insuranceMapper::insuranceToInsuranceDto).collect(Collectors.toList());
+        return vehicleScopeService.findActiveOwnedVehicle(vehicleId)
+            .map(vehicle -> insuranceRepository.findByVehicleIdAndOwnerIsCurrentUser(vehicleId).stream()
+                .map(insuranceMapper::insuranceToInsuranceDto)
+                .collect(Collectors.toList()))
+            .orElseGet(List::of);
     }
 
     @Override
     @Transactional
     public Optional<InsuranceDto> addInsurance(Long vehicleId, InsuranceDto insuranceDto) {
-        return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId)//
+        return vehicleScopeService.findActiveOwnedVehicle(vehicleId)//
             .map(v -> insuranceMapper.insuranceDtoToInsurance(insuranceDto).setVehicle(v))//
             .map(insuranceRepository::save)//
             .map(insuranceMapper::insuranceToInsuranceDto);
@@ -49,7 +55,10 @@ public class InsuranceServiceImpl implements InsuranceService {
     @Transactional
     public Optional<InsuranceDto> editInsurance(Long id, InsuranceDto insuranceDto) {
         return insuranceRepository.findByIdAndOwnerIsCurrentUser(id)//
-            .map(i -> updateInsurance(i, insuranceMapper.insuranceDtoToInsurance(insuranceDto)))//
+            .map(insurance -> {
+                vehicleScopeService.assertActiveVehicle(insurance.getVehicle());
+                return updateInsurance(insurance, insuranceMapper.insuranceDtoToInsurance(insuranceDto));
+            })//
             .map(insuranceRepository::save)//
             .map(insuranceMapper::insuranceToInsuranceDto);
     }
@@ -57,8 +66,11 @@ public class InsuranceServiceImpl implements InsuranceService {
     @Override
     @Transactional
     public Optional<InsuranceDto> deleteInsurance(Long id) {
-        Optional<InsuranceDto> insurance = insuranceRepository.findByIdAndOwnerIsCurrentUser(id)//
-            .map(insuranceMapper::insuranceToInsuranceDto);
+        Optional<InsuranceDto> insurance = insuranceRepository.findByIdAndOwnerIsCurrentUser(id)
+            .map(entity -> {
+                vehicleScopeService.assertActiveVehicle(entity.getVehicle());
+                return insuranceMapper.insuranceToInsuranceDto(entity);
+            });
         insurance.ifPresent(i -> insuranceRepository.deleteById(id));
         return insurance;
     }
