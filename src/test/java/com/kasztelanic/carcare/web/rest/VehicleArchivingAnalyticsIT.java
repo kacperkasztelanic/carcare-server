@@ -1,7 +1,6 @@
 package com.kasztelanic.carcare.web.rest;
 
 import com.kasztelanic.carcare.domain.Vehicle;
-import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -34,8 +33,6 @@ class VehicleArchivingAnalyticsIT extends AbstractSessionIT {
     private static final LocalDate DATE_FROM = LocalDate.of(2026, 1, 1);
     private static final LocalDate DATE_TO = LocalDate.of(2026, 3, 31);
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
 
     @Test
     void costConsumersAppendMatchingArchivedVehiclesOnceInIdOrder() throws Exception {
@@ -44,22 +41,22 @@ class VehicleArchivingAnalyticsIT extends AbstractSessionIT {
         Vehicle activeSecond = sessionFixtures.vehicleFor("user");
         sessionFixtures.repairFor(activeSecond, 1_100, DATE_TO, 200);
 
-        Vehicle archivedRefuel = archived(sessionFixtures.vehicleFor("user"));
+        Vehicle archivedRefuel = archivedFixture(sessionFixtures.vehicleFor("user"));
         sessionFixtures.refuelFor(archivedRefuel, 1_200, DATE_FROM, 1_000, 300);
-        Vehicle archivedRepair = archived(sessionFixtures.vehicleFor("user"));
+        Vehicle archivedRepair = archivedFixture(sessionFixtures.vehicleFor("user"));
         sessionFixtures.repairFor(archivedRepair, 1_300, DATE_TO, 400);
-        Vehicle archivedRoutineService = archived(sessionFixtures.vehicleFor("user"));
+        Vehicle archivedRoutineService = archivedFixture(sessionFixtures.vehicleFor("user"));
         sessionFixtures.routineServiceFor(archivedRoutineService, 1_400, DATE_FROM, 500,
             2_000, LocalDate.of(2027, 1, 1));
-        Vehicle archivedInspection = archived(sessionFixtures.vehicleFor("user"));
+        Vehicle archivedInspection = archivedFixture(sessionFixtures.vehicleFor("user"));
         sessionFixtures.inspectionFor(archivedInspection, 1_500, DATE_TO, 600, LocalDate.of(2027, 3, 31));
-        Vehicle archivedInsurance = archived(sessionFixtures.vehicleFor("user"));
+        Vehicle archivedInsurance = archivedFixture(sessionFixtures.vehicleFor("user"));
         sessionFixtures.insuranceFor(archivedInsurance, 1_600, DATE_FROM, DATE_FROM,
             DATE_TO, 700);
 
-        Vehicle outsidePeriod = archived(sessionFixtures.vehicleFor("user"));
+        Vehicle outsidePeriod = archivedFixture(sessionFixtures.vehicleFor("user"));
         sessionFixtures.refuelFor(outsidePeriod, 1_700, DATE_FROM.minusDays(1), 1_000, 800);
-        Vehicle foreign = archived(sessionFixtures.vehicleFor("admin"));
+        Vehicle foreign = archivedFixture(sessionFixtures.vehicleFor("admin"));
         sessionFixtures.refuelFor(foreign, 1_800, DATE_FROM, 1_000, 900);
 
         CostRequest request = CostRequest.of(
@@ -109,7 +106,7 @@ class VehicleArchivingAnalyticsIT extends AbstractSessionIT {
         Vehicle archived = sessionFixtures.vehicleFor("user");
         sessionFixtures.refuelFor(archived, 1_000, DATE_FROM, 10_000, 1_000);
         sessionFixtures.refuelFor(archived, 1_500, DATE_TO, 10_000, 1_000);
-        archived(archived);
+        archivedFixture(archived);
         PeriodVehicle periodVehicle = PeriodVehicle.of(archived.getId(), DATE_FROM, DATE_TO);
 
         mockMvc.perform(get("/api/reports/vehicle/{id}", archived.getId()).with(user("user")))
@@ -147,7 +144,7 @@ class VehicleArchivingAnalyticsIT extends AbstractSessionIT {
     void archivedAnalyticsRemainOwnerScoped() throws Exception {
         Vehicle archived = sessionFixtures.vehicleFor("user");
         sessionFixtures.refuelFor(archived, 1_000, DATE_FROM, 1_000, 100);
-        archived(archived);
+        archivedFixture(archived);
         PeriodVehicle periodVehicle = PeriodVehicle.of(archived.getId(), DATE_FROM, DATE_TO);
         CostRequest costRequest = CostRequest.of(List.of(archived.getId()), DATE_FROM, DATE_TO);
 
@@ -166,9 +163,8 @@ class VehicleArchivingAnalyticsIT extends AbstractSessionIT {
             .andExpect(status().isNotFound());
     }
 
-    private Vehicle archived(Vehicle vehicle) {
-        vehicle.setArchivedAt(Instant.parse("2026-08-28T10:00:00Z"));
-        return vehicleRepository.save(vehicle);
+    private Vehicle archivedFixture(Vehicle vehicle) {
+        return sessionFixtures.archive(vehicle, Instant.parse("2026-08-28T10:00:00Z"));
     }
 
     private static List<String> stringCells(byte[] workbookBytes) throws Exception {

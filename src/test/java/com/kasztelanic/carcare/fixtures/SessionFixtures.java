@@ -29,6 +29,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -118,6 +119,20 @@ public class SessionFixtures implements ApplicationRunner {
             .owner(ownerFor(ownerLogin))
             .build();
         return vehicleRepository.save(vehicle);
+    }
+
+    /**
+     * Archive-lifecycle helpers. Deliberately not called from {@link #seedGoldenDataset()} and not
+     * part of {@link #GOLDEN_HANDLES} — the golden reference data contains no archived vehicles and
+     * its cardinality and indexes must not move.
+     */
+    public Vehicle archive(Vehicle vehicle, Instant archivedAt) {
+        vehicle.setArchivedAt(archivedAt);
+        return vehicleRepository.save(vehicle);
+    }
+
+    public Vehicle archivedVehicleFor(String ownerLogin, Instant archivedAt) {
+        return archive(vehicleFor(ownerLogin), archivedAt);
     }
 
     public Vehicle vehicleWithEventsFor(String ownerLogin) {

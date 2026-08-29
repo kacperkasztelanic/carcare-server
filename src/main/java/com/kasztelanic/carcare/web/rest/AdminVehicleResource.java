@@ -3,6 +3,7 @@ package com.kasztelanic.carcare.web.rest;
 import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import com.kasztelanic.carcare.service.AdminVehicleService;
 import com.kasztelanic.carcare.service.dto.AdminVehicleDto;
+import com.kasztelanic.carcare.web.rest.util.HeaderUtil;
 import com.kasztelanic.carcare.web.rest.util.PaginationUtil;
 import com.kasztelanic.carcare.web.rest.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ public class AdminVehicleResource {
 
     @PutMapping("/{id}/restore")
     public ResponseEntity<AdminVehicleDto> restoreVehicle(@PathVariable Long id) {
-        return ResponseUtil.wrapOrNotFound(adminVehicleService.restoreVehicle(id));
+        return ResponseUtil.wrapOrNotFound(adminVehicleService.restoreVehicle(id),
+            HeaderUtil.createEntityUpdateAlert("vehicle", id.toString()));
     }
 }

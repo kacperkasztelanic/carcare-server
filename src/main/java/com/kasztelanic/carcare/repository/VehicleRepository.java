@@ -47,7 +47,16 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     List<Vehicle> findArchivedByOwnerIsCurrentUserWithEventsBetween(@Param("dateFrom") LocalDate dateFrom,
                                                                       @Param("dateTo") LocalDate dateTo);
 
-    @Query("select vehicle from Vehicle vehicle where vehicle.archivedAt is not null " +
-        "order by vehicle.archivedAt desc, vehicle.id asc")
+    @Query("select count(vehicle) > 0 from Vehicle vehicle "
+        + "where vehicle.owner.login = ?#{principal.username} and vehicle.archivedAt is not null")
+    boolean existsArchivedByOwnerIsCurrentUser();
+
+    // join fetch on owner: the admin DTO reads owner.login for every row, and the association is
+    // EAGER, so without this each page row costs an extra select. Ordering is supplied by the
+    // caller's Pageable (see AdminVehicleServiceImpl.ARCHIVED_SORT) rather than hardcoded here,
+    // so a client-supplied sort is honoured instead of being silently appended as a tiebreaker.
+    @Query(value = "select vehicle from Vehicle vehicle join fetch vehicle.owner "
+        + "where vehicle.archivedAt is not null",
+        countQuery = "select count(vehicle) from Vehicle vehicle where vehicle.archivedAt is not null")
     Page<Vehicle> findAllArchived(Pageable pageable);
 }

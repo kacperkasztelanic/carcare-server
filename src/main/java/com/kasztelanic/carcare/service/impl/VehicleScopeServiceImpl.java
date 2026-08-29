@@ -39,8 +39,11 @@ public class VehicleScopeServiceImpl implements VehicleScopeService {
     @Transactional(readOnly = true)
     public List<Vehicle> findCostVehicles(Collection<Long> requestedIds, LocalDate dateFrom, LocalDate dateTo) {
         List<Vehicle> requestedVehicles = vehicleRepository.findAllByIdAndOwnerIsCurrentUser(requestedIds);
-        List<Vehicle> archivedVehicles = vehicleRepository
-            .findArchivedByOwnerIsCurrentUserWithEventsBetween(dateFrom, dateTo);
+        // The period query fans out into five correlated exists subqueries, so skip it entirely for
+        // the common case of an owner who has never archived anything.
+        List<Vehicle> archivedVehicles = vehicleRepository.existsArchivedByOwnerIsCurrentUser()
+            ? vehicleRepository.findArchivedByOwnerIsCurrentUserWithEventsBetween(dateFrom, dateTo)
+            : List.of();
         Map<Long, Vehicle> vehiclesById = new LinkedHashMap<>();
         requestedVehicles.forEach(vehicle -> vehiclesById.put(vehicle.getId(), vehicle));
         archivedVehicles.forEach(vehicle -> vehiclesById.putIfAbsent(vehicle.getId(), vehicle));

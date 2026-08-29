@@ -1,5 +1,6 @@
 package com.kasztelanic.carcare.web.rest.errors;
 
+import com.kasztelanic.carcare.service.exception.ArchivedResourceException;
 import com.kasztelanic.carcare.service.exception.InvalidLookupTypeException;
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
 import lombok.extern.slf4j.Slf4j;
@@ -122,6 +123,15 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle(ex.getMessage());
         return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(ArchivedResourceException.class)
+    public ResponseEntity<Object> handleArchivedResourceException(ArchivedResourceException ex, WebRequest request) {
+        // Archived access is routine client behaviour, so it gets its own handler rather than
+        // falling through handleUncaught, which would log a stack trace for every 410.
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.GONE);
+        problemDetail.setTitle(ex.getMessage());
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.GONE, request);
     }
 
     @ExceptionHandler(BadRequestAlertException.class)

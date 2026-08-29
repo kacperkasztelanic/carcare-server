@@ -1,7 +1,6 @@
 package com.kasztelanic.carcare.web.rest;
 
 import com.kasztelanic.carcare.domain.Vehicle;
-import com.kasztelanic.carcare.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,8 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AdminVehicleResourceIT extends AbstractSessionIT {
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
 
     @Test
     void listsArchivedVehiclesWithDeterministicPaginationAndAdminDto() throws Exception {
@@ -96,9 +93,7 @@ class AdminVehicleResourceIT extends AbstractSessionIT {
     }
 
     private Vehicle archivedVehicle(String archivedAt) {
-        Vehicle vehicle = sessionFixtures.vehicleFor("user");
-        vehicle.setArchivedAt(Instant.parse(archivedAt));
-        return vehicleRepository.save(vehicle);
+        return sessionFixtures.archivedVehicleFor("user", Instant.parse(archivedAt));
     }
 
     private static SecurityMockMvcRequestPostProcessors.UserRequestPostProcessor admin() {

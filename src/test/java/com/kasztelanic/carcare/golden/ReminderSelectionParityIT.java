@@ -8,7 +8,6 @@ import com.kasztelanic.carcare.domain.RoutineService;
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.fixtures.SessionFixtures;
-import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.MailService;
 import com.kasztelanic.carcare.service.ReminderService;
 import com.kasztelanic.carcare.web.rest.AbstractSessionIT;
@@ -57,8 +56,6 @@ class ReminderSelectionParityIT extends AbstractSessionIT {
     @Autowired
     private ReminderService reminderService;
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
 
     @MockBean
     private MailService mailService;
@@ -135,8 +132,7 @@ class ReminderSelectionParityIT extends AbstractSessionIT {
         sessionFixtures.insuranceFor(archived, 1_000, referenceDate, referenceDate.minusYears(1), dueDate, 10_000);
         sessionFixtures.inspectionFor(archived, 1_000, referenceDate, 10_000, dueDate);
         sessionFixtures.routineServiceFor(archived, 1_000, referenceDate, 10_000, 2_000, dueDate);
-        archived.setArchivedAt(Instant.parse("2026-04-01T00:00:00Z"));
-        vehicleRepository.save(archived);
+        sessionFixtures.archive(archived, Instant.parse("2026-04-01T00:00:00Z"));
 
         Set<LocalDate> dates = Set.of(dueDate);
         reminderService.sendInsuranceReminders(dates, referenceDate);

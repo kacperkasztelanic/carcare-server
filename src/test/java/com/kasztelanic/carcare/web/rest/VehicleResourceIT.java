@@ -36,7 +36,9 @@ class VehicleResourceIT extends AbstractSessionIT {
         mockMvc.perform(get("/api/vehicle/{id}", vehicle.getId()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(vehicle.getId()))
-            .andExpect(jsonPath("$.make").value(vehicle.getMake()));
+            .andExpect(jsonPath("$.make").value(vehicle.getMake()))
+            // The archive marker is server-side state; the frozen client contract must not see it.
+            .andExpect(jsonPath("$.archivedAt").doesNotExist());
     }
 
     @Test
@@ -47,7 +49,8 @@ class VehicleResourceIT extends AbstractSessionIT {
         mockMvc.perform(get("/api/vehicle/all"))
             .andExpect(status().isOk())
             .andExpect(header().exists("X-Total-Count"))
-            .andExpect(jsonPath("$[?(@.id == %s)]", vehicle.getId()).exists());
+            .andExpect(jsonPath("$[?(@.id == %s)]", vehicle.getId()).exists())
+            .andExpect(jsonPath("$[*].archivedAt").doesNotExist());
     }
 
     @Test
