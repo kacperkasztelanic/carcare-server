@@ -1,7 +1,7 @@
 package com.kasztelanic.carcare.service.impl;
 
-import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.EventService;
+import com.kasztelanic.carcare.service.VehicleScopeService;
 import com.kasztelanic.carcare.service.dto.ForthcomingEvent;
 import com.kasztelanic.carcare.service.dto.ForthcomingEvent.EventType;
 import com.kasztelanic.carcare.service.dto.InspectionDto;
@@ -26,7 +26,7 @@ import static java.util.function.Function.identity;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    private final VehicleRepository vehicleRepository;
+    private final VehicleScopeService vehicleScopeService;
     private final VehicleRichMapper vehicleRichMapper;
 
     @Override
@@ -37,7 +37,7 @@ public class EventServiceImpl implements EventService {
         Set<Long> vehicleIds = periodVehicles.stream()//
             .map(PeriodVehicle::getVehicleId)//
             .collect(Collectors.toSet());
-        return vehicleRepository.findAllByIdAndOwnerIsCurrentUser(vehicleIds).stream()//
+        return vehicleScopeService.findActiveOwnedVehicles(vehicleIds).stream()//
             .map(vehicleRichMapper::vehicleToVehicleDto)//
             .map(v -> findForthcomingEvents(periodVehiclesByVehicleId.get(v.getId()), v))//
             .flatMap(Collection::stream)//

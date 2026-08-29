@@ -431,30 +431,30 @@ highest-risk assertions are:
 
 #### Automated
 
-- [x] 2.1 Extend `VehicleResourceIT` for archive success, retained body/alert, archived `410`, repeated archive `410`, and unknown/foreign `404` behavior.
-- [x] 2.2 Add `AdminVehicleResourceIT` covering admin authorization, pagination, DTO shape, restore, active idempotency, and unknown-id `404`; verify a normal user cannot use either admin route.
-- [x] 2.3 Extend `ExceptionTranslatorIT` and its test controller fixture if needed with a `410` response contract assertion.
-- [x] 2.4 Extend `RefuelResourceIT`, `RepairResourceIT`, `RoutineServiceResourceIT`, `InspectionResourceIT`, and `InsuranceResourceIT` with an owned-archived matrix covering create, vehicle-scoped list, direct get, update, and delete behavior as `410 Gone`.
-- [x] 2.5 Run `OwnerIsolationIT` to ensure the same archived vehicle and event targets remain `404` to another owner and do not leak archive status.
+- [x] 2.1 Extend `VehicleResourceIT` for archive success, retained body/alert, archived `410`, repeated archive `410`, and unknown/foreign `404` behavior. — 8a917f7
+- [x] 2.2 Add `AdminVehicleResourceIT` covering admin authorization, pagination, DTO shape, restore, active idempotency, and unknown-id `404`; verify a normal user cannot use either admin route. — 8a917f7
+- [x] 2.3 Extend `ExceptionTranslatorIT` and its test controller fixture if needed with a `410` response contract assertion. — 8a917f7
+- [x] 2.4 Extend `RefuelResourceIT`, `RepairResourceIT`, `RoutineServiceResourceIT`, `InspectionResourceIT`, and `InsuranceResourceIT` with an owned-archived matrix covering create, vehicle-scoped list, direct get, update, and delete behavior as `410 Gone`. — 8a917f7
+- [x] 2.5 Run `OwnerIsolationIT` to ensure the same archived vehicle and event targets remain `404` to another owner and do not leak archive status. — 8a917f7
 
 #### Manual
 
-- [x] 2.6 Archive an active vehicle, confirm it disappears from the owner list, then request its detail and an event route and verify the RFC7807 `410` response.
-- [x] 2.7 Restore it through the admin list/restore API, confirm `archivedAt` becomes null, and verify the owner can see and operate on it again.
+- [x] 2.6 Archive an active vehicle, confirm it disappears from the owner list, then request its detail and an event route and verify the RFC7807 `410` response. — 8a917f7
+- [x] 2.7 Restore it through the admin list/restore API, confirm `archivedAt` becomes null, and verify the owner can see and operate on it again. — 8a917f7
 
 ### Phase 3: Forward and Historical Consumer Behavior
 
 #### Automated
 
-- [ ] 3.1 Extend `EventResourceIT` for active-only request filtering and composite `200` omission behavior, including the case where no active rows remain.
-- [ ] 3.2 Add a focused `VehicleArchivingAnalyticsIT` for inclusive period boundaries, archived vehicles with each event type, deterministic append order, no duplicates, owner isolation, and the historical single-vehicle/statistics paths.
-- [ ] 3.3 Extend `ReminderSelectionParityIT` with an archived vehicle whose event would otherwise be due; assert it is not selected while existing active selection remains unchanged.
-- [ ] 3.4 Run `ReportParityIT`, `GoldenDatasetMirrorIT`, and the existing statistics/report integration coverage without modifying golden fixtures.
+- [x] 3.1 Extend `EventResourceIT` for active-only request filtering and composite `200` omission behavior, including the case where no active rows remain.
+- [x] 3.2 Add a focused `VehicleArchivingAnalyticsIT` for inclusive period boundaries, archived vehicles with each event type, deterministic append order, no duplicates, owner isolation, and the historical single-vehicle/statistics paths.
+- [x] 3.3 Extend `ReminderSelectionParityIT` with an archived vehicle whose event would otherwise be due; assert it is not selected while existing active selection remains unchanged.
+- [x] 3.4 Run `ReportParityIT`, `GoldenDatasetMirrorIT`, and the existing statistics/report integration coverage without modifying golden fixtures.
 
 #### Manual
 
-- [ ] 3.5 Compare a cost report/statistics request before and after archiving a vehicle with an in-period event: the archived row appears at the end; an out-of-period archived vehicle does not.
-- [ ] 3.6 Verify mileage/consumption and single-vehicle report requests still read retained archived data, while forthcoming events and reminders omit it.
+- [x] 3.5 Compare a cost report/statistics request before and after archiving a vehicle with an in-period event: the archived row appears at the end; an out-of-period archived vehicle does not.
+- [x] 3.6 Verify mileage/consumption and single-vehicle report requests still read retained archived data, while forthcoming events and reminders omit it.
 
 ### Phase 4: Fixtures, Integration Contracts, and Regression Verification
 

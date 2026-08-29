@@ -4,6 +4,7 @@ import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.CostCalculator;
 import com.kasztelanic.carcare.service.ReportService;
+import com.kasztelanic.carcare.service.VehicleScopeService;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.CostResult;
 import com.kasztelanic.carcare.service.dto.PeriodVehicle;
@@ -34,6 +35,7 @@ public class ReportServiceImpl implements ReportService {
     private final VehicleReport vehicleReport;
     private final CostReport costReport;
     private final VehicleRepository vehicleRepository;
+    private final VehicleScopeService vehicleScopeService;
     private final VehicleRichMapper vehicleMapper;
     private final CostCalculator costCalculator;
 
@@ -43,6 +45,7 @@ public class ReportServiceImpl implements ReportService {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
         Function<VehicleRichDto, String> reportNameFunction = v -> v.getLicensePlate()
             .replaceAll("\\s+", "_") + EXTENSION;
+        // Single-vehicle reports intentionally remain historical-inclusive for owned archives.
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(vehicleId)//
             .map(vehicleMapper::vehicleToVehicleDto)//
             .map(v -> Try.of(() -> vehicleReport.generateVehicleReport(v, locale))//
@@ -57,8 +60,8 @@ public class ReportServiceImpl implements ReportService {
     @Transactional(readOnly = true)
     public Either<ReportGenerationException, Report> generateCostReport(CostRequest costRequest, User user) {
         Locale locale = Locale.forLanguageTag(user.getLangKey());
-        List<VehicleRichDto> vehicles = vehicleRepository
-            .findAllByIdAndOwnerIsCurrentUser(costRequest.getVehicleIds())//
+        List<VehicleRichDto> vehicles = vehicleScopeService
+            .findCostVehicles(costRequest.getVehicleIds(), costRequest.getDateFrom(), costRequest.getDateTo())//
             .stream()//
             .map(vehicleMapper::vehicleToVehicleDto)//
             .collect(Collectors.toList());

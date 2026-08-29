@@ -8,6 +8,7 @@ import com.kasztelanic.carcare.domain.RoutineService;
 import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.fixtures.SessionFixtures;
+import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.MailService;
 import com.kasztelanic.carcare.service.ReminderService;
 import com.kasztelanic.carcare.web.rest.AbstractSessionIT;
@@ -24,6 +25,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,6 +56,9 @@ class ReminderSelectionParityIT extends AbstractSessionIT {
 
     @Autowired
     private ReminderService reminderService;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     @MockBean
     private MailService mailService;
@@ -112,6 +118,35 @@ class ReminderSelectionParityIT extends AbstractSessionIT {
             .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(mailService);
+    }
+
+    @Test
+    void archivedDueEventsAreNotSelected() {
+        LocalDate referenceDate = SessionFixtures.GOLDEN_REFERENCE_DATE;
+        LocalDate dueDate = referenceDate.plusDays(3);
+        Vehicle active = sessionFixtures.vehicleFor("user");
+        Vehicle archived = sessionFixtures.vehicleFor("user");
+
+        Insurance activeInsurance = sessionFixtures.insuranceFor(active, 1_000, referenceDate,
+            referenceDate.minusYears(1), dueDate, 10_000);
+        Inspection activeInspection = sessionFixtures.inspectionFor(active, 1_000, referenceDate, 10_000, dueDate);
+        RoutineService activeService = sessionFixtures.routineServiceFor(active, 1_000, referenceDate, 10_000,
+            2_000, dueDate);
+        sessionFixtures.insuranceFor(archived, 1_000, referenceDate, referenceDate.minusYears(1), dueDate, 10_000);
+        sessionFixtures.inspectionFor(archived, 1_000, referenceDate, 10_000, dueDate);
+        sessionFixtures.routineServiceFor(archived, 1_000, referenceDate, 10_000, 2_000, dueDate);
+        archived.setArchivedAt(Instant.parse("2026-04-01T00:00:00Z"));
+        vehicleRepository.save(archived);
+
+        Set<LocalDate> dates = Set.of(dueDate);
+        reminderService.sendInsuranceReminders(dates, referenceDate);
+        reminderService.sendInspectionReminders(dates, referenceDate);
+        reminderService.sendRoutineServiceReminders(dates, referenceDate);
+
+        verify(mailService).sendInsuranceReminderEmail(eq(active.getOwner()), eq(active), eq(activeInsurance), eq(3));
+        verify(mailService).sendInspectionReminderEmail(eq(active.getOwner()), eq(active), eq(activeInspection), eq(3));
+        verify(mailService).sendRoutineServiceReminderEmail(eq(active.getOwner()), eq(active), eq(activeService), eq(3));
+        verifyNoMoreInteractions(mailService);
     }
 
     private void assertReminderCallsMatch(String resourceName, Map<String, Long> ids) throws IOException {

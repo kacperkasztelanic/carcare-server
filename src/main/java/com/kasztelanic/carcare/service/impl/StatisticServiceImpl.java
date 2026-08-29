@@ -6,6 +6,7 @@ import com.kasztelanic.carcare.service.AverageConsumptionCalculator;
 import com.kasztelanic.carcare.service.CostCalculator;
 import com.kasztelanic.carcare.service.MileageService;
 import com.kasztelanic.carcare.service.StatisticService;
+import com.kasztelanic.carcare.service.VehicleScopeService;
 import com.kasztelanic.carcare.service.dto.AverageConsumptionResult;
 import com.kasztelanic.carcare.service.dto.CostRequest;
 import com.kasztelanic.carcare.service.dto.CostResult;
@@ -30,6 +31,7 @@ public class StatisticServiceImpl implements StatisticService {
     private final MileageService mileageService;
     private final CostCalculator costCalculator;
     private final VehicleRepository vehicleRepository;
+    private final VehicleScopeService vehicleScopeService;
     private final VehicleRichMapper vehicleRichMapper;
     private final RefuelRepository refuelRepository;
     private final RefuelMapper refuelMapper;
@@ -37,6 +39,7 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     @Transactional(readOnly = true)
     public AverageConsumptionResult calculateAverageConsumptionPerPeriod(PeriodVehicle periodVehicle) {
+        // Consumption statistics intentionally remain historical-inclusive for owned archives.
         List<RefuelDto> refuels = refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(periodVehicle.getVehicleId())
             .stream()//
             .map(refuelMapper::refuelToRefuelDto)//
@@ -47,6 +50,7 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     @Transactional(readOnly = true)
     public List<AverageConsumptionResult> calculateAverageConsumptionPerRefuel(PeriodVehicle periodVehicle) {
+        // Consumption statistics intentionally remain historical-inclusive for owned archives.
         List<RefuelDto> refuels = refuelRepository.findByVehicleIdAndOwnerIsCurrentUser(periodVehicle.getVehicleId())
             .stream()//
             .map(refuelMapper::refuelToRefuelDto)//
@@ -57,6 +61,7 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     @Transactional(readOnly = true)
     public Optional<MileageResult> calculateMileageStats(PeriodVehicle periodVehicle) {
+        // Mileage statistics intentionally remain historical-inclusive for owned archives.
         return vehicleRepository.findByIdAndOwnerIsCurrentUser(periodVehicle.getVehicleId())//
             .map(vehicleRichMapper::vehicleToVehicleDto)//
             .map(v -> mileageService.calculate(periodVehicle, v));
@@ -65,7 +70,8 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     @Transactional(readOnly = true)
     public List<CostResult> calculate(CostRequest costRequest) {
-        return vehicleRepository.findAllByIdAndOwnerIsCurrentUser(costRequest.getVehicleIds()).stream()//
+        return vehicleScopeService.findCostVehicles(costRequest.getVehicleIds(), costRequest.getDateFrom(),
+                costRequest.getDateTo()).stream()//
             .map(vehicleRichMapper::vehicleToVehicleDto)//
             .map(v -> costCalculator
                 .calculate(PeriodVehicle.of(v.getId(), costRequest.getDateFrom(), costRequest.getDateTo()),
