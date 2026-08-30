@@ -22,7 +22,22 @@ variable name Spring actually binds — empirically, and records a second findin
 did not anticipate: the deployed 1.3.10 image binds the key under a *different property
 prefix* than this branch, so the two-step rollout has a variable-naming constraint of its own.
 
-### Out-of-repository step (not yet taken)
+### Implementation status — 2026-08-30
+
+- **Phase 1 (host key delivery)**: DONE. `CARCARE_JWT_BASE64_SECRET` added to `~/services/.env`,
+  mapped to both spellings in `carcare.yml`, `.env.gpg` regenerated (`services` repo `81c9da7`,
+  pushed to all three remotes). `carcare` container recreated from image `1.3.10`. Token-invalidation
+  proof passed: pre-restart old token `200`, post-restart `401`, fresh login `200`. **The live
+  exposure is closed as of this phase.** Round-trip `cmp` of `.env.gpg` waived by owner (no gpg
+  private key on the host; regenerated locally via `genc`, recipient `3BB27BD7A0BCAB8D`).
+- **Phases 2–4 (repository)**: DONE on branch `refactor`, unpushed — `47bab4d` (rotate committed
+  literals), `bad035c` (fail-fast guard + 4 tests), `59325b6` (mark superseded deploy files),
+  `5ce929d` / `b9b5043` (tracking). `./mvnw verify` green at 42 unit / 249 integration.
+- **Phase 5 (release + production deploy)**: DEFERRED to the owner's cadence. Not started. `master`
+  is ~130 commits behind `refactor`; tag/branch strategy and deploy timing are owner decisions.
+  `change.md` stays `implementing` and the plan epilogue is not run until Phase 5 lands.
+
+### Out-of-repository step — DONE (see Phase 1 above)
 
 - **What**: add `CARCARE_JWT_BASE64_SECRET` to the gitignored `~/services/.env`
   (`openssl rand -base64 64`, generated on the host), map it from
