@@ -400,14 +400,14 @@ client changes.
 
 #### Automated
 
-- [ ] 1.1 The new filter and registration compile under the required Java 17 toolchain without unrelated dependency or configuration changes
-- [ ] 1.2 The known-length admission path decides before downstream filters, body accessors, MVC binding, or service execution
-- [ ] 1.3 The registration exposes `/*`, `REQUEST`, and pre-Security ordering metadata
+- [x] 1.1 The new filter and registration compile under the required Java 17 toolchain without unrelated dependency or configuration changes
+- [x] 1.2 The known-length admission path decides before downstream filters, body accessors, MVC binding, or service execution
+- [x] 1.3 The registration exposes `/*`, `REQUEST`, and pre-Security ordering metadata
 
 #### Manual
 
-- [ ] 1.4 Production diff review confirms the boundary is outside SecurityConfiguration, image handling, DTO validation, multipart settings, and proxy configuration
-- [ ] 1.5 Telemetry review confirms no body, query string, authorization value, or high-cardinality metric label is emitted
+- [x] 1.4 Production diff review confirms the boundary is outside SecurityConfiguration, image handling, DTO validation, multipart settings, and proxy configuration
+- [x] 1.5 Telemetry review confirms no body, query string, authorization value, or high-cardinality metric label is emitted
 
 ### Phase 2: Filter and Registration Test Contract
 
