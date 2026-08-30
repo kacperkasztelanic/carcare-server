@@ -48,7 +48,7 @@ that fact.
 
 | ID   | Change ID                      | Outcome (user can …)                                          | Prerequisites | PRD refs                       | Status   |
 | ---- | ------------------------------ | ------------------------------------------------------------- | ------------- | ------------------------------ | -------- |
-| S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | —             | FR-001, FR-002, US-01 (FR-003, US-02 → S-07) | ready    |
+| S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | —             | FR-001, FR-002, US-01 (FR-003, US-02 → S-07) | done     |
 | S-02 | `image-write-ordering`         | owner's stored image survives a failed vehicle update          | —             | FR-004, FR-007                 | ready    |
 | S-03 | `request-body-limit`           | server refuses an oversized request body before buffering it   | —             | FR-005                         | ready    |
 | S-04 | `image-format-allowlist`       | server stores only genuine PNG/JPEG uploads                    | S-02          | FR-006, FR-007                 | proposed |
@@ -157,7 +157,7 @@ explicitly refuses.
   check, plus marking the superseded deploy files) landed on branch `refactor`, unpushed:
   `./mvnw verify` green at 42 unit / 249 integration. See
   `context/changes/external-signing-key/plan.md` Phases 1–4.
-- **Status:** ready (implementation landed; production release tracked by S-07)
+- **Status:** done (implementation landed and archived; production release tracked by S-07)
 
 ### S-02: A failed vehicle update leaves the stored image intact
 
@@ -357,5 +357,8 @@ explicitly refuses.
 
 ## Done
 
-(Empty. `/10x-archive` appends here and flips the item's Status when a matching change is
-archived.)
+- **S-01: an operator deploys the server with no usable signing key anywhere in version control,
+  and the application fails fast — naming the missing configuration — if the key is absent, empty,
+  or too short for the signing algorithm. (Narrowed 2026-08-30: the previously-committed-value
+  blocklist was dropped; see FR-002.)** — Archived 2026-08-30 →
+  `context/archive/2026-08-30-external-signing-key/`. Lesson: —.
