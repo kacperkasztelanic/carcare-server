@@ -1,3 +1,17 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# HISTORICAL — NOT DEPLOYED.
+#
+# The live deployment is Compose project `services`, config file
+# /home/kacper/services/carcare.yml, in a separate private git repository.
+# Nothing in THIS repository reads this file — no pom plugin, no CI job, no
+# script (verified 2026-08-30). CI's tag-only `app` job copies only Dockerfile
+# and entrypoint.sh.
+#
+# In particular, the `environment:` block below does NOT reach the running
+# container. The production JWT signing key is supplied from the live compose
+# file (JHIPSTER_/APPLICATION_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET), not
+# from here. See AGENTS.md § Deployment for the verified topology.
+# ─────────────────────────────────────────────────────────────────────────────
 services:
     carcare-app:
         image: registry.gitlab.com/kkasztel_carcare/server/app:1.3.11

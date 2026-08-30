@@ -740,24 +740,24 @@ no re-login at all.
 
 #### Automated
 
-- [x] 3.1 Unit tests pass: `./mvnw test` — 42 tests (38 existing plus four new guard tests) — `TokenProviderTest` now 9 tests, full suite 42 (1 pre-existing `@Disabled`)
-- [x] 3.2 Integration tests pass: `./mvnw verify` — 249, unchanged
-- [x] 3.3 The new test asserting the throw fails if the guard is reverted — stashed `TokenProvider.java`, ran both throw tests: 2 failures; restored and re-verified
-- [x] 3.4 Startup under `prod` with no variable fails, naming the property and both spellings — real Spring context (`base64-secret` + `secret` forced empty): `BeanCreationException` on `tokenProvider` → `IllegalStateException` naming `application.security.authentication.jwt.base64-secret`, `APPLICATION_*`, `JHIPSTER_*`, and the plain `secret` alternative
-- [x] 3.5 Startup with a 32-byte key fails, naming the 64-byte minimum — `IllegalStateException`: "too short: 32 bytes decoded, but the HS512 signature algorithm requires at least 64 bytes (512 bits)"; context init cancelled, not a healthy boot
-- [x] 3.6 The error is legible without prior knowledge of this codebase — both messages name the property, both env-var spellings, and the `openssl rand -base64 64` fix; the short-key message also states found vs required byte count
+- [x] 3.1 Unit tests pass: `./mvnw test` — 42 tests (38 existing plus four new guard tests) — `TokenProviderTest` now 9 tests, full suite 42 (1 pre-existing `@Disabled`) — bad035c
+- [x] 3.2 Integration tests pass: `./mvnw verify` — 249, unchanged — bad035c
+- [x] 3.3 The new test asserting the throw fails if the guard is reverted — stashed `TokenProvider.java`, ran both throw tests: 2 failures; restored and re-verified — bad035c
+- [x] 3.4 Startup under `prod` with no variable fails, naming the property and both spellings — real Spring context (`base64-secret` + `secret` forced empty): `BeanCreationException` on `tokenProvider` → `IllegalStateException` naming `application.security.authentication.jwt.base64-secret`, `APPLICATION_*`, `JHIPSTER_*`, and the plain `secret` alternative — bad035c
+- [x] 3.5 Startup with a 32-byte key fails, naming the 64-byte minimum — `IllegalStateException`: "too short: 32 bytes decoded, but the HS512 signature algorithm requires at least 64 bytes (512 bits)"; context init cancelled, not a healthy boot — bad035c
+- [x] 3.6 The error is legible without prior knowledge of this codebase — both messages name the property, both env-var spellings, and the `openssl rand -base64 64` fix; the short-key message also states found vs required byte count — bad035c
 
 ### Phase 4: Mark the superseded deployment files as historical
 
 #### Automated
 
-- [ ] 4.1 `./mvnw verify` still green at 42/249
-- [ ] 4.2 All three files carry a header naming `/home/kacper/services/carcare.yml`
+- [x] 4.1 `./mvnw verify` still green at 42/249 — 42 unit (1 pre-existing `@Disabled`) + 249 integration, BUILD SUCCESS
+- [x] 4.2 All three files carry a header naming `/home/kacper/services/carcare.yml` — `app.yml`, `env-template`, `deploy.sh` each open with a `HISTORICAL — NOT DEPLOYED` block naming the live compose path
 
 #### Manual
 
-- [ ] 4.3 `deploy.sh`'s header states that running it destroys `app.yml`'s placeholders
-- [ ] 4.4 Wording does not contradict `AGENTS.md` § Deployment
+- [x] 4.3 `deploy.sh`'s header states that running it destroys `app.yml`'s placeholders — "the `sed -i` lines ... rewrite the `${..._ENV}` placeholders in app.yml / mariadb.yml IN PLACE — one run consumes the templates permanently"
+- [x] 4.4 Wording does not contradict `AGENTS.md` § Deployment — same topology (compose project `services`, `/home/kacper/services/carcare.yml`, separate private repo, gitignored `~/services/.env`), same destructive-`deploy.sh` and superseded-`carcare-app` notes
 
 ### Phase 5: Release and verify against production
 

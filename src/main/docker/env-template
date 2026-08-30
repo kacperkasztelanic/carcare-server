@@ -1,3 +1,12 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# HISTORICAL — NOT DEPLOYED.
+#
+# The live deployment is Compose project `services`, config file
+# /home/kacper/services/carcare.yml, in a separate private git repository, with
+# secrets in a gitignored ~/services/.env. Nothing in THIS repository reads this
+# file — it is consumed only by the superseded deploy.sh (verified 2026-08-30).
+# See AGENTS.md § Deployment for the verified topology.
+# ─────────────────────────────────────────────────────────────────────────────
 MARIADB_PASSWORD_ENV=pass
 MAIL_PASSWORD_ENV=pass
 MAIL_BASE_URL_ENV=IP | hostname
