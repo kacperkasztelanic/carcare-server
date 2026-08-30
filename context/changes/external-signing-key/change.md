@@ -1,7 +1,7 @@
 ---
 change_id: external-signing-key
 title: Supply the signing key from the host, then fail fast without it
-status: plan_reviewed
+status: implementing
 created: 2026-08-30
 updated: 2026-08-30
 roadmap_id: S-01

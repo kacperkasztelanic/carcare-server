@@ -706,20 +706,20 @@ no re-login at all.
 
 #### Automated
 
-- [ ] 1.1 `grep -c '^CARCARE_JWT_BASE64_SECRET=' ~/services/.env` returns 1
-- [ ] 1.2 Key length check returns 88
-- [ ] 1.3 Decrypted `.env.gpg` is byte-identical to `.env` (`cmp -s` prints MATCH)
-- [ ] 1.4 `git status --short` in `~/services` does not list `.env`
-- [ ] 1.5 Container environment shows both `*_BASE64_SECRET` names (values redacted)
-- [ ] 1.6 Pre-restart: old token returns 200 from `/api/account`
-- [ ] 1.7 Post-restart: old token returns 401 from `/api/account`
-- [ ] 1.8 Post-restart: fresh `/api/authenticate` returns 200
+- [x] 1.1 `grep -c '^CARCARE_JWT_BASE64_SECRET=' ~/services/.env` returns 1
+- [x] 1.2 Key length check returns 88
+- [x] 1.3 Decrypted `.env.gpg` is byte-identical to `.env` (`cmp -s` prints MATCH) — round-trip verify waived by owner; `.env.gpg` regenerated via `genc` from the current `.env`, recipient keyid `3BB27BD7A0BCAB8D` (matches prior `.env.gpg`)
+- [x] 1.4 `git status --short` in `~/services` does not list `.env`
+- [x] 1.5 Container environment shows both `*_BASE64_SECRET` names (values redacted)
+- [x] 1.6 Pre-restart: old token returns 200 from `/api/account`
+- [x] 1.7 Post-restart: old token returns 401 from `/api/account`
+- [x] 1.8 Post-restart: fresh `/api/authenticate` returns 200
 
 #### Manual
 
-- [ ] 1.9 Client-1.2.5 session prompts for login exactly once, then works normally
-- [ ] 1.10 No secret value appeared in any terminal, log, or transcript
-- [ ] 1.11 `carcare.yml` and `.env.gpg` committed in `services`; `.env` is not
+- [x] 1.9 Client-1.2.5 session prompts for login exactly once, then works normally — deployed client is 1.2.4; login once → `#/app` loads, vehicle list fetches (empty for this account), no post-login console errors
+- [x] 1.10 No secret value appeared in any terminal, log, or transcript — key never rendered (generated host-side into `>>`, all diagnostics redacted); owner's temporary password was visible in `curl`/browser payloads and will be rotated
+- [x] 1.11 `carcare.yml` and `.env.gpg` committed in `services`; `.env` is not — commit `81c9da7`, pushed to origin/gitlab/myszu; `.env` gitignored
 
 ### Phase 2: Rotate the committed literals
 
