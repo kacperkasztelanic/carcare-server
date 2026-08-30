@@ -56,7 +56,7 @@ disk.
 assertions, ArchUnit 1.0.1 enforcing that `service` and `repository` must not depend on
 `web`, JaCoCo 0.8.8 for coverage. Test results are relocated out of Maven's default
 `target/surefire-reports/` into `target/test-results/{test,integrationTest}`.
-202 main and 55 test source files; the suite is 38 unit and 217 integration tests, green.
+202 main and 55 test source files; the suite is 38 unit and 249 integration tests, green.
 
 **CI — GitLab, at a non-default path.** `.gitlab/gitlab-ci.yml`, because the project's
 `ci_config_path` points there; a root `.gitlab-ci.yml` would be ignored entirely. A
@@ -207,7 +207,7 @@ notes, none fail.
 
 **Strengths.** A typed language on a convention-heavy framework that is mainstream within
 its ecosystem, with layering enforced mechanically by ArchUnit rather than by convention
-alone; a green two-phase test suite of 255 tests; exact version pinning on both Java and
+alone; a green two-phase test suite of 287 tests; exact version pinning on both Java and
 Maven enforced at build time; and an `AGENTS.md` that already documents the two subtlest
 traps in the tree — generated code and the JHipster-shaped-but-not-JHipster platform. This
 project is better instrumented for agent work than most brownfield trees of its age.

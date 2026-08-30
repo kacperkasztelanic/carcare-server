@@ -18,7 +18,7 @@ JHipster layout and conventions still apply.
 The Spring Boot 3.1.5 / Jakarta EE 9+ / Java 17 migration is **complete and green**. No
 `javax.persistence`, `javax.validation`, or `javax.servlet` import remains in `src/main/java`, the
 `jhipster-dependencies` BOM has been removed from `pom.xml` in favour of `spring-boot-dependencies`
-plus explicitly pinned versions, and `./mvnw verify` passes: 38 unit tests and 217 integration
+plus explicitly pinned versions, and `./mvnw verify` passes: 38 unit tests and 249 integration
 tests, roughly 45 seconds on a warm Maven cache.
 
 Any `carcare-*.war` sitting in `target/` may still be a stale artifact from an older build — rebuild
@@ -181,6 +181,22 @@ a bare `./mvnw` will hit the enforcer. Set it explicitly for the build:
 export JAVA_HOME=~/.sdkman/candidates/java/17.0.20-tem
 ```
 
+## Static analysis — what actually runs
+
+`./mvnw verify` runs Surefire, Failsafe, JaCoCo and Enforcer. It does **not** run
+Checkstyle or Modernizer: `pom.xml` declares `checkstyle.version` and
+`modernizer-maven-plugin.version` as properties, but neither plugin is declared in
+`<build>` or `<pluginManagement>`, and no `checkstyle.xml` exists in the tree. Both
+properties are dead. Do not infer from them that style or API-modernity is enforced,
+and do not "fix" a style violation on the assumption that a gate will catch it — nothing
+will. Sonar (`sonar-maven-plugin`, `src/main/docker/sonar.yml`) is wired but runs only
+when invoked explicitly.
+
+There is no dependency-vulnerability scanning anywhere: no `dependency-check`, `ossindex`,
+`grype`, `trivy`, `osv-scanner` or `snyk` locally, and no security stage in
+`.gitlab/gitlab-ci.yml`. "No known vulnerabilities" is therefore never a claim this build
+can make — it is *not measured*, not clean.
+
 ## Known-good baseline
 
 Commit `6e19b96` (2022-05-20, Spring Boot 2.7.0 / JHipster 7.8.1) is the newest commit that builds
@@ -227,8 +243,8 @@ production entity uses `ZonedDateTime`/`OffsetDateTime`, and `VALUE` is reserved
 MariaDB.
 
 The full suite is green: `./mvnw test` runs **38 unit tests** (1 intentionally `@Disabled` in
-`WebConfigurerTest`), and `./mvnw verify` additionally runs **217 integration tests** (1 skipped) —
-255 in total. F-04 itself restored JHipster scaffolding coverage only; the business coverage that
+`WebConfigurerTest`), and `./mvnw verify` additionally runs **249 integration tests** (none skipped) —
+287 in total. F-04 itself restored JHipster scaffolding coverage only; the business coverage that
 was deferred to S-01–S-04 has since landed. Vehicle, event, ownership, report, statistics, and
 reminder behavior are now covered by `EventResourceIT`, `OwnerIsolationIT`, `VehicleResourceIT`,
 `LookupMaintenanceResourceIT`, and the `golden/` package (`ReportParityIT`,

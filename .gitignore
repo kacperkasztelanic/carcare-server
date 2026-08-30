@@ -155,3 +155,9 @@ Desktop.ini
 
 # Playwright MCP trial artifacts
 .playwright-mcp/
+
+######################
+# Local secrets
+######################
+.env
+.env.*

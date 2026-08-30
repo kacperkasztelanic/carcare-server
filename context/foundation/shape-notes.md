@@ -80,7 +80,7 @@ via `jjwt` 0.12.3. Dockerized behind an NGINX reverse proxy. The React client is
 **Users.** Personal scale — the owner plus a handful of known people, with real accounts
 and real data in a live deployment. Two roles: `ROLE_USER` and `ROLE_ADMIN`.
 
-**Verification baseline.** `./mvnw verify` is green: 38 unit tests, 217 integration tests.
+**Verification baseline.** `./mvnw verify` is green: 38 unit tests, 249 integration tests.
 
 ## Vision & Problem Statement
 
@@ -155,7 +155,7 @@ being part of what production ships.
 
 - The REST contract with client 1.2.5 — paths, payloads, and status codes.
 - Existing production data, including the vehicle image files on the Docker volume.
-- The green `./mvnw verify` baseline: 38 unit tests, 217 integration tests.
+- The green `./mvnw verify` baseline: 38 unit tests, 249 integration tests.
 
 ## Access Control
 
@@ -224,7 +224,7 @@ position: this change has no secondary criterion.
   fix, whose whole failure mode is destroying a file it cannot restore.
 
 Offered and not selected, recorded so the omission is deliberate rather than lost: the
-green `./mvnw verify` baseline (38 unit + 217 integration tests) was not elevated to a
+green `./mvnw verify` baseline (38 unit + 249 integration tests) was not elevated to a
 formal guardrail — it remains listed under Phase 1 must-preserve. "At most one forced
 re-login" was not selected as a guardrail because it is already recorded under Access
 Control as the accepted cost of rotation.
@@ -371,7 +371,7 @@ property. "No NFRs at all" was offered and declined.
   owner decision, so a green pipeline cannot be relied on as a merge gate here.
 - **Preserved:** the client 1.2.5 REST contract (paths, payloads, status codes); the
   existing two-role access model and its permit-list; the `./mvnw verify` baseline of 38
-  unit and 217 integration tests.
+  unit and 249 integration tests.
 
 ## Non-Goals
 

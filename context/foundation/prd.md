@@ -48,7 +48,7 @@ external (`../client`) and consumed here as the prebuilt Maven artifact
 **User base.** Personal scale — the owner plus a handful of known people, with real accounts
 and real data in a live deployment. Two roles: `ROLE_USER` and `ROLE_ADMIN`.
 
-**Verification baseline.** `./mvnw verify` is green: 38 unit tests, 217 integration tests.
+**Verification baseline.** `./mvnw verify` is green: 38 unit tests, 249 integration tests.
 
 **Where the defects live** (evidence gathered in-session; recorded here rather than in the
 delta sections so the later sections stay behaviour-framed):
@@ -327,7 +327,7 @@ cannot finish it.
 decision, so a passing pipeline cannot be relied on as a merge gate here.
 
 **Explicitly preserved:** the client 1.2.5 contract; the existing two-role access model and
-its anonymous permit-list; and the `./mvnw verify` baseline of 38 unit and 217 integration
+its anonymous permit-list; and the `./mvnw verify` baseline of 38 unit and 249 integration
 tests.
 
 ## Business Logic Changes
