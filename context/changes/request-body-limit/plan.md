@@ -427,13 +427,13 @@ client changes.
 
 #### Automated
 
-- [x] 3.1 `RequestBodyLimitIT` passes with 413-before-401 ordering and no-controller/no-side-effect assertions
-- [x] 3.2 Existing small request, static, management, and bodyless POST regressions remain green
-- [x] 3.3 Java 17 `./mvnw verify` passes for the complete unit and integration suite
-- [x] 3.4 Final diff contains no Liquibase, client, historical deployment, live proxy, or unrelated hardening changes
+- [x] 3.1 `RequestBodyLimitIT` passes with 413-before-401 ordering and no-controller/no-side-effect assertions — c34a370
+- [x] 3.2 Existing small request, static, management, and bodyless POST regressions remain green — c34a370
+- [x] 3.3 Java 17 `./mvnw verify` passes for the complete unit and integration suite — c34a370
+- [x] 3.4 Final diff contains no Liquibase, client, historical deployment, live proxy, or unrelated hardening changes — c34a370
 
 #### Manual
 
-- [x] 3.5 Direct HTTP boundary smoke test confirms exactly-at-limit acceptance and over-limit 413 without application-side writes
-- [x] 3.6 Frozen-client behavior and successful retry are recorded accurately if client verification is performed
-- [x] 3.7 Human review confirms the external proxy was not changed and the application guard remains authoritative
+- [x] 3.5 Direct HTTP boundary smoke test confirms exactly-at-limit acceptance and over-limit 413 without application-side writes — c34a370
+- [x] 3.6 Frozen-client behavior and successful retry are recorded accurately if client verification is performed — c34a370
+- [x] 3.7 Human review confirms the external proxy was not changed and the application guard remains authoritative — c34a370
