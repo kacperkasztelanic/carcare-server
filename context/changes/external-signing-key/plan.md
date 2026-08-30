@@ -751,13 +751,13 @@ no re-login at all.
 
 #### Automated
 
-- [x] 4.1 `./mvnw verify` still green at 42/249 — 42 unit (1 pre-existing `@Disabled`) + 249 integration, BUILD SUCCESS
-- [x] 4.2 All three files carry a header naming `/home/kacper/services/carcare.yml` — `app.yml`, `env-template`, `deploy.sh` each open with a `HISTORICAL — NOT DEPLOYED` block naming the live compose path
+- [x] 4.1 `./mvnw verify` still green at 42/249 — 42 unit (1 pre-existing `@Disabled`) + 249 integration, BUILD SUCCESS — 59325b6
+- [x] 4.2 All three files carry a header naming `/home/kacper/services/carcare.yml` — `app.yml`, `env-template`, `deploy.sh` each open with a `HISTORICAL — NOT DEPLOYED` block naming the live compose path — 59325b6
 
 #### Manual
 
-- [x] 4.3 `deploy.sh`'s header states that running it destroys `app.yml`'s placeholders — "the `sed -i` lines ... rewrite the `${..._ENV}` placeholders in app.yml / mariadb.yml IN PLACE — one run consumes the templates permanently"
-- [x] 4.4 Wording does not contradict `AGENTS.md` § Deployment — same topology (compose project `services`, `/home/kacper/services/carcare.yml`, separate private repo, gitignored `~/services/.env`), same destructive-`deploy.sh` and superseded-`carcare-app` notes
+- [x] 4.3 `deploy.sh`'s header states that running it destroys `app.yml`'s placeholders — "the `sed -i` lines ... rewrite the `${..._ENV}` placeholders in app.yml / mariadb.yml IN PLACE — one run consumes the templates permanently" — 59325b6
+- [x] 4.4 Wording does not contradict `AGENTS.md` § Deployment — same topology (compose project `services`, `/home/kacper/services/carcare.yml`, separate private repo, gitignored `~/services/.env`), same destructive-`deploy.sh` and superseded-`carcare-app` notes — 59325b6
 
 ### Phase 5: Release and verify against production
 
