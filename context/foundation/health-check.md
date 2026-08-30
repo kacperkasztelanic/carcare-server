@@ -1,8 +1,9 @@
 ---
-project: CarCare Server
-checked_at: 2026-08-24T18:45:00Z
-health_status: critical-issues
+project: carcare (com.kasztelanic.carcare:carcare 1.3.11)
+checked_at: 2026-08-30T09:16:00Z
+health_status: needs-attention
 context_type: brownfield
+change_id: security-baseline
 language_family: java
 stack_assessment_available: true
 checks_run:
@@ -12,261 +13,234 @@ checks_run:
   - test_runner
   - ci_cd
   - configuration
-  - secret_scan
 audit_findings:
-  critical: 1
-  high: 3
-  moderate: 6
-  low: 2
+  critical: 0
+  high: 0
+  moderate: 0
+  low: 0
+  note: "no advisory scanner ran — counts are 'not measured', not 'clean'"
 test_runner_detected: true
 ci_provider: GitLab CI
-recommended_fixes: 12
+recommended_fixes: 8
 ---
 
 # Health Check — CarCare Server
+
+Run against branch `refactor` at commit `28d0bc1`, in the context of the
+`security-baseline` change. The previous health check, written for the closed
+platform-foundation change, was archived to
+`context/foundation/archive/health-check-2026-08-28-foundation.md`.
+
+Same detection caveat as the stack assessment: this skill's project-marker probe
+does not list `pom.xml` or `build.gradle`, so it finds nothing in a Java project
+and would stop before checking anything. Detection was done from `pom.xml` and
+`mvnw` directly.
 
 ## Dependency Health
 
 ### Lockfile
 
 ```
-Status: n/a — Maven has no lockfile; dependency versions are pinned in pom.xml
-Package manager: Maven (wrapper 3.9.6), plus a private GitLab registry for the client artifact
+Status: present (pom.xml — exact-version pinning, plus .mvn/wrapper/maven-wrapper.properties)
+Package manager: Maven 3.9.6 (./mvnw wrapper)
 ```
 
-Maven's equivalent of lockfile integrity is that every coordinate resolves to an
-explicit version, whether declared directly or supplied by a BOM. **That property
-is currently broken.** Eleven dependencies receive no version from the declared
-`jhipster-dependencies` 8.0.0 BOM, so the project has the Maven equivalent of a
-missing lockfile — the build is not merely unpinned, it does not resolve at all:
+Maven has no separate lockfile; reproducibility comes from version pinning in the POM.
+This project pins well: **40 `*.version` properties** are declared explicitly, the
+`jhipster-dependencies` BOM was replaced by `spring-boot-dependencies` with explicit
+overrides, and both the Java version (`[1.8,18)`) and the Maven version (`[3.9.6,)`) are
+enforced at build time by the enforcer plugin. The `DependencyConvergence` enforcer rule
+is also active, which catches transitive version conflicts that would otherwise resolve
+silently.
 
-```
-commons-io:commons-io                    org.hibernate:hibernate-envers
-io.jsonwebtoken:jjwt-api                 org.hibernate:hibernate-jcache
-io.jsonwebtoken:jjwt-impl                org.hibernate:hibernate-jpamodelgen
-io.jsonwebtoken:jjwt-jackson             org.springdoc:springdoc-openapi-webmvc-core
-jakarta.cache:cache-api                  org.zalando:problem-spring-web
-org.hibernate:hibernate-core
-```
-
-Confirmed by running `./mvnw -o validate` at head with JDK 17 on 2026-08-24.
-
-One further supply-chain note: the client artifact is fetched from a private
-GitLab registry, and versions below 1.2.3 are no longer retrievable. Build
-reproducibility for older commits therefore depends on an external service, not
-on this repository.
+One caveat that Maven shares with every non-lockfile ecosystem: transitive dependency
+versions come from the BOM and are not individually pinned. `mvn dependency:tree` is the
+only way to see what actually resolves.
 
 ### Security Audit
 
 ```
-Tool: skipped — no built-in dependency-vulnerability tool for the Java/Maven ecosystem
-Recommended external tool: org.owasp:dependency-check-maven, or GitLab Dependency Scanning
-Direct vs transitive: not distinguished (no scan performed)
+Tool: skipped — no advisory scanner available
+Summary: not measured
+Direct vs transitive: not measured
 ```
 
-A vulnerability scan could not be performed even manually: **the POM does not
-resolve, so the dependency tree cannot be enumerated.** No tool — OWASP
-Dependency-Check, Snyk, or GitLab's own scanner — can produce a dependency graph
-from a model that fails to construct. Restoring dependency resolution is a
-prerequisite for any security scanning at all.
+The skill's dispatch table lists Java as "skip — no built-in audit tool", and none of the
+usual external scanners are installed on this machine: `dependency-check`, `ossindex`,
+`grype`, `trivy`, `osv-scanner`, and `snyk` are all absent. `pom.xml` declares no
+`dependency-check-maven` or `ossindex-maven-plugin` either.
 
-The findings below therefore come from version analysis rather than CVE matching.
+**This is a gap, not a clean bill of health.** No vulnerability scanning happens anywhere
+in this project — not locally, not in CI. The zeroes in this report's frontmatter mean
+"not measured", and should not be read as "no vulnerabilities".
 
-#### CRITICAL findings
-
-- **Committed JWT signing key, shared between dev and production, not overridden
-  at deploy time.** `src/main/resources/config/application-prod.yml:106` and
-  `src/main/resources/config/application-dev.yml:92` contain byte-identical
-  `base64-secret` values (verified by hash comparison; the value is not
-  reproduced here). The production file's own comment states: *"As this is the
-  PRODUCTION configuration, you MUST change the default key, and store it
-  securely."* It was never changed — the key has been committed since the initial
-  commit in October 2018.
-
-  Critically, `src/main/docker/app.yml` overrides the datasource password and the
-  mail password via environment variables but **does not override the JWT
-  secret**, and no `JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET` override appears
-  anywhere in the Docker, script, or CI configuration. The running production
-  system signs tokens with the committed key.
-
-  Anyone with read access to this repository — now, or at any point in the last
-  eight years — can forge a valid token for any user, including one carrying
-  `ROLE_ADMIN`. Rotating the value in the working tree does not remove it from
-  git history.
-
-#### HIGH findings
-
-- **The declared platform is past end of open-source support.** Spring Boot
-  3.1.5 was released in November 2023; the 3.1.x line stopped receiving free
-  security patches in November 2024. Current is 4.1.1. Any vulnerability
-  disclosed in the Spring Boot 3.1 line after that date is unpatched in this
-  configuration, and no scanner is watching, because none can run.
-
-- **The build produces no compiler feedback.** `./mvnw compile` fails during
-  Maven model construction, before javac. For a statically typed language this
-  removes the primary signal an agent — or a developer — relies on to know
-  whether a change is valid.
-
-- **CI has never run the integration tests.** `.gitlab/gitlab-ci.yml:20` runs
-  `./mvnw test`, which invokes Surefire only; Surefire is configured to exclude
-  `*IT*` and `*IntTest*`. Failsafe is bound to `verify`, and `verify` is never
-  invoked — the build stage runs `deploy -DskipTests`. This is the mechanism by
-  which a total integration-suite breakage went unnoticed from 2022-08-01 to
-  2026-08-24: the tests that broke were never executed by the pipeline.
-
-#### MODERATE findings
-
-- Eleven unmanaged dependency coordinates (detailed above) — moderate as a
-  supply-chain concern, high as a build blocker; counted once, under Lockfile.
-- No dependency or container vulnerability scanning in CI. Compounding: FR-002
-  transfers roughly 40 dependency versions to manual management.
-- Development profile sets `cors.allowed-origins: "*"` with credentials allowed
-  (`application-dev.yml`). Safe locally; dangerous if the profile is ever active
-  in a deployed environment.
-- JaCoCo is configured but enforces no coverage floor — no `check` goal, no
-  `<rule>` block in `pom.xml`.
-- CI pushes mutable `latest` tags alongside the commit tag for both images, so a
-  redeploy of `latest` is not reproducible.
-- CI uses `$CI_BUILD_TOKEN`, deprecated in favour of `$CI_JOB_TOKEN`.
-
-#### LOW findings
-
-- No `.dockerignore`, so Docker build context includes more than needed.
-- `checkstyle.version` (10.9.2) is declared as a property but no Checkstyle
-  plugin execution is bound — a declared-but-unused quality tool.
+Recommended external tool for this ecosystem: the OWASP `dependency-check-maven` plugin
+bound to a non-default profile so it does not slow the normal build, or `osv-scanner`
+run against the resolved dependency tree. Either is a bounded, one-time setup.
 
 ### Outdated Dependencies
 
 ```
-Packages with major version gaps: 6
+Packages with major version gaps: 9 of 40 pinned properties
+Tool: versions-maven-plugin 2.16.2 (display-property-updates), run live against Maven Central
 ```
 
-Declared versions compared against Maven Central metadata on 2026-08-24:
+The finding that matters most:
 
-| Dependency | Declared | Latest | Gap |
+- **`spring-boot`: 3.1.5 → latest stable 3.5.16 (3.x line) or 4.1.1 (4.x line).**
+  The 3.1 line's own last release was **3.1.12** — this tree is 7 patch releases behind
+  even within its EOL line, and the 3.1 line stopped receiving OSS fixes some time ago.
+  There are four intervening minor lines (3.2, 3.3, 3.4, 3.5) and a major (4.x, now at
+  4.1.1). This is the single largest health finding in the project and the reason the
+  overall status is `needs-attention` rather than `healthy`.
+
+Direct dependencies two or more major/minor generations behind:
+
+| Property | Current | Latest | Gap |
 |---|---|---|---|
-| `org.springframework.boot` | 3.1.5 | 4.1.1 | **1 major + past EOL** |
-| `org.hibernate.orm:hibernate-core` | 6.2.13.Final | 7.4.6.Final | **1 major** |
-| `org.liquibase:liquibase-core` | 4.20.0 | 5.0.4 | **1 major** |
-| `io.vavr:vavr` | 0.10.3 | 1.0.1 | **1 major (0.x → 1.0)** |
-| `com.google.guava:guava` | 31.1-jre | 33.x | **2 major** |
-| `tech.jhipster:jhipster-dependencies` | 8.0.0 | 8.11.0 | 11 minors |
-| `org.apache.poi:poi-ooxml` | 5.2.5 | 5.5.1 | 3 minors |
-| `org.mapstruct:mapstruct` | 1.5.3.Final | 1.6.3 | 1 minor |
-| `org.projectlombok:lombok` | 1.18.30 | 1.18.46 | 16 patches |
-| `org.jacoco:jacoco-maven-plugin` | 0.8.8 | 0.8.15 | 7 patches |
+| `spring-boot.version` | 3.1.5 | 3.5.16 (or 4.1.1) | 4 minor lines, or 1 major |
+| `tika-core.version` | 2.7.0 | 4.0.0 | 2 majors |
+| `vavr.version` | 0.10.3 | 1.0.0 | pre-1.0 → 1.0 |
+| `liquibase.version` | 4.20.0 | 5.0.4 | 1 major |
+| `guava.version` | 31.1-jre | 33.7.1-jre | 2 majors |
+| `springdocs.version` | 2.2.0 | 3.1.0 | 1 major |
+| `logstash-logback-encoder.version` | 7.4 | 9.0 | 2 majors |
+| `archunit-junit5-engine.version` | 1.0.1 | 1.5.0 | 5 minors |
+| `commons-io.version` | 2.15.0 | 2.22.0 | 7 minors |
 
-Two of these interact with decisions already made:
+Minor/patch gaps, listed for completeness: `lombok` 1.18.30→1.18.46, `jjwt` 0.12.3→0.13.0,
+`mapstruct` 1.5.3.Final→1.7.0.Beta2 (beta — not a real gap), `jacoco` 0.8.8→0.8.15,
+`jib` 3.3.1→3.5.2, `poi-ooxml` 5.2.5→5.5.1, `sonar-maven-plugin` 3.9.1→5.7.0, plus several
+Maven plugins whose "latest" is a beta and should be ignored.
 
-- **Vavr 0.10.3 → 1.0.1 is a real API break.** The deferred functional-programming
-  sweep will land on a different API surface than the one currently in use, so
-  that work should pin its target version before starting.
-- **JaCoCo 0.8.8 predates JDK 21 class-file support** (added in 0.8.11). Not
-  blocking at JDK 17, but it constrains any future toolchain move.
+Two properties are pinned to versions with **no newer release at all** and need no action:
+`carcare-client.version` 1.2.5 (the frozen client) and `git-commit-id-plugin` 4.9.10.
 
-The JHipster gap is noted for completeness only — FR-002 removes the dependency
-entirely.
+Note that `tika-core` and `commons-io` are both on the image-handling path this change
+touches — worth knowing, though neither upgrade belongs in `security-baseline`.
 
 ## Test Suite
 
 ```
 Test runner: JUnit 5 — Surefire 3.0.0 (unit) + Failsafe 3.0.0 (integration)
-Tests found: 22 unit, 102 integration (21 test files, 11 integration classes)
-Test execution: failing — cannot execute at head
+Tests found: 287 across 44 test classes
+Test execution: passing — ./mvnw verify → BUILD SUCCESS in 42.8s
 ```
 
 ```
-Configuration: pom.xml (surefire excludes *IT*/*IntTest*; failsafe bound to verify)
-Framework: JUnit 5 + Spring Boot Test, ArchUnit (layer enforcement), JaCoCo 0.8.8
+Configuration: pom.xml (Surefire excludes *IT*/*IntTest*; Failsafe runs them against in-memory H2)
+Framework:     JUnit 5 + AssertJ + ArchUnit 1.0.1 + JaCoCo 0.8.8
+Results path:  target/test-results/{test,integrationTest}  (relocated from Maven's default)
 ```
 
-A test runner is properly configured, and the split between unit and integration
-tests is correct. The problem is not configuration — it is that **no test can run
-at head**, because the build fails before compilation.
+Measured directly from the JUnit XML this run produced:
 
-At the last runnable commit (`6e19b96`, 2022-05-20) the picture is:
+| Phase | Classes | Tests | Failures | Errors | Skipped |
+|---|---|---|---|---|---|
+| Unit (Surefire) | 10 | 38 | 0 | 0 | 1 |
+| Integration (Failsafe) | 34 | 249 | 0 | 0 | 0 |
+| **Total** | **44** | **287** | **0** | **0** | **1** |
 
-- **22/22 unit tests pass.**
-- **94/102 integration tests pass.** The 8 failures all occur in classes using
-  `MockMvcBuilders.standaloneSetup(...)`, which bypasses the application's
-  configured object mapper; 3 were traced directly to that harness. They are test
-  defects, not product defects.
+**Documentation drift — the suite is larger than every artifact claims.** `AGENTS.md`
+(lines 21 and 229–231), `context/foundation/prd.md`, `shape-notes.md`, and
+`stack-assessment.md` all state "38 unit and 217 integration tests, 255 in total". The
+real figures are **38 and 249, 287 in total**. `AGENTS.md` also attributes the single
+skipped test to the integration phase ("217 integration tests (1 skipped)"); it is
+actually in the unit phase — the `@Disabled` test in `WebConfigurerTest`, which the same
+paragraph names correctly two lines earlier.
 
-From `63d72ef` (2022-08-01) onward, all 102 integration tests error before
-executing, because the test configuration names
-`tech.jhipster.domain.util.FixedH2Dialect`, removed from `jhipster-framework` in
-7.9.0.
+The 32 extra integration tests are the S-05 through S-08 work landing after the F-04
+paragraph was written: `ClientWireContractIT`, `JwtSessionIT`, `UserDeletionDispositionIT`,
+and `VehicleArchivingAnalyticsIT` are all present and passing but unmentioned. The drift is
+benign in effect but corrosive in kind — the number is quoted as a guardrail in the PRD,
+and a guardrail nobody has re-measured is not a guardrail.
 
-**Effective integration coverage of business behaviour is zero, and has been for
-four years.** There is no coverage of vehicle CRUD, any of the five event types,
-reminder selection, report generation, the statistics calculators, or
-owner-isolation negative cases — the existing 102 tests cover account, user,
-security, audit, and configuration concerns inherited from the generator.
+**Coverage** (JaCoCo, this run):
 
-One structural asset is worth naming: `ArchTest` mechanically enforces that
-`service` and `repository` must not depend on `web`. That is a real, executable
-guardrail — once the build runs again.
+| Phase | Instruction | Branch | Line |
+|---|---|---|---|
+| Unit | 3.2% | 1.8% | 5.0% |
+| Integration | 75.7% | 28.1% | 88.1% |
+
+Line coverage of 88% from integration tests is strong. **Branch coverage of 28% is not** —
+roughly seven in ten conditional paths are never exercised. For this change specifically
+that matters at exactly the place the work lands: FR-002's fail-fast check is a new branch,
+and `ImageStorageServiceImpl`'s error handling is existing uncovered branching. There is no
+coverage floor configured, so nothing prevents this ratio from drifting further.
 
 ## CI/CD
 
 ```
 Provider: GitLab CI
-Configuration: .gitlab/gitlab-ci.yml
+Configuration: .gitlab/gitlab-ci.yml  (non-default path — ci_config_path points here;
+               a root .gitlab-ci.yml would be silently ignored)
 ```
 
 | Stage | Status | Notes |
 |---|---|---|
-| Lint | ✗ | not configured (Checkstyle version declared, no execution bound) |
-| Test | ~ | `./mvnw test` — unit tests only; integration tests never run |
-| Build | ✓ | `./mvnw deploy -Pprod -DskipTests` → WAR + two Docker images |
-| Type check | ✓ | implicit — javac runs as part of `test` |
-| Security | ✗ | not configured (no dependency or container scanning) |
+| Lint | ✗ | not configured — no Checkstyle, no Modernizer, no formatter check |
+| Test | ✓ | `verify` job runs `./mvnw verify` on merge requests and default-branch pushes; `test` job runs `./mvnw test` on tags |
+| Build | ✓ | `build` job runs `./mvnw deploy -Pprod`, tags only |
+| Type check | — | not applicable — the Java compiler is the type check, and it runs in every job |
+| Security | ✗ | not configured — no dependency scan, no container scan, no SAST |
 
-**The pipeline only runs on tags.** Every job carries `only: tags` with
-`except: branches`, so no branch or merge request receives any automated
-verification. Combined with `test` invoking Surefire only, the pipeline has never
-executed an integration test in its history.
+Three structural observations, all of which the stack assessment already flagged and this
+check confirms against the file:
 
-Additional observations: the Docker stage runs privileged `docker:dind`; images
-are pushed to both the commit tag and a mutable `latest`; and `$CI_BUILD_TOKEN`
-is deprecated in favour of `$CI_JOB_TOKEN`. The `eclipse-temurin:17` image is
-correctly matched to the enforcer's JDK constraint.
+- **The release path is tag-only.** `build`, `app`, and `proxy` all carry
+  `rules: - if: $CI_COMMIT_TAG`. No merge request can exercise them. A change to
+  `src/main/docker/app.yml`, `Dockerfile`, `entrypoint.sh`, or `env-template` therefore has
+  **no** automated verification available — which is precisely the surface FR-001 modifies.
+- **Merges are not gated.** `only_allow_merge_if_pipeline_succeeds` is `false` by owner
+  decision, so even the `verify` job is advisory.
+- **The reporting paths are correct and worth not breaking.** The JUnit globs point at
+  `target/test-results/{test,integrationTest}`, not Maven's default `surefire-reports/`,
+  and `artifacts: when: always` is set so reports survive failing runs. Both are easy to
+  regress and both are load-bearing.
+
+The security row is the actionable one: there is no dependency scanning, container
+scanning, or static application security testing anywhere in the pipeline — in a project
+whose current change is explicitly a security change.
 
 ## Configuration
 
 ### High severity
 
-- **Secrets committed to version control** — `application-prod.yml` and
-  `application-dev.yml` both carry the same JWT signing key, tracked in git and
-  not gitignored. Fix: source the key from the environment
-  (`JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET`), generate a new one, and add it
-  to `src/main/docker/app.yml` alongside the existing password overrides. Treat
-  the historical value as permanently compromised.
+- **No `.env` rule in `.gitignore`.** The file has no `.env`, `*.env`, or `env-template`
+  entry at all. FR-001 delivers the JWT signing key through an uncommitted `.env` on the
+  deployment host — and nothing currently prevents that file from being committed. This is
+  a two-line fix that must land *with* FR-001, not after it. Fix: add `.env` and `.env.*`
+  (with a `!env-template` negation if the template should stay tracked) to `.gitignore`.
+
+- **`src/main/docker/env-template` does not document the signing key.** It carries three
+  lines — `MARIADB_PASSWORD_ENV`, `MAIL_PASSWORD_ENV`, `MAIL_BASE_URL_ENV` — and no
+  key entry. It is the project's only documentation of the host-environment mechanism
+  FR-001 adopts. Fix: add the signing-key variable when FR-001 lands.
 
 ### Medium severity
 
-- **No security scanning configuration** — no OWASP Dependency-Check plugin, no
-  GitLab dependency/container scanning template. Fix: add
-  `org.owasp:dependency-check-maven` to the build, or include GitLab's
-  `Dependency-Scanning.gitlab-ci.yml` and `Container-Scanning.gitlab-ci.yml`
-  templates.
-- **No lint execution** — `checkstyle.version` is declared but no plugin
-  execution is bound. Fix: either bind a Checkstyle execution with a
-  `checkstyle.xml`, or remove the unused property.
-- **No coverage floor** — JaCoCo reports but does not enforce. Fix: add a
-  `check` goal with a `<rule>` once a real suite exists (deliberately deferred —
-  see below).
+- **No dependency or container scanning anywhere.** Covered under Security Audit and CI/CD
+  above; repeated here because it is a configuration gap, not just an unrun tool. Fix: add
+  `dependency-check-maven` under a dedicated profile, and a scan job to the pipeline.
+
+- **No coverage floor.** JaCoCo produces reports but enforces no threshold, so the 28%
+  branch coverage can drift downward without any signal. Fix: add a `jacoco:check` rule
+  with a floor at or slightly below the current numbers, so the ratchet only turns one way.
 
 ### Low severity
 
-- **No `.dockerignore`** — build context is larger than necessary. Fix: add one
-  excluding `target/`, `.git/`, `context/`, and IDE directories.
-- **No root `.env.example`** — partially mitigated by
-  `src/main/docker/env-template`, which documents the three variables the Compose
-  file expects. Fix: none required; the template is adequate.
+- **No `.dockerignore`.** The `app` job copies the WAR and Dockerfile into the build root
+  before `docker build`, so the whole repository is in the build context. Cosmetic here,
+  but it slows the tag pipeline and risks including files nobody intended.
 
-Present and in good order: `.gitignore`, `.editorconfig`, `CLAUDE.md`,
-`AGENTS.md`, `src/main/docker/env-template`.
+Present and correct: `.gitignore`, `.editorconfig`, `CLAUDE.md` (a one-line `@AGENTS.md`
+include), `AGENTS.md`, and `src/main/docker/env-template`. No `.env.example` at the
+repository root, but `env-template` fills that role for the deployment and is the
+better-placed file — not counted as a gap.
+
+No secret-bearing files are tracked by name. The committed secret is not a file but a
+default value inside `application-prod.yml:105` and `application-dev.yml:88` — the defect
+`security-baseline` exists to fix, confirmed still present at this commit.
 
 ## Stack Assessment Cross-Reference
 
@@ -277,213 +251,92 @@ Agent readiness (from stack-assess): ready-with-compensation
 
 | Quality gate gap | Health-check finding | Status |
 |---|---|---|
-| JHipster — training data: fail | Dependency 11 minors behind; the removed `FixedH2Dialect` is the direct cause of the four-year test outage | **Reinforced** |
-| JHipster — documentation: fail | The breaking removal appears in no changelog; it was found only by comparing jar contents | **Reinforced** |
-| JHipster — conventions: partial | Lookup resources still bypass the service layer; no lint rule guards against it | **Reinforced** |
-| Typed: pass, with codegen caveat | Compensation applied — `AGENTS.md` now carries the "do not reason from source alone" rule | **Mitigated** |
-| Typed: pass — operational caveat | Confirmed: the build produces no compiler feedback at all, so type safety yields no practical benefit today | **Reinforced** |
-| Conventions: pass (ArchUnit-enforced) | Confirmed present, but ArchUnit cannot run while the build fails | **Reinforced** |
-| No trustworthy feedback loop | Confirmed and root-caused: CI never invoked `verify`, so the suite's breakage was structurally invisible | **Reinforced** |
+| Typed — partial (generated code invisible to source reading) | The compiler runs in every CI job, so generated types are always validated at build time; `AGENTS.md` documents the trap and the `javap -p` workaround | **Mitigated** |
+| Training data — partial (JHipster-shaped, not JHipster) | `AGENTS.md` names the trap explicitly; no CI or tooling dependency on JHipster remains | **Mitigated** |
+| Gap 3 — Checkstyle and Modernizer declared but unwired | Confirmed from the CI side too: the pipeline has **no lint stage at all**, so nothing enforces style anywhere, and the dead properties are the only thing suggesting otherwise | **Reinforced** |
+| (new) Documentation is trusted but unverified | `AGENTS.md` states a test baseline that is 32 tests out of date; the same file is the primary compensation artifact for the two partial gates | **New — reinforces the compensation risk** |
 
-The compensation recommended by the stack assessment **has been applied** —
-`AGENTS.md` grew from 114 to 212 lines on 2026-08-24 with seven sections covering
-the toolchain requirement, the known-good baseline, both failure causes, the
-JHipster replacement guidance, and the two reading traps.
+The last row is the one worth dwelling on. The stack assessment's verdict of
+`ready-with-compensation` rests on `AGENTS.md` being accurate, because that file *is* the
+compensation for both partial gates. Finding a stale, quotable number in it does not
+invalidate the verdict — the two trap sections it depends on are still correct — but it
+does mean the compensation artifact needs the same periodic re-verification as the code.
 
 ## Recommended Fixes
 
-Ranked by impact on day-to-day work with this codebase. This project is a live
-system with real users, not a training exercise, so findings are presented as a
-single ranked list.
+### Category A — Fix before or during agent work
 
-### 1. Rotate the JWT signing key and remove it from configuration
+1. **Add `.env` to `.gitignore`** — *quick (< 5 min).*
+   The change in flight delivers a signing key through an uncommitted `.env`, and nothing
+   stops that file being committed. Fixing the key's provenance while leaving the door open
+   for the replacement to be committed would defeat the change's own purpose. Must land with
+   FR-001.
 
-**Impact**: The production system signs tokens with a key committed to git since
-2018 and shared with the development profile. Anyone with repository access can
-forge a token for any user, including an administrator. This is the only finding
-here that is exploitable today, by someone outside your control, without touching
-the codebase.
-**Severity**: critical
-**Effort**: moderate (15–30 min)
-**Fix**:
+2. **Correct the test baseline in `AGENTS.md`** — *quick (< 5 min).*
+   38 unit and **249** integration, 287 total; the single skipped test is in the unit phase.
+   The number is quoted as a guardrail in the PRD, and an agent that trusts `AGENTS.md`
+   (as it is instructed to) will report a false regression the first time it counts.
+   `context/foundation/prd.md`, `shape-notes.md`, and `stack-assessment.md` carry the same
+   stale figure and should be corrected in the same pass.
 
-```bash
-# 1. Generate a new key
-openssl rand -base64 128 | tr -d '\n'
+3. **Document that Checkstyle and Modernizer do not run** — *quick (< 5 min).*
+   The stack assessment drafted the `AGENTS.md` block; the CI reading confirms it from the
+   other side, since there is no lint stage either. Nothing in this project enforces style,
+   and two version properties imply otherwise.
 
-# 2. Add it to the deployment environment, NOT to a tracked file.
-#    In src/main/docker/app.yml, alongside the existing password overrides:
-#      - JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET=${JWT_SECRET_ENV}
-#    and add JWT_SECRET_ENV to src/main/docker/env-template (as a placeholder).
+4. **Add dependency vulnerability scanning** — *moderate (15–30 min).*
+   Nothing scans this project's dependencies, and the platform is on an unpatched line. Add
+   `dependency-check-maven` under a dedicated profile so it does not slow the normal build,
+   and wire a job into the pipeline. In a project whose current change is a security change,
+   this is the conspicuous absence.
 
-# 3. Replace the tracked values with empty defaults in both
-#    application-prod.yml and application-dev.yml.
-```
+5. **Plan the Spring Boot upgrade as its own change** — *significant (> 1 hour); do not fold
+   into `security-baseline`.*
+   3.1.5 is EOL, is 7 patches behind even its own line's final release (3.1.12), and sits
+   four minor lines behind the current 3.x (3.5.16) with a major line beyond it (4.1.1).
+   This is the largest health finding in the project. It is also exactly the
+   `dependency-alignment` change already identified on the modernization roadmap, and the
+   PRD's Non-Goals section explicitly holds the tree at its current versions for the
+   duration of `security-baseline`. Keep it that way — but sequence it next.
 
-Every existing token is invalidated, so users re-login once — already accepted by
-the PRD's non-functional requirement ("at most one forced re-login"). The old key
-remains in git history permanently; treat it as compromised rather than attempting
-history rewriting on a repository with a live deployment.
+6. **Add a coverage floor** — *moderate (15–30 min).*
+   Branch coverage is 28.1%. A `jacoco:check` rule pinned at or just below current numbers
+   turns the ratchet one way without demanding new tests today.
 
-> **This conflicts with a decision already recorded.** The PRD defers JWT rotation
-> to a separate security pass and marks it "not blocking." That decision was made
-> on the information available during shaping, which described the secret as
-> committed in production configuration only. Two facts found here change the risk
-> calculus: the key is **identical to the development key**, and it is **not
-> overridden at deploy time**, so it is genuinely live. Worth reconsidering the
-> deferral — but it remains your call, and nothing else in the plan depends on it.
+7. **Add a `.dockerignore`** — *quick (< 5 min).*
+   The tag pipeline builds with the whole repository in context.
 
-### 2. Restore dependency resolution
+### Category B — Not blocking, already in hand
 
-**Impact**: Nothing else can proceed. No compilation, no tests, no dependency
-scan, no vulnerability enumeration — a Maven model that fails to construct blocks
-every downstream tool.
-**Severity**: high
-**Effort**: significant (> 1 hour)
-**Fix**: Supply explicit versions for the eleven unmanaged coordinates, or replace
-the `jhipster-dependencies` BOM with `spring-boot-dependencies`. This is FR-001
-and FR-002 in the PRD; do it before touching any `javax.*` import, since the
-compiler cannot give trustworthy feedback until the graph resolves.
+8. **CI lint stage** — the pipeline has no lint job. Worth adding alongside fix 3, once
+   there is a decision on whether Checkstyle should be wired or the dead properties simply
+   removed. Deciding that is the prerequisite; adding the job is trivial afterwards.
 
-### 3. Make CI run integration tests
-
-**Impact**: This is the root cause of the four-year silent outage. `./mvnw test`
-runs Surefire only, which excludes `*IT*`. Whatever regression suite FR-015
-produces will be equally invisible unless the pipeline invokes `verify`.
-**Severity**: high
-**Effort**: quick (< 5 min)
-**Fix**: change `.gitlab/gitlab-ci.yml:20` from `./mvnw test` to `./mvnw verify`.
-Pair it with fix 4 so it actually runs on the changes that matter.
-
-### 4. Run the pipeline on branches and merge requests
-
-**Impact**: Every job is gated on `only: tags` / `except: branches`, so code
-receives no verification until it is already tagged for release. Feedback arrives
-after the decision it should have informed.
-**Severity**: high
-**Effort**: quick (< 5 min)
-**Fix**: replace the `only`/`except` blocks on the `test` job with
-`rules: [{ if: '$CI_PIPELINE_SOURCE == "merge_request_event"' }, { if: '$CI_COMMIT_TAG' }]`.
-Leave `build` and the Docker stages tag-only. This is FR-017 in the PRD.
-
-### 5. Plan a Spring Boot upgrade beyond 3.1.x
-
-**Impact**: 3.1.x left free security support in November 2024, so the declared
-platform receives no patches. Combined with the absence of scanning, an
-unpatched advisory would go entirely unnoticed.
-**Severity**: high
-**Effort**: significant (> 1 hour)
-**Fix**: not part of the current change, and it should not be — landing a green
-build on 3.1.5 first is the right sequence. But choose the eventual target
-deliberately rather than by default, and record it. Note that Jakarta EE and
-Spring Security 6 migration work done now carries forward to any Boot 3.x or 4.x
-target.
-
-### 6. Add dependency vulnerability scanning
-
-**Impact**: FR-002 makes roughly 40 dependency versions hand-managed, with
-nothing watching them. Currently an explicit non-goal, which is defensible only
-while the build is broken and scanning is impossible anyway.
-**Severity**: moderate
-**Effort**: moderate (15–30 min)
-**Fix**: add `org.owasp:dependency-check-maven` to the build, or include GitLab's
-`Dependency-Scanning.gitlab-ci.yml` template. Revisit once fix 2 lands, since a
-scan is impossible before then.
-
-### 7. Confine the permissive CORS policy to local development
-
-**Impact**: `allowed-origins: "*"` with credentials allowed is safe for local work
-and dangerous anywhere else. The risk is profile leakage, not the setting itself.
-**Severity**: moderate
-**Effort**: quick (< 5 min)
-**Fix**: verify no deployed environment activates the `dev` profile
-(`src/main/docker/app.yml` sets `prod,api-docs` — currently correct), and add a
-comment recording the constraint so it survives future edits.
-
-### 8. Stop publishing mutable `latest` tags
-
-**Impact**: A deployment referencing `latest` is not reproducible, which
-undermines the rollback plan the PRD depends on.
-**Severity**: moderate
-**Effort**: quick (< 5 min)
-**Fix**: remove the `docker tag`/`docker push` lines for `:latest` in both the
-`app` and `proxy` jobs, and pin `src/main/docker/app.yml` to explicit versions —
-it already does, at 1.3.11.
-
-### 9. Replace the deprecated CI token variable
-
-**Impact**: `$CI_BUILD_TOKEN` is deprecated; the pipeline will break on a future
-GitLab release.
-**Severity**: moderate
-**Effort**: quick (< 5 min)
-**Fix**: replace both occurrences with `$CI_JOB_TOKEN`.
-
-### 10. Pin the Vavr target before the functional-programming work
-
-**Impact**: Vavr 1.0.1 is a breaking change from the 0.10.3 currently in use. The
-deferred style sweep would otherwise land on a moving target.
-**Severity**: moderate
-**Effort**: quick (< 5 min)
-**Fix**: record the intended target version in the deferred change's notes.
-Staying on 0.10.3 is a legitimate choice; making it deliberate is the point.
-
-### 11. Resolve the declared-but-unused Checkstyle configuration
-
-**Impact**: A declared quality tool that never runs is misleading — it suggests
-linting exists when none does.
-**Severity**: low
-**Effort**: quick (< 5 min)
-**Fix**: either bind a Checkstyle execution with a `checkstyle.xml`, or delete the
-`checkstyle.version` property.
-
-### 12. Add a `.dockerignore`
-
-**Impact**: Build context includes `target/`, `.git/`, and IDE directories,
-slowing image builds.
-**Severity**: low
-**Effort**: quick (< 5 min)
-**Fix**: add a `.dockerignore` excluding `target/`, `.git/`, `context/`, `.idea/`,
-`.mvn/`.
-
-### Deliberately deferred — no action recommended
-
-These are real gaps, already recorded as explicit non-goals in the PRD. They are
-listed so the absence reads as a decision rather than an oversight:
-
-- **Coverage thresholds in CI** — deliberately deferred so a floor cannot block
-  work before FR-015's suite exists.
-- **Observability: tracing, alerting, job monitoring** — accepted consequence
-  being that a silently stopped reminder job would go unreported.
-- **Container image scanning** — same rationale as fix 6.
-- **Performance targets** — a settled position at the current scale.
+Agent instruction files and CI/CD already exist here and are in good shape, so the usual
+Category B items do not apply to this project.
 
 ## Summary
 
-```
-Health status: critical-issues
-```
+**Status: needs-attention.** Not `healthy`, for two reasons that compound: the platform is
+on an unsupported release line with no scanning of any kind to tell you what that costs,
+and the delivery mechanism the change in flight depends on has no `.gitignore` guard. Not
+`critical-issues` either — the test suite is green and fast, dependency pinning is
+disciplined, and CI reports correctly.
 
-The verdict is driven by three compounding facts rather than by general decay.
-The production system signs authentication tokens with a key that has been in
-version control since 2018, is identical to the development key, and is not
-overridden at deployment — the only finding here exploitable today by someone
-outside your control. The build does not resolve, so there is no compiler
-feedback, no test execution, and no possibility of a vulnerability scan. And the
-pipeline has never invoked `verify`, which is precisely why a total
-integration-suite failure stayed invisible for four years.
+**Strengths.** 287 tests passing in 42.8 seconds with 88% line coverage; exact version
+pinning on 40 properties with convergence enforcement and hard build-time pins on both Java
+and Maven; a CI pipeline whose reporting paths are correctly configured against two
+well-known traps; and instruction files that already compensate for the subtlest hazards in
+the tree.
 
-The underlying project is in better shape than that summary suggests. Test
-infrastructure is correctly configured — unit and integration tests are properly
-separated, ArchUnit mechanically enforces the layering, and JaCoCo is wired up;
-none of it can execute, but none of it needs redesigning. A known-good commit
-exists whose sources are byte-identical to head, giving genuine behavioural
-reference. Instruction files are present and now carry substantial compensation
-for the codebase's specific traps. Nothing here calls for a rewrite; it calls for
-restoring a feedback loop that has been absent long enough for its absence to
-become invisible.
+**Gaps, in order of consequence.** The unpatched EOL platform. The complete absence of
+vulnerability scanning. The missing `.gitignore` rule, which is small but lands directly on
+the current change. Branch coverage at 28% with no floor. And a documentation baseline that
+has quietly drifted 32 tests out of date in the one file the project relies on to
+compensate for its own subtleties.
 
-Next step: rotate the signing key — it is 20 minutes of work and the only finding
-with an active external exposure — then proceed with FR-001 and FR-002 as
-planned. Fixes 3 and 4 are five-minute changes that should land with FR-017;
-together they ensure the regression suite you are about to build cannot break
-silently the way the last one did.
+**For the change in flight.** Nothing here blocks `security-baseline`. Two findings attach
+to it directly and should be folded into its scope rather than deferred: the `.gitignore`
+rule (fix 1) and the `env-template` signing-key entry. One finding — the EOL platform —
+is deliberately out of scope per the PRD's Non-Goals and should stay there, but it is the
+strongest argument yet for `dependency-alignment` being the next change after this one.
