@@ -50,6 +50,10 @@ and real data in a live deployment. Two roles: `ROLE_USER` and `ROLE_ADMIN`.
 
 **Verification baseline.** `./mvnw verify` is green: 38 unit tests, 249 integration tests.
 
+**Deployment.** Docker containers on a VPS behind a shared NGINX reverse proxy. See
+`## Constraints & Compatibility` for the topology, which differs from what this repository's
+`src/main/docker/` files suggest.
+
 **Where the defects live** (evidence gathered in-session; recorded here rather than in the
 delta sections so the later sections stay behaviour-framed):
 
@@ -323,6 +327,25 @@ introduced.
 the branch merges — someone must edit a file on the deployment host. The repository alone
 cannot finish it.
 
+**Deployment topology — verified on the host 2026-08-30.** The live deployment is *not* driven
+by this repository's `src/main/docker/app.yml`. The running container's Compose labels name
+compose project `services`, config file `/home/kacper/services/carcare.yml`, working directory
+`/home/kacper/services` — a separate private git repository holding one compose file per
+service. Secrets reach it through a gitignored `~/services/.env` (with an encrypted committed
+counterpart `.env.gpg`) via **native Compose variable substitution**: `carcare.yml` already
+references `${CARCARE_MYSQL_USER}`, `${CARCARE_MYSQL_PASSWORD}` and `${CARCARE_MAIL_PASSWORD}`,
+and no secret literal is committed there. This confirms the premise above rather than
+contradicting it — the mechanism the signing key will use already exists and demonstrably
+works; the change adds one variable to it.
+
+Two superseded deployment paths remain on the host and in this repository, and must not be
+mistaken for the live one: `~/carcare/artifacts/deploy.sh` (this repo's `src/main/docker/
+deploy.sh`) `sed -i`-substitutes placeholders into `app.yml` destructively — one run consumes
+the template permanently — and brings up a `carcare-app` container that is not running; and
+`~/carcare/misc/env` carries three `*_ENV` keys matching this repo's `env-template` that
+nothing live references. The repository's `src/main/docker/app.yml` and `env-template` are
+therefore documentation of intent, not the operative delivery mechanism.
+
 **Verification is advisory, not gating.** Merges are not gated on a green pipeline by owner
 decision, so a passing pipeline cannot be relied on as a merge gate here.
 
@@ -387,20 +410,28 @@ user-declared non-goal.
 
 ## Open Questions
 
-1. **How does client 1.2.5 render an oversized-body rejection? (FR-005)** — The challenge
-   round moved the bound to the request boundary, so no image-specific error path is
-   introduced; but a boundary-level rejection is still something the client has never seen.
-   How it renders that must be observed in a browser, reproducing the method established by
-   the earlier client-server contract trial, before the PRD locks. The limit's actual value
-   is also unchosen; the "no honest limit without looking at real upload sizes" argument was
-   offered and not endorsed, but it stands unanswered. Owner: user. Block: yes — FR-005
-   cannot be implemented without a chosen limit.
+1. ~~**How does client 1.2.5 render an oversized-body rejection? (FR-005)**~~ — **RESOLVED
+   2026-08-30**, measured in a browser against a disposable stack; see
+   `context/changes/security-baseline/oq-resolution.md`. The client renders the rejection as a
+   **silent false success**: it logs an axios error to the console, then closes the edit modal
+   and navigates to the details view exactly as after a successful save. No toast, no crash,
+   no wedged form; retry works immediately. FR-005 is therefore implementable — but the false
+   success is an accepted defect, not a clean pass, and the client is frozen so it cannot be
+   fixed here. Separately, **no Spring or Tomcat property bounds a JSON request body** — all
+   three candidates were verified to pass 2 MB through, and the bare application accepted
+   60 MB — so FR-005 requires a pre-buffer `Content-Length` filter written for this change.
+   The limit's value is recommended at 2 MiB from a nine-file sample and carried as a
+   non-blocking unknown. Owner: user. Block: **no** (was yes).
 
-2. **Do any stored image files fall outside the FR-006 allowlist?** — If a file already on
-   the data volume is in a format the chosen allowlist excludes, FR-006 and FR-007 contradict
-   each other on the read path. Not yet checked against the production volume. This is the
-   one place in the change where two must-have requirements can conflict. Owner: user.
-   Block: yes — the allowlist cannot be fixed until this is known.
+2. ~~**Do any stored image files fall outside the FR-006 allowlist?**~~ — **RESOLVED
+   2026-08-30**, inventoried read-only on the production volume. Nine files, 388 KB total:
+   five PNG and four JPEG by byte-level detection. The allowlist is `{image/png, image/jpeg}`
+   and **nothing stored today falls outside it**, so FR-006 and FR-007 do not collide. One
+   constraint follows and must survive into implementation: four of those files are named
+   `*.bin` (PNG content stored when the client declared a generic content type — the exact
+   defect FR-006 fixes), so allowlist enforcement belongs on the **write path only**. Adding
+   it to the read path would make those four unloadable and break FR-007. Owner: user.
+   Block: **no** (was yes).
 
 3. **Fail-fast versus the stated "no pager event" position.** — The user recorded that no
    failure of this change would page them. Refusing to start on a missing or default signing

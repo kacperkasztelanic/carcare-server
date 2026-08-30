@@ -130,6 +130,16 @@ adding the creator to `FuelTypeDto`; the narrower contract is intentional.
 
 ## Deployment
 
+> **The files in `src/main/docker/` are not what runs production.** Verified on the host
+> 2026-08-30: the live deployment is Compose project `services`, config file
+> `/home/kacper/services/carcare.yml`, in a separate private git repository, with secrets
+> supplied by native Compose substitution from a gitignored `~/services/.env`. This repo's
+> `app.yml`, `env-template` and `deploy.sh` describe a superseded path — `deploy.sh`
+> `sed -i`s placeholders into `app.yml` *destructively* (one run consumes the template) and
+> starts a `carcare-app` container that no longer runs. Production also runs image tag
+> **1.3.10** while this tree is at 1.3.11. Read the section below as history until those
+> files are reconciled.
+
 Dockerized, behind an NGINX reverse proxy (`src/main/docker/reverseproxy`). Compose-style runtime
 files: `src/main/docker/app.yml`, `mariadb.yml`, `sonar.yml`. DB backup/restore helpers in
 `src/main/scripts/`.

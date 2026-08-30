@@ -399,6 +399,20 @@ Captured for downstream skills; not part of the PRD schema.
   the S-07 method: how it renders a container-level oversized-body rejection, and whether
   any stored image file falls outside the FR-006 allowlist.
 
+> **Both discharged on 2026-08-30**, after this shaping session closed. Recorded here so the
+> forward block is not read as still-pending; the shaping text above is left as written.
+>
+> - The rollout-ordering constraint became the `F-01 → S-01` dependency in
+>   `context/foundation/roadmap.md`.
+> - Both open questions were measured, not decided: see
+>   `context/changes/security-baseline/oq-resolution.md`. The client renders an oversized-body
+>   rejection as a silent **false success** (no crash, no wedge, retry works), and the
+>   production volume holds only PNG and JPEG, so FR-006 and FR-007 do not collide —
+>   subject to enforcing the allowlist on the write path only, because four stored files are
+>   PNGs misnamed `*.bin` by the very defect FR-006 fixes.
+> - One shaping assumption was corrected by that session: no Spring or Tomcat property bounds
+>   a JSON request body, so FR-005 needs a pre-buffer filter rather than configuration.
+
 ## Quality cross-check
 
 All six brownfield elements present; no gaps recorded.

@@ -82,9 +82,14 @@ these are present and do **not** re-scaffold them.
 - **Auth:** present — stateless JWT (`security/jwt/TokenProvider`, `JwtFilter`), two roles,
   ownership enforced at the persistence boundary. This change touches the *provenance* of
   the signing key, not the model.
-- **Deploy / infra:** present — Docker Compose behind NGINX (`src/main/docker/app.yml`),
-  with `env-template` already delivering the database and mail passwords from the host.
-  That existing mechanism is what F-01 extends.
+- **Deploy / infra:** present — but **not** where this repository suggests. The live
+  deployment is compose project `services`, config file `/home/kacper/services/carcare.yml`,
+  in a separate private git repository, with secrets supplied by native Compose substitution
+  from a gitignored `~/services/.env` (encrypted counterpart `.env.gpg` is committed). That
+  existing mechanism is what F-01 extends. This repository's `src/main/docker/app.yml`,
+  `env-template` and `deploy.sh` describe a **superseded** path — `deploy.sh` `sed -i`s
+  placeholders into `app.yml` destructively and starts a `carcare-app` container that is not
+  running. Do not plan against them.
 - **Observability:** present — Actuator plus Prometheus under `/management`.
 
 ## Foundations
@@ -108,8 +113,16 @@ these are present and do **not** re-scaffold them.
   refuses to accept — shipping the fail-fast check before the host supplies a key converts a
   forgotten environment line into a boot outage. Deployed on its own this slice is inert: the
   committed default remains as a fallback, so a mistake here cannot take production down.
-  Note that `.gitignore` now carries `.env` / `.env.*`, so the host file cannot be committed
-  by accident.
+  **The delivery mechanism already exists and works** (verified on the host 2026-08-30): the
+  live compose file `/home/kacper/services/carcare.yml` already resolves
+  `${CARCARE_MYSQL_USER}`, `${CARCARE_MYSQL_PASSWORD}` and `${CARCARE_MAIL_PASSWORD}` from a
+  gitignored `~/services/.env`, so this slice adds one variable to a file that already has
+  three. The main risk is therefore not the mechanism but the **variable name**: whether
+  Spring's relaxed binding actually populates `application.security.authentication.jwt.base64-secret`
+  from the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` placeholder in
+  `application-prod.yml:105`, or whether that name is a legacy leftover that would silently
+  fail to bind. Verify empirically — if the name is wrong, F-01 ships a variable nothing reads
+  and S-01 then removes the default from an application with no other key source.
 - **Status:** ready
 
 ## Slices
@@ -267,7 +280,13 @@ these are present and do **not** re-scaffold them.
 5. **User stories for the image-handling and production-surface work.** — S-02 through S-06
    carry no Given/When/Then; their requirements are individually testable without stories.
    Owner: user. Block: no.
-6. **Does production's 1.3.10 image differ from this branch in ways that affect rollout?** —
+6. **What becomes of the superseded deployment files in this repository?** —
+   `src/main/docker/{app.yml,env-template,deploy.sh}` describe a deployment path that is no
+   longer live. Leaving them is a standing trap for any future planner (it misled this
+   roadmap's own first draft). Options: update them to mirror `~/services/carcare.yml`, mark
+   them clearly as historical, or delete them. Owner: user. Block: no — but resolve it during
+   F-01, since that slice is where the divergence bites.
+7. **Does production's 1.3.10 image differ from this branch in ways that affect rollout?** —
    New, surfaced while verifying the proxy configuration. Production runs app tag 1.3.10;
    this repository is at 1.3.11. Owner: user. Block: no — gates S-01's rollout step only.
 
