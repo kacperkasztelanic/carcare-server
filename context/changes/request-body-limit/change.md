@@ -3,7 +3,7 @@ change_id: request-body-limit
 title: Request body limit
 status: implementing
 created: 2026-08-30
-updated: 2026-08-30
+updated: 2026-08-31
 archived_at: null
 ---
 

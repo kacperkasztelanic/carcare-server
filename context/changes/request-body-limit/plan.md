@@ -400,28 +400,28 @@ client changes.
 
 #### Automated
 
-- [x] 1.1 The new filter and registration compile under the required Java 17 toolchain without unrelated dependency or configuration changes
-- [x] 1.2 The known-length admission path decides before downstream filters, body accessors, MVC binding, or service execution
-- [x] 1.3 The registration exposes `/*`, `REQUEST`, and pre-Security ordering metadata
+- [x] 1.1 The new filter and registration compile under the required Java 17 toolchain without unrelated dependency or configuration changes — 119991d
+- [x] 1.2 The known-length admission path decides before downstream filters, body accessors, MVC binding, or service execution — 119991d
+- [x] 1.3 The registration exposes `/*`, `REQUEST`, and pre-Security ordering metadata — 119991d
 
 #### Manual
 
-- [x] 1.4 Production diff review confirms the boundary is outside SecurityConfiguration, image handling, DTO validation, multipart settings, and proxy configuration
-- [x] 1.5 Telemetry review confirms no body, query string, authorization value, or high-cardinality metric label is emitted
+- [x] 1.4 Production diff review confirms the boundary is outside SecurityConfiguration, image handling, DTO validation, multipart settings, and proxy configuration — 119991d
+- [x] 1.5 Telemetry review confirms no body, query string, authorization value, or high-cardinality metric label is emitted — 119991d
 
 ### Phase 2: Filter and Registration Test Contract
 
 #### Automated
 
-- [ ] 2.1 Filter unit tests pass for under-limit, exact-limit, over-limit, HTTP/1.1 transfer-coded unknown-length, HTTP/2 `TE: trailers`, and unframed bodyless requests
-- [ ] 2.2 Rejection tests prove the downstream chain and both body accessors are untouched and parse the complete 413 ProblemDetail response
-- [ ] 2.3 Pass-through tests preserve input-stream and UTF-8 reader contents
-- [ ] 2.4 Registration tests prove one relevant registration bean, no standalone filter bean, one dynamic `/*` `REQUEST` registration, pre-Security order, and no duplicate path
-- [ ] 2.5 Telemetry tests prove the fixed meter contract, every-rejection counting, and deterministic process-global 60-second warning throttling under concurrency
+- [x] 2.1 Filter unit tests pass for under-limit, exact-limit, over-limit, HTTP/1.1 transfer-coded unknown-length, HTTP/2 `TE: trailers`, and unframed bodyless requests
+- [x] 2.2 Rejection tests prove the downstream chain and both body accessors are untouched and parse the complete 413 ProblemDetail response
+- [x] 2.3 Pass-through tests preserve input-stream and UTF-8 reader contents
+- [x] 2.4 Registration tests prove one relevant registration bean, no standalone filter bean, one dynamic `/*` `REQUEST` registration, pre-Security order, and no duplicate path
+- [x] 2.5 Telemetry tests prove the fixed meter contract, every-rejection counting, and deterministic process-global 60-second warning throttling under concurrency
 
 #### Manual
 
-- [ ] 2.6 Boundary review confirms inclusive 4 MiB, the HTTP/1.1 transfer-coding predicate, HTTP/2 exclusion, and preserved bodyless-request semantics are explicit
+- [x] 2.6 Boundary review confirms inclusive 4 MiB, the HTTP/1.1 transfer-coding predicate, HTTP/2 exclusion, and preserved bodyless-request semantics are explicit
 
 ### Phase 3: Full-Context Integration and Final Verification
 
