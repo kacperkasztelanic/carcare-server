@@ -434,6 +434,6 @@ client changes.
 
 #### Manual
 
-- [x] 3.5 Direct HTTP boundary smoke test confirms exactly-at-limit acceptance and over-limit 413 without application-side writes — c34a370
+- [x] 3.5 Direct HTTP boundary smoke test confirms exactly-at-limit acceptance and over-limit 413 without application-side writes — c34a370; reverified 2026-08-31 ([evidence](change.md#direct-http-request-body-boundary-smoke-test--2026-08-31))
 - [x] 3.6 Frozen-client behavior and successful retry are recorded accurately if client verification is performed — c34a370
 - [x] 3.7 Human review confirms the external proxy was not changed and the application guard remains authoritative — c34a370
