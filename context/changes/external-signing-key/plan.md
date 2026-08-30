@@ -725,30 +725,27 @@ no re-login at all.
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `./mvnw test` — 38 tests
-- [x] 2.2 Integration tests pass: `./mvnw verify` — 249 tests
-- [x] 2.3 No file under `src/` contains the previously-committed literal (digest comparison) — `grep` for both old literals across `src/` returns 0; the three `base64-secret` sites now hold the empty prod default plus two fresh distinct values
-- [x] 2.4 `application-prod.yml`'s `base64-secret` default is empty
-- [x] 2.5 `application-dev.yml` and `application-test.yml` defaults differ from each other
+- [x] 2.1 Unit tests pass: `./mvnw test` — 38 tests — 47bab4d
+- [x] 2.2 Integration tests pass: `./mvnw verify` — 249 tests — 47bab4d
+- [x] 2.3 No file under `src/` contains the previously-committed literal (digest comparison) — `grep` for both old literals across `src/` returns 0; the three `base64-secret` sites now hold the empty prod default plus two fresh distinct values — 47bab4d
+- [x] 2.4 `application-prod.yml`'s `base64-secret` default is empty — 47bab4d
+- [x] 2.5 `application-dev.yml` and `application-test.yml` defaults differ from each other — 47bab4d
 
 #### Manual
 
-- [x] 2.6 `./mvnw` starts under `dev` with no environment variable set — `spring-boot:run` with all three JWT env vars unset: "using profiles: dev" → "Started CarcareApp in 4.43 seconds"
-- [x] 2.7 Comment at `application-prod.yml:102-104` names both accepted variable spellings — rewritten to name `APPLICATION_*` (canonical) and `JHIPSTER_*` (legacy alias, only one image 1.3.10 binds), the no-start-without-one requirement, and the 64-byte minimum
+- [x] 2.6 `./mvnw` starts under `dev` with no environment variable set — `spring-boot:run` with all three JWT env vars unset: "using profiles: dev" → "Started CarcareApp in 4.43 seconds" — 47bab4d
+- [x] 2.7 Comment at `application-prod.yml:102-104` names both accepted variable spellings — rewritten to name `APPLICATION_*` (canonical) and `JHIPSTER_*` (legacy alias, only one image 1.3.10 binds), the no-start-without-one requirement, and the 64-byte minimum — 47bab4d
 
 ### Phase 3: Fail fast when no key is configured
 
 #### Automated
 
-- [ ] 3.1 Unit tests pass: `./mvnw test` — 42 tests (38 existing plus four new guard tests)
-- [ ] 3.2 Integration tests pass: `./mvnw verify` — 249, unchanged
-- [ ] 3.3 The new test asserting the throw fails if the guard is reverted
-
-#### Manual
-
-- [ ] 3.4 Startup under `prod` with no variable fails, naming the property and both spellings
-- [ ] 3.5 Startup with a 32-byte key fails, naming the 64-byte minimum
-- [ ] 3.6 The error is legible without prior knowledge of this codebase
+- [x] 3.1 Unit tests pass: `./mvnw test` — 42 tests (38 existing plus four new guard tests) — `TokenProviderTest` now 9 tests, full suite 42 (1 pre-existing `@Disabled`)
+- [x] 3.2 Integration tests pass: `./mvnw verify` — 249, unchanged
+- [x] 3.3 The new test asserting the throw fails if the guard is reverted — stashed `TokenProvider.java`, ran both throw tests: 2 failures; restored and re-verified
+- [x] 3.4 Startup under `prod` with no variable fails, naming the property and both spellings — real Spring context (`base64-secret` + `secret` forced empty): `BeanCreationException` on `tokenProvider` → `IllegalStateException` naming `application.security.authentication.jwt.base64-secret`, `APPLICATION_*`, `JHIPSTER_*`, and the plain `secret` alternative
+- [x] 3.5 Startup with a 32-byte key fails, naming the 64-byte minimum — `IllegalStateException`: "too short: 32 bytes decoded, but the HS512 signature algorithm requires at least 64 bytes (512 bits)"; context init cancelled, not a healthy boot
+- [x] 3.6 The error is legible without prior knowledge of this codebase — both messages name the property, both env-var spellings, and the `openssl rand -base64 64` fix; the short-key message also states found vs required byte count
 
 ### Phase 4: Mark the superseded deployment files as historical
 

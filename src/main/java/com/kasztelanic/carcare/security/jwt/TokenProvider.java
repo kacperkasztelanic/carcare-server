@@ -46,13 +46,31 @@ public class TokenProvider implements InitializingBean {
     public void afterPropertiesSet() {
         byte[] keyBytes;
         String secret = applicationProperties.getSecurity().getAuthentication().getJwt().getSecret();
+        String base64Secret = applicationProperties.getSecurity().getAuthentication().getJwt().getBase64Secret();
+        if (StringUtils.isEmpty(secret) && StringUtils.isEmpty(base64Secret)) {
+            throw new IllegalStateException(
+                "No JWT signing key is configured. Set `application.security.authentication.jwt.base64-secret` " +
+                "to a Base64-encoded value of at least 64 bytes (512 bits) — generate one with " +
+                "`openssl rand -base64 64`. In a deployment, supply it through the environment variable " +
+                "APPLICATION_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET or the legacy alias " +
+                "JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET. The plain " +
+                "`application.security.authentication.jwt.secret` field is an accepted alternative.");
+        }
         if (!StringUtils.isEmpty(secret)) {
             log.warn("Warning: the JWT key used is not Base64-encoded. " +
                 "We recommend using the `application.security.authentication.jwt.base64-secret` key for optimum security.");
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         } else {
             log.debug("Using a Base64-encoded JWT secret key");
-            keyBytes = Decoders.BASE64.decode(applicationProperties.getSecurity().getAuthentication().getJwt().getBase64Secret());
+            keyBytes = Decoders.BASE64.decode(base64Secret);
+        }
+        if (keyBytes.length < 64) {
+            throw new IllegalStateException(
+                "The configured JWT signing key is too short: " + keyBytes.length + " bytes decoded, but the " +
+                "HS512 signature algorithm requires at least 64 bytes (512 bits). Generate a longer key with " +
+                "`openssl rand -base64 64` and set it via `application.security.authentication.jwt.base64-secret` " +
+                "(APPLICATION_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET or " +
+                "JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET).");
         }
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.tokenValidityInMilliseconds =

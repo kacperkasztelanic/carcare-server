@@ -21,10 +21,18 @@ import java.util.Collection;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TokenProviderTest {
 
     private static final long ONE_MINUTE = 60000;
+
+    // 64 decoded bytes — the minimum HS512 accepts.
+    private static final String VALID_BASE64_SECRET =
+        "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==";
+    // 32 decoded bytes — passes Keys.hmacShaKeyFor but is rejected by HS512.
+    private static final String SHORT_BASE64_SECRET = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=";
 
     private SecretKey key;
     private TokenProvider tokenProvider;
@@ -38,6 +46,55 @@ class TokenProviderTest {
 
         ReflectionTestUtils.setField(tokenProvider, "key", key);
         ReflectionTestUtils.setField(tokenProvider, "tokenValidityInMilliseconds", ONE_MINUTE);
+    }
+
+    private static TokenProvider newTokenProvider(ApplicationProperties properties) {
+        return new TokenProvider(new SecurityMetersService(new SimpleMeterRegistry()), properties);
+    }
+
+    @Test
+    void afterPropertiesSetThrowsWhenNoKeyIsConfigured() {
+        TokenProvider provider = newTokenProvider(new ApplicationProperties());
+
+        assertThatThrownBy(provider::afterPropertiesSet)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("application.security.authentication.jwt.base64-secret");
+    }
+
+    @Test
+    void afterPropertiesSetThrowsWhenBase64KeyIsTooShort() {
+        ApplicationProperties properties = new ApplicationProperties();
+        properties.getSecurity().getAuthentication().getJwt().setBase64Secret(SHORT_BASE64_SECRET);
+        TokenProvider provider = newTokenProvider(properties);
+
+        assertThatThrownBy(provider::afterPropertiesSet)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("64 bytes");
+    }
+
+    @Test
+    void afterPropertiesSetAcceptsAValidBase64Key() {
+        ApplicationProperties properties = new ApplicationProperties();
+        properties.getSecurity().getAuthentication().getJwt().setBase64Secret(VALID_BASE64_SECRET);
+        TokenProvider provider = newTokenProvider(properties);
+
+        assertThatCode(provider::afterPropertiesSet).doesNotThrowAnyException();
+
+        String token = provider.createToken(createAuthentication(), false);
+        assertThat(provider.validateToken(token)).isTrue();
+    }
+
+    @Test
+    void afterPropertiesSetAcceptsThePlainSecret() {
+        ApplicationProperties properties = new ApplicationProperties();
+        properties.getSecurity().getAuthentication().getJwt()
+            .setSecret("plain-secret-long-enough-for-hs512-plain-secret-long-enough-for-hs512");
+        TokenProvider provider = newTokenProvider(properties);
+
+        assertThatCode(provider::afterPropertiesSet).doesNotThrowAnyException();
+
+        String token = provider.createToken(createAuthentication(), false);
+        assertThat(provider.validateToken(token)).isTrue();
     }
 
     @Test
