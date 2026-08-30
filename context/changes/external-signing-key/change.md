@@ -1,7 +1,7 @@
 ---
 change_id: external-signing-key
 title: Supply the signing key from the host, then fail fast without it
-status: implemented
+status: impl_reviewed
 created: 2026-08-30
 updated: 2026-08-30
 roadmap_id: S-01
@@ -39,7 +39,8 @@ prefix* than this branch, so the two-step rollout has a variable-naming constrai
   longer part of this change. `plan.md` Phase 5 is annotated and its Progress rows marked `[~]`
   (moved), so this change's delivered scope is Phases 1–4, all done and verified. `status` is now
   `implemented`; run `/10x-archive external-signing-key` when ready.
-- **S-07 carries**: the merge/tag/deploy mechanics, FR-003's end-to-end client-1.2.5 session, and
+- **S-07 carries**: the merge/tag/deploy mechanics, FR-003's end-to-end client-1.2.5 session
+  (which only the new image can serve — 1.3.10 ships client 1.2.4), and
   US-02's no-second-re-login proof. Open decision for S-07: branch/tag strategy (`master` is ~130
   commits behind `refactor`).
 

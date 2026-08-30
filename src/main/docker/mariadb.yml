@@ -1,3 +1,16 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# HISTORICAL — NOT DEPLOYED.
+#
+# The live deployment is Compose project `services`, config file
+# /home/kacper/services/carcare.yml, in a separate private git repository, with
+# secrets in a gitignored ~/services/.env. Nothing in THIS repository reads this
+# file — no pom plugin, no CI job (verified 2026-08-30). See AGENTS.md
+# § Deployment for the verified topology.
+#
+# The ${MARIADB_PASSWORD_ENV} placeholder below is consumed only by the
+# superseded, destructive deploy.sh, whose `sed -i` rewrites it IN PLACE — one
+# run consumes this template permanently.
+# ─────────────────────────────────────────────────────────────────────────────
 services:
     carcare-mariadb:
         image: mariadb:10.11.6

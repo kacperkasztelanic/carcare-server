@@ -335,7 +335,10 @@ returns to the committed default. Cost: one further forced re-login.
 
 #### Manual Verification:
 
-- A client-1.2.5 session in a browser prompts for login exactly once, then works normally
+- A browser session against the **1.3.10** container prompts for login exactly once, then works
+  normally. Note the client version: 1.3.10 predates this tree's bump to client 1.2.5
+  (`pom.xml:13`) and serves **1.2.4**, so this criterion cannot exercise 1.2.5 and does not claim
+  to. FR-003's 1.2.5 session is S-07's, against the new image
 - No secret value appeared in any terminal, log, or transcript during the phase
 - `carcare.yml` and `.env.gpg` are committed in the `services` repository; `.env` is not
 
@@ -405,9 +408,10 @@ from dev's — two distinct throwaway values, not one shared constant.
 
 - Unit tests pass: `./mvnw test` — 38 tests
 - Integration tests pass: `./mvnw verify` — 249 tests
-- No file under `src/` contains the previously-committed literal: verify by comparing the SHA-256
-  of each remaining `base64-secret` default against the recorded prod/dev digest, without printing
-  any value
+- No file **anywhere in the tree** contains the previously-committed literal: verify by comparing
+  the SHA-256 of each remaining `base64-secret` default against the recorded prod/dev digest,
+  without printing any value. Scope is the whole repository, not `src/` — the impl review found the
+  literal surviving at `.yo-rc.json:25`, outside the original `src/`-only wording
 - `application-prod.yml`'s `base64-secret` default is empty
 - `application-dev.yml` and `application-test.yml` defaults differ from each other
 
@@ -628,7 +632,8 @@ still binds `JHIPSTER_*`, so the key set in Phase 1 continues to work and no re-
 slice rather than a separate concern (`roadmap.md:148-150`).
 
 **Contract**: Through the unmodified client 1.2.5 against production: list vehicles, open one,
-record an event. Paths, payloads and status codes unchanged; no client release. Confirm no
+record an event. This is the first session that can exercise 1.2.5 at all — the new image is what
+carries it (`pom.xml:13`); the 1.3.10 container Phase 1 verified against serves 1.2.4. Paths, payloads and status codes unchanged; no client release. Confirm no
 additional login prompt beyond the one spent in Phase 1.
 
 ### Success Criteria:
@@ -732,7 +737,7 @@ no re-login at all.
 
 - [x] 2.1 Unit tests pass: `./mvnw test` — 38 tests — 47bab4d
 - [x] 2.2 Integration tests pass: `./mvnw verify` — 249 tests — 47bab4d
-- [x] 2.3 No file under `src/` contains the previously-committed literal (digest comparison) — `grep` for both old literals across `src/` returns 0; the three `base64-secret` sites now hold the empty prod default plus two fresh distinct values — 47bab4d
+- [x] 2.3 No file anywhere in the tree contains the previously-committed literal (digest comparison) — `grep` for both old literals across `src/` returns 0; the three `base64-secret` sites now hold the empty prod default plus two fresh distinct values — 47bab4d. Re-verified tree-wide at impl review: one surviving copy at `.yo-rc.json:25` (`jwtSecretKey`, byte-identical to the removed prod literal), blanked as review finding F1
 - [x] 2.4 `application-prod.yml`'s `base64-secret` default is empty — 47bab4d
 - [x] 2.5 `application-dev.yml` and `application-test.yml` defaults differ from each other — 47bab4d
 
