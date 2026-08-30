@@ -110,7 +110,8 @@ explicitly refuses.
 
 - **Outcome:** an operator deploys the server with no usable signing key anywhere in version
   control, and the application fails fast — naming the missing configuration — if the key is
-  absent or still equals the previously-committed value.
+  absent, empty, or too short for the signing algorithm. (Narrowed 2026-08-30: the
+  previously-committed-value blocklist was dropped; see FR-002.)
 - **Change ID:** `external-signing-key`
 - **PRD refs:** FR-001, FR-002, FR-003, US-01, US-02
 - **Prerequisites:** —

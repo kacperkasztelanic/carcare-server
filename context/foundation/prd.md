@@ -135,9 +135,10 @@ is present in version control. Concretely, end to end:
 1. The committed base64 default is gone from the production configuration.
 2. The deployment reads the key from the host environment, the same way it already reads
    the database and mail passwords, sourced from an uncommitted local environment file.
-3. Booting without that variable set, or with the previously-committed value, fails fast with
-   a message naming the missing configuration — rather than starting and signing tokens
-   anyone can forge.
+3. Booting without that variable set, or with a key too short for the signing algorithm, fails
+   fast with a message naming the missing configuration — rather than starting and signing
+   tokens anyone can forge. (Narrowed 2026-08-30 from "or with the previously-committed value";
+   see FR-002.)
 4. An existing owner logs in once through the unmodified client 1.2.5 and continues a normal
    session: lists vehicles, opens one, records an event.
 
@@ -185,7 +186,9 @@ silently fell back to the key committed in the production configuration.
 - No usable signing key remains anywhere in version control.
 - Deployment remains a single step — one command, as today.
 - Booting with the variable unset fails immediately, naming the missing configuration.
-- Booting with the previously-committed value fails immediately, naming it as the reason.
+- Booting with a key too short for the signing algorithm fails immediately, naming the required
+  minimum. (Narrowed 2026-08-30: this replaces "booting with the previously-committed value
+  fails" — see FR-002.)
 
 ### US-02: Existing owner continues working after the key rotates
 
@@ -219,16 +222,27 @@ scrutiny.
   > Socrates: Not independently challenged — restates the scope decision and the
   > key-delivery decision, both taken under challenge.
 
-- **[new] FR-002** — The application refuses to start when the signing key is absent, or when
-  it equals the value previously committed to this repository. Priority: must-have.
+- **[new] FR-002** — The application refuses to start when the signing key is absent or empty,
+  or when it is too short to sign with the algorithm the application uses. Priority: must-have.
   > Socrates: Counter-arguments offered: that it contradicts the "no pager event" position by
   > turning a forgotten environment line into a deploy outage; that blocklisting one known
   > value is theatre against any other weak key; that it fails closed on the wrong thing for
-  > a personal-scale deployment. Resolution: **stands as written, refuse to start.** The
-  > user's stated reason: an application that boots and signs with a repository key is
-  > exactly the state this change exists to eliminate, and a loud deploy-time failure is
-  > preferable to a quiet runtime weakness. The deploy-outage cost is accepted, and is the
-  > reason the rollout ordering in Open Questions must hold.
+  > a personal-scale deployment. Resolution: **refuse to start stands.** The user's stated
+  > reason: an application that boots and signs with a repository key is exactly the state
+  > this change exists to eliminate, and a loud deploy-time failure is preferable to a quiet
+  > runtime weakness. The deploy-outage cost is accepted, and is the reason the rollout
+  > ordering in Open Questions must hold.
+  >
+  > **Narrowed 2026-08-30 (owner decision).** The value blocklist — "or when it equals the
+  > value previously committed to this repository" — is **dropped**. It does not earn its cost
+  > for a family-and-friends deployment: rotation, not detection, is what closes the exposure,
+  > and Phase 1 of `external-signing-key` rotates the key before the committed default is
+  > removed, so the blocklisted value can never be the one in use. The second counter-argument
+  > above is thereby conceded. A **length** check replaces it, which the blocklist never
+  > provided: `TokenProvider` pins `Jwts.SIG.HS512` and jjwt 0.12.3 requires 512 bits, but key
+  > construction accepts 256, so a short key boots healthy and then fails every login.
+  > Rationale and residual risk: `context/changes/external-signing-key/plan.md` § "Deviation
+  > from FR-002".
 
 ### Image handling
 
