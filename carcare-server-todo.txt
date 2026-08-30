@@ -1,5 +1,6 @@
 get rid of JHipster dependencies
-update dependency versions (Spring Boot etc)
+update dependency versions (Spring Boot to v4 etc)
+use Java 25
 switch from MariaDB to PostgreSQL
 use functional programming and Vavr whenever possible
 restructure the DB layer - extract the common parts of the entities like repair, maintainance, services etc. and simplify, details not needed in queries (like vehicle details) should be stored in json in postgres
