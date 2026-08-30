@@ -48,8 +48,7 @@ that fact.
 
 | ID   | Change ID                      | Outcome (user can …)                                          | Prerequisites | PRD refs                       | Status   |
 | ---- | ------------------------------ | ------------------------------------------------------------- | ------------- | ------------------------------ | -------- |
-| F-01 | `deployment-key-delivery`      | (foundation) deployment supplies the signing key from the host | —             | FR-001, US-01                  | ready    |
-| S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | F-01          | FR-001, FR-002, FR-003, US-01, US-02 | proposed |
+| S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | —             | FR-001, FR-002, FR-003, US-01, US-02 | ready    |
 | S-02 | `image-write-ordering`         | owner's stored image survives a failed vehicle update          | —             | FR-004, FR-007                 | ready    |
 | S-03 | `request-body-limit`           | server refuses an oversized request body before buffering it   | —             | FR-005                         | ready    |
 | S-04 | `image-format-allowlist`       | server stores only genuine PNG/JPEG uploads                    | S-02          | FR-006, FR-007                 | proposed |
@@ -63,7 +62,7 @@ dependency graph below; this table is the proposed reading order across parallel
 
 | Stream | Theme                    | Chain             | Note                                                                                  |
 | ------ | ------------------------ | ----------------- | ------------------------------------------------------------------------------------- |
-| A      | Signing key              | `F-01` → `S-01`   | The north-star chain. F-01 exists to make S-01's fail-fast safe to deploy.             |
+| A      | Signing key              | `S-01`            | The north star. Carries its own two-step rollout ordering internally — see its Risk.   |
 | B      | Image write path         | `S-02` → `S-04`   | Sequential because both rewrite the same write path; parallelising them would conflict. |
 | C      | Request boundary         | `S-03`            | Standalone — a new filter ahead of the controllers, touching no image code.            |
 | D      | Hardening & surface      | `S-05` / `S-06`   | Two small independent slices, parallel with each other and with every other stream.    |
@@ -86,7 +85,7 @@ these are present and do **not** re-scaffold them.
   deployment is compose project `services`, config file `/home/kacper/services/carcare.yml`,
   in a separate private git repository, with secrets supplied by native Compose substitution
   from a gitignored `~/services/.env` (encrypted counterpart `.env.gpg` is committed). That
-  existing mechanism is what F-01 extends. This repository's `src/main/docker/app.yml`,
+  existing mechanism is what S-01 extends. This repository's `src/main/docker/app.yml`,
   `env-template` and `deploy.sh` describe a **superseded** path — `deploy.sh` `sed -i`s
   placeholders into `app.yml` destructively and starts a `carcare-app` container that is not
   running. Do not plan against them.
@@ -94,36 +93,16 @@ these are present and do **not** re-scaffold them.
 
 ## Foundations
 
-### F-01: Deployment supplies the signing key from the host environment
+**None.** The only candidate was a separate slice delivering the signing key to the host
+environment ahead of the fail-fast check. It was folded into S-01 by owner decision on
+2026-08-30: once the deployment was verified, the delivery turned out to be one variable in a
+`.env` that already holds three, plus one line in a compose file that already resolves three
+others — not enough work to justify its own planning cycle.
 
-- **Outcome:** (foundation) the deployment reads the signing key from an uncommitted host
-  environment file, through the same mechanism it already uses for the database and mail
-  passwords — while the committed default is still in place, so nothing can fail to boot.
-- **Change ID:** `deployment-key-delivery`
-- **PRD refs:** FR-001 (delivery half), US-01
-- **Unlocks:** S-01. This foundation exists solely to make S-01's fail-fast check safe to
-  deploy. It also discharges the rollout-ordering constraint the PRD records under Open
-  Question 3 and `shape-notes.md` parks under `## Forward: technical-roadmap`: "deployment
-  key injection must land before or with the fail-fast check."
-- **Prerequisites:** —
-- **Parallel with:** S-02, S-03, S-05, S-06
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Sequenced first because the reverse order is the one failure the PRD explicitly
-  refuses to accept — shipping the fail-fast check before the host supplies a key converts a
-  forgotten environment line into a boot outage. Deployed on its own this slice is inert: the
-  committed default remains as a fallback, so a mistake here cannot take production down.
-  **The delivery mechanism already exists and works** (verified on the host 2026-08-30): the
-  live compose file `/home/kacper/services/carcare.yml` already resolves
-  `${CARCARE_MYSQL_USER}`, `${CARCARE_MYSQL_PASSWORD}` and `${CARCARE_MAIL_PASSWORD}` from a
-  gitignored `~/services/.env`, so this slice adds one variable to a file that already has
-  three. The main risk is therefore not the mechanism but the **variable name**: whether
-  Spring's relaxed binding actually populates `application.security.authentication.jwt.base64-secret`
-  from the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` placeholder in
-  `application-prod.yml:105`, or whether that name is a legacy leftover that would silently
-  fail to bind. Verify empirically — if the name is wrong, F-01 ships a variable nothing reads
-  and S-01 then removes the default from an application with no other key source.
-- **Status:** ready
+The ordering constraint it existed to encode has **not** been dropped. It now lives inside
+S-01 as a mandatory two-step rollout; see that slice's Risk field. Any plan for S-01 that does
+not sequence key delivery before default removal has reintroduced the boot-outage the PRD
+explicitly refuses.
 
 ## Slices
 
@@ -133,20 +112,43 @@ these are present and do **not** re-scaffold them.
   control, and the application fails fast — naming the missing configuration — if the key is
   absent or still equals the previously-committed value.
 - **Change ID:** `external-signing-key`
-- **PRD refs:** FR-001 (removal half), FR-002, FR-003, US-01, US-02
-- **Prerequisites:** F-01
+- **PRD refs:** FR-001, FR-002, FR-003, US-01, US-02
+- **Prerequisites:** —
 - **Parallel with:** S-02, S-03, S-05, S-06
 - **Blockers:** —
 - **Unknowns:**
+  - Which environment variable name does Spring's relaxed binding actually require to populate
+    `application.security.authentication.jwt.base64-secret`? The placeholder at
+    `application-prod.yml:105` is `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET`, but
+    `AGENTS.md` records that stale `jhipster.*` naming was purged from this tree once already.
+    Verify empirically before the default is removed. — Owner: user. Block: no.
   - Does the deployed 1.3.10 image differ from this branch in any way that affects the boot
     path? Production runs app tag 1.3.10 while the repository is at 1.3.11. — Owner: user.
     Block: no.
 - **Risk:** This is the north star and the only slice with a rollout step outside the
   repository — the PRD is explicit that "the change is not complete when the branch merges."
-  Rotation invalidates every token in flight; the accepted cost is exactly one forced
-  re-login, with no dual-key grace window. FR-003 is the verification half of this slice, not
-  a separate concern: the client-1.2.5 session must be exercised end to end after rotation.
-- **Status:** proposed
+
+  **Mandatory two-step rollout, in this order.** This ordering was originally a separate
+  foundation slice; folding it in did not make it optional.
+
+  1. **Deliver the key, default still in place.** Add the signing-key variable to the
+     gitignored `~/services/.env`, reference it from `/home/kacper/services/carcare.yml` the
+     way `${CARCARE_MYSQL_PASSWORD}` and `${CARCARE_MAIL_PASSWORD}` already are, regenerate
+     `.env.gpg`, and confirm the running container actually picks the value up. At this point
+     the committed default is untouched and still functions as a fallback, so this step cannot
+     take production down — which is exactly why it goes first.
+  2. **Remove the default and add the fail-fast check.** Only after step 1 is verified on the
+     host. Reversing these two converts a forgotten environment line into a boot outage, which
+     the PRD refuses; it is the tension recorded in Open Question 3.
+
+  Note the fail-fast check must cover **both** key fields: `ApplicationProperties.Jwt` binds
+  `secret` (plain UTF-8) and `base64Secret` independently, and `TokenProvider` prefers the
+  former when non-empty. Guarding only `base64-secret` leaves the other path open.
+
+  Rotation invalidates every token in flight; the accepted cost is exactly one forced re-login,
+  with no dual-key grace window. FR-003 is the verification half of this slice, not a separate
+  concern: the client-1.2.5 session must be exercised end to end after rotation.
+- **Status:** ready
 
 ### S-02: A failed vehicle update leaves the stored image intact
 
@@ -155,7 +157,7 @@ these are present and do **not** re-scaffold them.
 - **Change ID:** `image-write-ordering`
 - **PRD refs:** FR-004, FR-007
 - **Prerequisites:** —
-- **Parallel with:** F-01, S-01, S-03, S-05, S-06
+- **Parallel with:** S-01, S-03, S-05, S-06
 - **Blockers:** —
 - **Unknowns:**
   - Are any `vehicle_details.image` values the empty-string sentinel that `save()` returns on
@@ -174,7 +176,7 @@ these are present and do **not** re-scaffold them.
 - **Change ID:** `request-body-limit`
 - **PRD refs:** FR-005
 - **Prerequisites:** —
-- **Parallel with:** F-01, S-01, S-02, S-05, S-06
+- **Parallel with:** S-01, S-02, S-05, S-06
 - **Blockers:** —
 - **Unknowns:**
   - The recommended 2 MiB ceiling rests on a nine-file sample whose largest image is 108 KB.
@@ -200,7 +202,7 @@ these are present and do **not** re-scaffold them.
 - **Change ID:** `image-format-allowlist`
 - **PRD refs:** FR-006, FR-007
 - **Prerequisites:** S-02
-- **Parallel with:** F-01, S-01, S-03, S-05, S-06
+- **Parallel with:** S-01, S-03, S-05, S-06
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The one place in this change where two must-have requirements could contradict
@@ -220,7 +222,7 @@ these are present and do **not** re-scaffold them.
 - **Change ID:** `image-path-containment`
 - **PRD refs:** FR-008
 - **Prerequisites:** —
-- **Parallel with:** F-01, S-01, S-02, S-03, S-06
+- **Parallel with:** S-01, S-02, S-03, S-06
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Recorded in the PRD as knowingly speculative hardening rather than a live
@@ -238,7 +240,7 @@ these are present and do **not** re-scaffold them.
 - **Change ID:** `production-surface-reduction`
 - **PRD refs:** FR-009
 - **Prerequisites:** —
-- **Parallel with:** F-01, S-01, S-02, S-03, S-05
+- **Parallel with:** S-01, S-02, S-03, S-05
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Costs no test coverage — the existing integration test exercises all three
@@ -252,8 +254,7 @@ these are present and do **not** re-scaffold them.
 
 | Roadmap ID | Change ID                      | Suggested issue title                                        | Ready for `/10x-plan` | Notes                                    |
 | ---------- | ------------------------------ | ------------------------------------------------------------ | --------------------- | ---------------------------------------- |
-| F-01       | `deployment-key-delivery`      | Deliver the JWT signing key from the host environment         | yes                   | Start here — unlocks the north star      |
-| S-01       | `external-signing-key`         | Remove the committed signing key and fail fast without one    | no                    | Needs F-01 deployed first                |
+| S-01       | `external-signing-key`         | Supply the signing key from the host, then fail fast without it | yes                 | Start here — the north star; two-step rollout inside |
 | S-02       | `image-write-ordering`         | Delete a replaced vehicle image only after commit             | yes                   | Parallel-safe                            |
 | S-03       | `request-body-limit`           | Reject oversized request bodies before buffering              | yes                   | Needs new filter code; see Risk          |
 | S-04       | `image-format-allowlist`       | Accept only byte-verified PNG and JPEG uploads                | no                    | Needs S-02; write path only              |
@@ -270,10 +271,13 @@ these are present and do **not** re-scaffold them.
 2. ~~**Do any stored image files fall outside the FR-006 allowlist?**~~ — **RESOLVED
    2026-08-30.** No. Nine files, PNG and JPEG only. FR-006 and FR-007 do not collide, subject
    to the write-path-only constraint recorded on S-04.
-3. **Fail-fast versus the stated "no pager event" position.** — **Discharged by sequencing.**
-   The two positions are compatible only if key injection lands before or with the fail-fast
-   check; the F-01 → S-01 dependency is exactly that ordering. Owner: user, at plan time.
-   Block: no.
+3. **Fail-fast versus the stated "no pager event" position.** — **Discharged by sequencing,
+   now internal to S-01.** The two positions are compatible only if key injection lands before
+   or with the fail-fast check. This was originally encoded as an `F-01 → S-01` dependency;
+   when that foundation was folded into S-01 on 2026-08-30, the constraint became the
+   mandatory two-step rollout in S-01's Risk field. It is a plan-level obligation now rather
+   than a graph-level one, which makes it easier to lose — the plan review should check for it
+   explicitly. Owner: user, at plan time. Block: no.
 4. **Secondary persona and the vehicle owner's own framing.** — No secondary persona was
    elicited during shaping. Owner: user. Block: no — the change is operator-facing and the
    owner-facing surface is explicitly unchanged.
@@ -285,7 +289,7 @@ these are present and do **not** re-scaffold them.
    longer live. Leaving them is a standing trap for any future planner (it misled this
    roadmap's own first draft). Options: update them to mirror `~/services/carcare.yml`, mark
    them clearly as historical, or delete them. Owner: user. Block: no — but resolve it during
-   F-01, since that slice is where the divergence bites.
+   S-01, since that slice is where the divergence bites.
 7. **Does production's 1.3.10 image differ from this branch in ways that affect rollout?** —
    New, surfaced while verifying the proxy configuration. Production runs app tag 1.3.10;
    this repository is at 1.3.11. Owner: user. Block: no — gates S-01's rollout step only.
