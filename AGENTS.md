@@ -104,6 +104,16 @@ carries **no** default: supply one through either
 committed throwaway defaults — deliberately, so `./mvnw` stays a one-command run; neither has ever
 signed a production token.
 
+**The pre-rotation key is still in git history, and that is an accepted decision, not an
+oversight.** The literal that signed production tokens from `6d17c37` (2018-10-29) until
+2026-08-30 was removed from the working tree in two steps — `47bab4d` (the profile YAMLs) and
+`d1d66f8` (`.yo-rc.json`'s `jwtSecretKey`, missed by the first pass because its check was scoped
+to `src/`). Neither rewrites history, so the value remains recoverable from any clone of the three
+remotes. Owner decision, 2026-08-30: **accepted, not purged.** The key was rotated out of
+production in S-01 Phase 1 and signs nothing; rewriting 120+ commits across three remotes, one of
+them a public GitHub repository, costs more than it buys. Do not re-raise this as a finding, and
+do not "fix" it with `filter-repo` without a fresh owner decision.
+
 ### Database & migrations
 MariaDB in dev/prod, H2 for tests. Schema is managed by **Liquibase**
 (`src/main/resources/config/liquibase/master.xml` + dated changelogs in `changelog/`). Add a new

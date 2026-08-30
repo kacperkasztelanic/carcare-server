@@ -61,6 +61,19 @@ prefix* than this branch, so the two-step rollout has a variable-naming constrai
   afterwards; a healthy boot proves nothing, because provenance logging was dropped from the PRD.
 - **Decision owner**: repo owner.
 
+### Git history retains the old key — accepted, 2026-08-30
+
+The impl review (F1) found the pre-rotation literal surviving at `.yo-rc.json:25`, outside Phase
+2's `src/`-scoped check; it was blanked in `d1d66f8`. That clears the working tree but **not git
+history** — the value is present in every commit from `6d17c37` (2018-10-29) onward, on all three
+remotes including public GitHub.
+
+**Owner decision: accept, do not purge.** The key was rotated out of production in Phase 1 and
+signs nothing, so the residual is a dead credential; rewriting 120+ commits across three remotes
+would cost more than it buys and invalidate every existing clone. Recorded durably in `AGENTS.md`
+§ Security so a future reviewer does not re-raise it. Revisit only if the value turns out to have
+been reused outside CarCare.
+
 ### FR-002 narrowed — reconciled 2026-08-30
 
 Owner decision, 2026-08-30: the plan implements only the **absent/empty** half of FR-002. The
