@@ -93,7 +93,9 @@ application:
                 # Legacy plain-text secret. Empty by default so `base64-secret` below is used; kept as a
                 # compatibility alias for deployments still setting JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET.
                 secret: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET:}
-                # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-                base64-secret: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET:YTA0N2NkMTQzMTI0OTUzOGNiNGNjMjdjMmUyNDYzYmM0OGMwNmExYzAzMmY3ZTk2YzlkODY2NzUzYTMzOTFhZjY5MzY2OTczOTY3N2YzNGZlMGUxZjliN2RlYjc1OTlkNmY1MjAwOTJlNTJkNmY1MDZjMDliODgzZjk4ZWEzYzQ=}
+                # Test-only signing key, encoded as Base64. Freshly generated for this profile; it has
+                # never signed a production token, and differs from the dev profile's value. Committing it
+                # is intentional and is not a regression of the external-signing-key change.
+                base64-secret: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET:6hxA/QKxEhNYJBuztly+kyboC+459CBgMtCTaR6NDIpH78QJTx7f0XynlQI9rSVf+pXVYmZpEMdeCF9CPNgilw==}
                 # Token is valid 24 hours
                 token-validity-in-seconds: ${JHIPSTER_SECURITY_AUTHENTICATION_JWT_TOKEN_VALIDITY_IN_SECONDS:86400}

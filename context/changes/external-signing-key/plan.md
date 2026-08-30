@@ -725,16 +725,16 @@ no re-login at all.
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass: `./mvnw test` — 38 tests
-- [ ] 2.2 Integration tests pass: `./mvnw verify` — 249 tests
-- [ ] 2.3 No file under `src/` contains the previously-committed literal (digest comparison)
-- [ ] 2.4 `application-prod.yml`'s `base64-secret` default is empty
-- [ ] 2.5 `application-dev.yml` and `application-test.yml` defaults differ from each other
+- [x] 2.1 Unit tests pass: `./mvnw test` — 38 tests
+- [x] 2.2 Integration tests pass: `./mvnw verify` — 249 tests
+- [x] 2.3 No file under `src/` contains the previously-committed literal (digest comparison) — `grep` for both old literals across `src/` returns 0; the three `base64-secret` sites now hold the empty prod default plus two fresh distinct values
+- [x] 2.4 `application-prod.yml`'s `base64-secret` default is empty
+- [x] 2.5 `application-dev.yml` and `application-test.yml` defaults differ from each other
 
 #### Manual
 
-- [ ] 2.6 `./mvnw` starts under `dev` with no environment variable set
-- [ ] 2.7 Comment at `application-prod.yml:102-104` names both accepted variable spellings
+- [x] 2.6 `./mvnw` starts under `dev` with no environment variable set — `spring-boot:run` with all three JWT env vars unset: "using profiles: dev" → "Started CarcareApp in 4.43 seconds"
+- [x] 2.7 Comment at `application-prod.yml:102-104` names both accepted variable spellings — rewritten to name `APPLICATION_*` (canonical) and `JHIPSTER_*` (legacy alias, only one image 1.3.10 binds), the no-start-without-one requirement, and the 64-byte minimum
 
 ### Phase 3: Fail fast when no key is configured
 
