@@ -188,10 +188,12 @@ class LookupMaintenanceResourceIT extends AbstractSessionIT {
     @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void deletingAnInUseFuelTypeReturns409AndRollsBack() throws Exception {
-        String type = "INUSE-FUEL-" + System.nanoTime();
-        FuelType fuelType = fuelTypeRepository.saveAndFlush(FuelType.of(type, "In use", "W użyciu"));
-        Vehicle vehicle = sessionFixtures.vehicleFor("user", fuelType);
+        String type = null;
+        Vehicle vehicle = null;
         try {
+            type = "INUSE-FUEL-" + System.nanoTime();
+            FuelType fuelType = fuelTypeRepository.saveAndFlush(FuelType.of(type, "In use", "W użyciu"));
+            vehicle = sessionFixtures.vehicleFor("user", fuelType);
             mockMvc.perform(delete("/api/fuel-type/{type}", type))
                 .andExpect(status().isConflict());
             // The in-use FK aborted the delete: the row is still there.
@@ -199,9 +201,15 @@ class LookupMaintenanceResourceIT extends AbstractSessionIT {
         } finally {
             // hikari auto-commit=false: raw JDBC cleanup must run inside a transaction.
             // FK-safe order: vehicle rows first, then the dedicated fuel-type row.
+            Vehicle cleanupVehicle = vehicle;
+            String cleanupType = type;
             new TransactionTemplate(transactionManager).executeWithoutResult(s -> {
-                jdbcTemplate.update("delete from vehicles where id = ?", vehicle.getId());
-                jdbcTemplate.update("delete from fuel_types where type = ?", type);
+                if (cleanupVehicle != null) {
+                    jdbcTemplate.update("delete from vehicles where id = ?", cleanupVehicle.getId());
+                }
+                if (cleanupType != null) {
+                    jdbcTemplate.update("delete from fuel_types where type = ?", cleanupType);
+                }
             });
         }
     }

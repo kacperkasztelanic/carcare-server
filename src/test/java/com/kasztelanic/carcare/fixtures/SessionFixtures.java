@@ -29,6 +29,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -82,6 +83,7 @@ public class SessionFixtures implements ApplicationRunner {
     private final ImageStorageService imageStorageService;
     private final JdbcTemplate jdbcTemplate;
     private final PlatformTransactionManager transactionManager;
+    private final PasswordEncoder passwordEncoder;
 
     private final AtomicLong fixtureSequence = new AtomicLong();
 
@@ -176,6 +178,25 @@ public class SessionFixtures implements ApplicationRunner {
                 jdbcTemplate.update("delete from vehicles where id = ?", id);
             }
         });
+    }
+
+    /**
+     * Creates a committed, activated user with a unique login, for commit-path ITs that run
+     * under {@code NOT_SUPPORTED} and need the row visible outside their (non-)transaction.
+     */
+    public String committedUser() {
+        long sequence = fixtureSequence.incrementAndGet();
+        String login = "committed-" + sequence;
+        User user = new User();
+        user.setLogin(login);
+        user.setPassword(passwordEncoder.encode("disposition-secret"));
+        user.setEmail(login + "@example.com");
+        user.setFirstName("Disposition");
+        user.setLastName("Test");
+        user.setActivated(true);
+        user.setLangKey("en");
+        user.setCreatedBy("system");
+        return userRepository.saveAndFlush(user).getLogin();
     }
 
     public Vehicle vehicleWithEventsFor(String ownerLogin) {

@@ -1,6 +1,5 @@
 package com.kasztelanic.carcare.web.rest;
 
-import com.kasztelanic.carcare.domain.User;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.InspectionRepository;
 import com.kasztelanic.carcare.repository.InsuranceRepository;
@@ -11,7 +10,6 @@ import com.kasztelanic.carcare.security.AuthoritiesConstants;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
@@ -50,8 +48,6 @@ class UserDeletionDispositionIT extends AbstractSessionIT {
     @Autowired
     private RoutineServiceRepository routineServiceRepository;
     @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private PlatformTransactionManager transactionManager;
@@ -59,11 +55,14 @@ class UserDeletionDispositionIT extends AbstractSessionIT {
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void deletingAVehicleOwnerTombstonesAndArchivesOwnedVehicles() throws Exception {
-        String login = committedUser();
-        Vehicle active = sessionFixtures.vehicleWithEventsFor(login);
-        Vehicle archived = sessionFixtures.archive(sessionFixtures.vehicleWithEventsFor(login),
-            Instant.parse("2024-06-01T00:00:00Z"));
+        String login = null;
+        Vehicle active = null;
+        Vehicle archived = null;
         try {
+            login = sessionFixtures.committedUser();
+            active = sessionFixtures.vehicleWithEventsFor(login);
+            archived = sessionFixtures.archive(sessionFixtures.vehicleWithEventsFor(login),
+                Instant.parse("2024-06-01T00:00:00Z"));
             mockMvc.perform(delete("/api/users/{login}", login))
                 .andExpect(status().isNoContent())
                 .andExpect(header().string("X-carcare-alert", "userManagement.deleted"))
@@ -89,22 +88,32 @@ class UserDeletionDispositionIT extends AbstractSessionIT {
             assertThat(routineServiceRepository.findByNextByDateIn(List.of(LocalDate.of(2025, 3, 10)))
                 .stream().map(r -> r.getVehicle().getId())).doesNotContainAnyElementsOf(tombstoned);
         } finally {
-            purgeRows(active.getId(), archived.getId());
-            deleteUserIfPresent(login);
+            if (active != null) {
+                purgeRows(active.getId());
+            }
+            if (archived != null) {
+                purgeRows(archived.getId());
+            }
+            if (login != null) {
+                deleteUserIfPresent(login);
+            }
         }
     }
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void deletingAUserWithNoVehiclesStillReturns204() throws Exception {
-        String login = committedUser();
+        String login = null;
         try {
+            login = sessionFixtures.committedUser();
             mockMvc.perform(delete("/api/users/{login}", login))
                 .andExpect(status().isNoContent())
                 .andExpect(header().string("X-carcare-alert", "userManagement.deleted"));
             assertThat(userRepository.findOneByLogin(login)).isEmpty();
         } finally {
-            deleteUserIfPresent(login);
+            if (login != null) {
+                deleteUserIfPresent(login);
+            }
         }
     }
 
@@ -114,20 +123,6 @@ class UserDeletionDispositionIT extends AbstractSessionIT {
         mockMvc.perform(delete("/api/users/{login}", "no-such-user-" + SEQ.incrementAndGet()))
             .andExpect(status().isNoContent())
             .andExpect(header().string("X-carcare-alert", "userManagement.deleted"));
-    }
-
-    private String committedUser() {
-        String login = "disposition-" + SEQ.incrementAndGet();
-        User user = new User();
-        user.setLogin(login);
-        user.setPassword(passwordEncoder.encode("disposition-secret"));
-        user.setEmail(login + "@example.com");
-        user.setFirstName("Disposition");
-        user.setLastName("Test");
-        user.setActivated(true);
-        user.setLangKey("en");
-        user.setCreatedBy("system");
-        return userRepository.saveAndFlush(user).getLogin();
     }
 
     // The test datasource runs with hikari auto-commit=false, so raw JDBC statements outside a

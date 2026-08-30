@@ -250,7 +250,7 @@ vehicles and events via `SessionFixtures` (repository saves auto-commit under `N
 Cases:
 
 - Delete a user owning one active + one archived vehicle, both with events → **204**, header
-  `X-carcareApp-alert: userManagement.deleted`; user row gone; both vehicles owned by
+  `X-carcare-alert: userManagement.deleted`; user row gone; both vehicles owned by
   `anonymoususer`; the previously-active vehicle has `archivedAt != null`; the three reminder
   queries (`findByValidThruIn` × 2, `findByNextByDateIn`) return no events for those vehicles.
 - Delete a user with no vehicles → **204** (regression guard).

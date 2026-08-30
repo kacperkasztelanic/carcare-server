@@ -225,7 +225,7 @@ public class UserService {
     }
 
     public void deleteUser(String login) {
-        if (Constants.SYSTEM_ACCOUNT.equals(login) || Constants.ANONYMOUS_USER.equals(login)) {
+        if (Constants.SYSTEM_ACCOUNT.equalsIgnoreCase(login) || Constants.ANONYMOUS_USER.equalsIgnoreCase(login)) {
             throw new ProtectedLoginException(login);
         }
         userRepository.findOneByLogin(login).ifPresent(user -> {

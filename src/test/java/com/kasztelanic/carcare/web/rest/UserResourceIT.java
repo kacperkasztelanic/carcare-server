@@ -708,6 +708,24 @@ class UserResourceIT {
 
     @Test
     @Transactional
+    void deleteSystemUserCaseVariantIsRejectedAsProtected() throws Exception {
+        mockMvc.perform(delete("/api/users/{login}", "SYSTEM"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.title").value(containsString("SYSTEM")));
+        assertThat(userRepository.findOneByLogin("system")).isPresent();
+    }
+
+    @Test
+    @Transactional
+    void deleteAnonymousUserCaseVariantIsRejectedAsProtected() throws Exception {
+        mockMvc.perform(delete("/api/users/{login}", "AnonymousUser"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.title").value(containsString("AnonymousUser")));
+        assertThat(userRepository.findOneByLogin("anonymoususer")).isPresent();
+    }
+
+    @Test
+    @Transactional
     void deleteNonExistingUserStillReturnsDeletionContract() throws Exception {
         mockMvc.perform(delete("/api/users/{login}", "missinguser"))
             .andExpect(status().isNoContent())

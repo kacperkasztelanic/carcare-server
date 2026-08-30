@@ -162,8 +162,9 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex, WebRequest request) {
-        // Routine client behaviour (deleting a referenced row); log at warn without a stack trace,
-        // matching handleArchivedResourceException's rationale.
+        // Routine client behaviour (deleting a referenced row): warn, not error. Unlike the 4xx
+        // handlers above (which log nothing), keep the stack trace here — a genuine bug surfacing
+        // as a DIV (e.g. truncation, not just FK/unique races) must stay diagnosable in prod logs.
         log.warn("Data integrity violation mapped to 409", ex);
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         problemDetail.setTitle("Data integrity violation");

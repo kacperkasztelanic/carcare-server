@@ -65,26 +65,29 @@ class AdminVehiclePurgeIT extends AbstractSessionIT {
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void purgesArchivedVehicleWithEventsImageAndWritesAuditEvent() throws Exception {
-        Vehicle vehicle = sessionFixtures.imageFor(
-            sessionFixtures.vehicleWithEventsFor("user"), "fake-png-bytes".getBytes());
-        vehicle = sessionFixtures.archive(vehicle, Instant.parse("2024-06-01T00:00:00Z"));
-        Long id = vehicle.getId();
-        String image = vehicle.getVehicleDetails().getImage();
-        Path imagePath = imagePath(image);
-        assertThat(Files.exists(imagePath)).isTrue();
-
+        Long id = null;
+        String image = null;
         try {
-            mockMvc.perform(delete("/api/admin/vehicles/{id}/purge", id))
+            Vehicle vehicle = sessionFixtures.vehicleWithEventsFor("user");
+            id = vehicle.getId();
+            vehicle = sessionFixtures.imageFor(vehicle, "fake-png-bytes".getBytes());
+            image = vehicle.getVehicleDetails().getImage();
+            vehicle = sessionFixtures.archive(vehicle, Instant.parse("2024-06-01T00:00:00Z"));
+            final Long vehicleId = id;
+            Path imagePath = imagePath(image);
+            assertThat(Files.exists(imagePath)).isTrue();
+
+            mockMvc.perform(delete("/api/admin/vehicles/{id}/purge", vehicleId))
                 .andExpect(status().isNoContent())
                 .andExpect(header().string("X-carcareApp-alert", "carcareApp.vehicle.deleted"))
-                .andExpect(header().string("X-carcareApp-params", id.toString()));
+                .andExpect(header().string("X-carcareApp-params", vehicleId.toString()));
 
-            assertThat(vehicleRepository.findById(id)).isEmpty();
-            assertThat(refuelRepository.findByVehicleId(id)).isEmpty();
-            assertThat(repairRepository.findByVehicleId(id)).isEmpty();
-            assertThat(routineServiceRepository.findByVehicleId(id)).isEmpty();
-            assertThat(inspectionRepository.findByVehicleId(id)).isEmpty();
-            assertThat(insuranceRepository.findByVehicleId(id)).isEmpty();
+            assertThat(vehicleRepository.findById(vehicleId)).isEmpty();
+            assertThat(refuelRepository.findByVehicleId(vehicleId)).isEmpty();
+            assertThat(repairRepository.findByVehicleId(vehicleId)).isEmpty();
+            assertThat(routineServiceRepository.findByVehicleId(vehicleId)).isEmpty();
+            assertThat(inspectionRepository.findByVehicleId(vehicleId)).isEmpty();
+            assertThat(insuranceRepository.findByVehicleId(vehicleId)).isEmpty();
             assertThat(Files.exists(imagePath)).isFalse();
 
             // Read the audit event and its @ElementCollection data map inside a transaction — the
@@ -92,30 +95,38 @@ class AdminVehiclePurgeIT extends AbstractSessionIT {
             new TransactionTemplate(transactionManager).executeWithoutResult(s -> {
                 PersistentAuditEvent audit = persistenceAuditEventRepository.findByPrincipal("admin").stream()
                     .filter(e -> "VEHICLE_PURGED".equals(e.getAuditEventType()))
-                    .filter(e -> id.toString().equals(e.getData().get("vehicleId")))
+                    .filter(e -> vehicleId.toString().equals(e.getData().get("vehicleId")))
                     .findFirst()
-                    .orElseThrow(() -> new AssertionError("no VEHICLE_PURGED audit event for vehicle " + id));
+                    .orElseThrow(() -> new AssertionError("no VEHICLE_PURGED audit event for vehicle " + vehicleId));
                 assertThat(audit.getData().get("ownerLogin")).isEqualTo("user");
                 assertThat(audit.getData().get("refuels")).isEqualTo("1");
             });
         } finally {
-            sessionFixtures.purgeRowsFor(List.of(id));
-            deletePurgeAuditEvents();
+            if (id != null) {
+                sessionFixtures.purgeRowsFor(List.of(id));
+                deletePurgeAuditEvents();
+            }
+            if (image != null) {
+                Files.deleteIfExists(imagePath(image));
+            }
         }
     }
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void purgingAnActiveVehicleIsRejectedWith409() throws Exception {
-        Vehicle vehicle = sessionFixtures.vehicleWithEventsFor("user");
-        Long id = vehicle.getId();
+        Long id = null;
         try {
+            Vehicle vehicle = sessionFixtures.vehicleWithEventsFor("user");
+            id = vehicle.getId();
             mockMvc.perform(delete("/api/admin/vehicles/{id}/purge", id))
                 .andExpect(status().isConflict());
             assertThat(vehicleRepository.findById(id)).isPresent();
             assertThat(refuelRepository.findByVehicleId(id)).isNotEmpty();
         } finally {
-            sessionFixtures.purgeRowsFor(List.of(id));
+            if (id != null) {
+                sessionFixtures.purgeRowsFor(List.of(id));
+            }
         }
     }
 

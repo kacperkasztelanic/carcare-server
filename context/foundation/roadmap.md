@@ -67,7 +67,7 @@ parallel tracks.
 | A | Platform restoration | `F-01` → `F-03` → `F-04` | The critical path. Every slice waits on it. `F-01` and `F-03` are delivered, so `src/main` now compiles and packages on the declared platform; `F-04` is the next item and the last foundation on this chain. |
 | B | Reference capture | `F-02` | Runs entirely on commit `6e19b96`, so it is unaffected by the broken build and parallel with all of Stream A. Feeds `S-03` and `S-04`. |
 | C | Parity proof | `S-01` → `S-07` (next); `S-02` / `S-03` / `S-04` follow | Joins Stream A at `F-04`; `S-03` and `S-04` also consume Stream B. S-07 turns the real-client findings from S-01 into focused compatibility work before the remaining parity slices proceed. |
-| D | New behaviour and feedback | `S-05` / `S-06`, parallel | Joins Stream C. The only two items that change what anyone sees; both deliberately last. |
+| D | New behaviour and feedback | `S-05` / `S-06` / `S-08`, parallel | Joins Stream C. The only items that change what anyone sees; deliberately last. |
 
 ## Baseline
 

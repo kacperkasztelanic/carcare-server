@@ -21,6 +21,7 @@ import com.kasztelanic.carcare.service.dto.AdminVehicleDto;
 import com.kasztelanic.carcare.service.exception.VehicleNotArchivedException;
 import com.kasztelanic.carcare.service.mapper.AdminVehicleMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -90,6 +92,10 @@ public class AdminVehicleServiceImpl implements AdminVehicleService {
     public void purgeVehicle(Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Vehicle " + id + " does not exist"));
+        // Known residual risk (impl-review F2, accepted 2026-08-29): this archivedAt check is
+        // check-then-act with no @Version on Vehicle, so a concurrent restoreVehicle could commit
+        // between this read and the purge commit. Accepted because the deployment is single-admin
+        // (P7); revisit if concurrent admin sessions are ever supported.
         if (vehicle.getArchivedAt() == null) {
             throw new VehicleNotArchivedException(id);
         }
@@ -114,13 +120,21 @@ public class AdminVehicleServiceImpl implements AdminVehicleService {
         auditData.put("image", image == null ? "" : image);
 
         // File delete is unrecoverable on rollback, so defer it to a committed transaction only.
-        // ImageStorageService.delete is idempotent and never throws, so no error handling is needed.
+        // The purge is durable by the time afterCompletion runs, so the callback must never throw
+        // (that would surface as a misleading 500 for a committed delete) and must not silently
+        // swallow a failed file delete.
         if (image != null && !image.isEmpty()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCompletion(int status) {
                     if (status == STATUS_COMMITTED) {
-                        imageStorageService.delete(image);
+                        try {
+                            if (!imageStorageService.delete(image)) {
+                                log.warn("Purge committed but image file was not deleted: {}", image);
+                            }
+                        } catch (RuntimeException e) {
+                            log.warn("Purge committed but image file deletion failed: {}", image, e);
+                        }
                     }
                 }
             });
