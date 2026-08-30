@@ -737,7 +737,7 @@ no re-login at all.
 
 - [x] 2.1 Unit tests pass: `./mvnw test` — 38 tests — 47bab4d
 - [x] 2.2 Integration tests pass: `./mvnw verify` — 249 tests — 47bab4d
-- [x] 2.3 No file anywhere in the tree contains the previously-committed literal (digest comparison) — `grep` for both old literals across `src/` returns 0; the three `base64-secret` sites now hold the empty prod default plus two fresh distinct values — 47bab4d. Re-verified tree-wide at impl review: one surviving copy at `.yo-rc.json:25` (`jwtSecretKey`, byte-identical to the removed prod literal), blanked as review finding F1
+- [x] 2.3 No file anywhere in the tree contains the previously-committed literal (digest comparison) — `grep` for both old literals across `src/` returns 0; the three `base64-secret` sites now hold the empty prod default plus two fresh distinct values. Re-verified tree-wide at impl review: one surviving copy at `.yo-rc.json:25` (`jwtSecretKey`, byte-identical to the removed prod literal), blanked as review finding F1 — 47bab4d, d1d66f8
 - [x] 2.4 `application-prod.yml`'s `base64-secret` default is empty — 47bab4d
 - [x] 2.5 `application-dev.yml` and `application-test.yml` defaults differ from each other — 47bab4d
 
