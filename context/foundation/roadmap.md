@@ -3,7 +3,7 @@ project: "CarCare Server"
 version: 1
 status: draft
 created: 2026-08-24
-updated: 2026-08-29
+updated: 2026-08-30
 prd_version: 1
 main_goal: speed
 top_blocker: none
@@ -54,7 +54,7 @@ event types against the same paths, payloads, and status codes as before.
 | S-04 | `english-reminder-fix` | receive a correctly rendered English reminder | F-02, F-04 | US-03, FR-011, FR-012, FR-015, FR-016 | done |
 | S-05 | `vehicle-archiving` | archive a vehicle with history and keep its costs in reporting | S-01, S-03, S-04 | US-02, FR-009, FR-012, FR-015 | done |
 | S-06 | `merge-request-ci` | (developer) get compile, test, and verify feedback on a merge request | S-01 | FR-015, FR-017 | done |
-| S-08 | `archived-vehicle-purge` | purge an archived vehicle for good, and delete a vehicle-owning user without the FK 500 | S-05 | FU-1 | proposed |
+| S-08 | `archived-vehicle-purge` | purge an archived vehicle for good, and delete a vehicle-owning user without the FK 500 | S-05 | FU-1 | done |
 
 ## Streams
 
@@ -462,7 +462,7 @@ never written.
   purge leaves no trace. The purge is interlocked behind `archivedAt != null` (P3) and framed as
   housekeeping with no compliance driver (P1); a purge is irreversible by design. Owner
   decisions P1–P7 in `context/changes/archived-vehicle-purge/change.md`.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -602,3 +602,4 @@ never written.
 - **S-03: an owner can request consumption, mileage, and cost statistics and both XLSX reports, and receive output matching the F-02 reference at value level — cell values, computed figures, and content type.** — Archived 2026-08-28 → `context/archive/2026-08-28-report-parity/`. Lesson: —.
 - **S-02: an administrator can manage users and authorities, read audit history, maintain lookup tables, generate test data, and trigger reminder dispatch with the existing business, security, and response behavior. This slice explicitly restores four confirmed API contracts: canonical creation `Location` headers for the three lookup/config resources and a usable reminder-advance DELETE binding.** — Archived 2026-08-28 → `context/archive/2026-08-28-admin-surface-parity/`. Lesson: —.
 - **S-06: a developer opening a merge request receives automated compile, test, and verify results, rather than verification running only on tags.** — Archived 2026-08-28 → `context/archive/2026-08-28-merge-request-ci/`. Lesson: —.
+- **S-08: an administrator can hard-purge an archived vehicle — its row, all five event tables' rows, and its image file are removed, with a `VEHICLE_PURGED` audit event recorded — and deleting a vehicle-owning user no longer returns an opaque 500: owned vehicles are tombstone-reassigned to `anonymoususer` (previously active ones archived) and the user row is deleted, preserving the `204 + userManagement.deleted` contract.** — Archived 2026-08-30 → `context/archive/2026-08-29-archived-vehicle-purge/`. Lesson: —.
