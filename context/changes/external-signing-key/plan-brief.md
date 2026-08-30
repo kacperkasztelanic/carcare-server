@@ -70,14 +70,14 @@ it cannot drift from the precedence it protects.
 | 2. Rotate the committed literals | The 2018 key leaves the working tree; prod default emptied | Breaking the dev run or the 249 ITs by malforming a replacement value |
 | 3. Fail fast when no key is configured | Boot refuses with an actionable message, both fields covered | Guarding only `base64-secret` leaves the plain path open — the exact gap found once before |
 | 4. Mark the superseded docker files | The standing trap is labelled | A header is the mitigation that already failed once; wording must be blunt |
-| 5. Release and verify | New image live; FR-003 session discharged | A second forced re-login here means the key did not survive the deploy — halt and roll back |
+| ~~5. Release and verify~~ | **Extracted 2026-08-30 to roadmap S-07 (`signing-key-release`).** New image live; FR-003 session discharged | A second forced re-login here means the key did not survive the deploy — halt and roll back |
 
 **Prerequisites:** SSH access to `vps`; write access to the private `services` repository; the
 `.env.gpg` passphrase or recipient key; `export JAVA_HOME=~/.sdkman/candidates/java/17.0.20-tem`
 before any Maven command.
 
 **Estimated effort:** ~2 sessions. Phase 1 is a short operator runbook; Phases 2–4 are one small
-merge; Phase 5 waits on a tag-triggered release.
+merge. Phase 5 (the tag-triggered release) is now roadmap slice S-07.
 
 ## Open Risks & Assumptions
 

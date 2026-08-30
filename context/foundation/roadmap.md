@@ -48,12 +48,13 @@ that fact.
 
 | ID   | Change ID                      | Outcome (user can …)                                          | Prerequisites | PRD refs                       | Status   |
 | ---- | ------------------------------ | ------------------------------------------------------------- | ------------- | ------------------------------ | -------- |
-| S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | —             | FR-001, FR-002, FR-003, US-01, US-02 | ready    |
+| S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | —             | FR-001, FR-002, US-01 (FR-003, US-02 → S-07) | ready    |
 | S-02 | `image-write-ordering`         | owner's stored image survives a failed vehicle update          | —             | FR-004, FR-007                 | ready    |
 | S-03 | `request-body-limit`           | server refuses an oversized request body before buffering it   | —             | FR-005                         | ready    |
 | S-04 | `image-format-allowlist`       | server stores only genuine PNG/JPEG uploads                    | S-02          | FR-006, FR-007                 | proposed |
 | S-05 | `image-path-containment`       | every image path resolves inside the data directory or refuses | —             | FR-008                         | ready    |
 | S-06 | `production-surface-reduction` | production build ships without test-data generation            | —             | FR-009                         | ready    |
+| S-07 | `signing-key-release`         | operator runs the fail-fast key server in production, verified end to end | S-01          | FR-003, US-02                   | ready    |
 
 ## Streams
 
@@ -62,7 +63,7 @@ dependency graph below; this table is the proposed reading order across parallel
 
 | Stream | Theme                    | Chain             | Note                                                                                  |
 | ------ | ------------------------ | ----------------- | ------------------------------------------------------------------------------------- |
-| A      | Signing key              | `S-01`            | The north star. Carries its own two-step rollout ordering internally — see its Risk.   |
+| A      | Signing key              | `S-01` → `S-07`   | The north star. S-01 is the repo + host work (its two-step rollout is internal — see its Risk); S-07 merges and deploys it and carries S-01's FR-003 verification. |
 | B      | Image write path         | `S-02` → `S-04`   | Sequential because both rewrite the same write path; parallelising them would conflict. |
 | C      | Request boundary         | `S-03`            | Standalone — a new filter ahead of the controllers, touching no image code.            |
 | D      | Hardening & surface      | `S-05` / `S-06`   | Two small independent slices, parallel with each other and with every other stream.    |
@@ -113,7 +114,7 @@ explicitly refuses.
   absent, empty, or too short for the signing algorithm. (Narrowed 2026-08-30: the
   previously-committed-value blocklist was dropped; see FR-002.)
 - **Change ID:** `external-signing-key`
-- **PRD refs:** FR-001, FR-002, FR-003, US-01, US-02
+- **PRD refs:** FR-001, FR-002, US-01 — FR-003 and US-02 (the end-to-end verification) moved to S-07
 - **Prerequisites:** —
 - **Parallel with:** S-02, S-03, S-05, S-06
 - **Blockers:** —
@@ -147,9 +148,16 @@ explicitly refuses.
   former when non-empty. Guarding only `base64-secret` leaves the other path open.
 
   Rotation invalidates every token in flight; the accepted cost is exactly one forced re-login,
-  with no dual-key grace window. FR-003 is the verification half of this slice, not a separate
-  concern: the client-1.2.5 session must be exercised end to end after rotation.
-- **Status:** ready
+  with no dual-key grace window. FR-003 is the verification half of this slice — but the merge,
+  tag, production deploy and that end-to-end client session were **split out to S-07
+  (`signing-key-release`) on 2026-08-30** at the owner's request, so they run on a separate cadence.
+- **Progress (2026-08-30):** rollout step 1 (host key delivery) done and verified by token
+  invalidation on the running `1.3.10` container — **the live exposure is closed**. Rollout step 2
+  (remove the committed default, add the fail-fast guard covering both key fields, plus a length
+  check, plus marking the superseded deploy files) landed on branch `refactor`, unpushed:
+  `./mvnw verify` green at 42 unit / 249 integration. See
+  `context/changes/external-signing-key/plan.md` Phases 1–4.
+- **Status:** ready (implementation landed; production release tracked by S-07)
 
 ### S-02: A failed vehicle update leaves the stored image intact
 
@@ -251,6 +259,38 @@ explicitly refuses.
   silently, since no test currently covers the production profile's registration.
 - **Status:** ready
 
+### S-07: The fail-fast signing-key server runs in production
+
+- **Outcome:** the repository hardening from S-01 (empty prod default, fail-fast guard on both
+  key fields plus a length check, superseded-deploy-file headers) is merged, tagged, built into
+  a production image, and deployed to the host — and a client-1.2.5 session runs end to end
+  against it (list vehicles, open one, record an event) with **no** login prompt beyond the one
+  already spent in S-01's host rotation.
+- **Change ID:** `signing-key-release`
+- **PRD refs:** FR-003, US-02
+- **Prerequisites:** S-01 (its Phases 1–4 are already done on branch `refactor`)
+- **Parallel with:** may batch with the merge/release of any other slice — it is a release gate,
+  not code
+- **Blockers:** —
+- **Unknowns:**
+  - **Branch and tag strategy.** `master` is ~130 commits behind `refactor`, which is the de facto
+    mainline; `.gitlab/gitlab-ci.yml`'s release path fires on `$CI_COMMIT_TAG`, and `verify` also
+    runs on `$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH`. Whether to fast-forward `master`, retarget
+    the default branch, or tag from `refactor` directly is an owner decision and gates the release.
+    — Owner: user. Block: yes.
+  - **Tag value.** `pom.xml` is at `1.3.11`, production runs `1.3.10`; tag `1.3.11` unless the
+    owner bumps first. — Owner: user. Block: no.
+- **Risk:** The only slice that touches production. S-01's host step already rotated the signing
+  key on the running `1.3.10` container, so this deploy must cost **no** further forced re-login:
+  a second re-login means the key did not survive the `1.3.10 → 1.3.11` image swap and the deploy
+  must roll back to `1.3.10` (which still binds `JHIPSTER_*`, so rollback itself forces no
+  re-login). The continuity token must be minted minutes before the swap — not carried from S-01,
+  whose 24-hour token would expire on its own and produce a false rollback trigger. Merges are
+  not gated on a green pipeline (`only_allow_merge_if_pipeline_succeeds` is `false`), and the
+  tag-only release path (`test`, `build`, `app`, `proxy`) has not executed since the Phase 4
+  header edits — check it deliberately.
+- **Status:** ready
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                      | Suggested issue title                                        | Ready for `/10x-plan` | Notes                                    |
@@ -261,6 +301,7 @@ explicitly refuses.
 | S-04       | `image-format-allowlist`       | Accept only byte-verified PNG and JPEG uploads                | no                    | Needs S-02; write path only              |
 | S-05       | `image-path-containment`       | Contain every image path under the data directory             | yes                   | Speculative hardening, by owner decision |
 | S-06       | `production-surface-reduction` | Exclude test-data endpoints from the production profile       | yes                   | Parallel-safe                            |
+| S-07       | `signing-key-release`         | Merge, tag and deploy the external-signing-key hardening       | no                    | Needs S-01; branch/tag strategy is an open owner decision |
 
 ## Open Roadmap Questions
 
@@ -293,7 +334,11 @@ explicitly refuses.
    S-01, since that slice is where the divergence bites.
 7. **Does production's 1.3.10 image differ from this branch in ways that affect rollout?** —
    New, surfaced while verifying the proxy configuration. Production runs app tag 1.3.10;
-   this repository is at 1.3.11. Owner: user. Block: no — gates S-01's rollout step only.
+   this repository is at 1.3.11. **Answered for S-01 (2026-08-30):** `1.3.10` binds the key only
+   under the legacy `JHIPSTER_*` prefix, so the host now sets both spellings; S-01's Phases 1–4
+   shipped against that. The residual — proving the key survives the `1.3.10 → 1.3.11` image swap
+   with no second re-login — moves to **S-07** along with the branch/tag strategy. Owner: user.
+   Block: no for S-01; yes for S-07.
 
 ## Parked
 

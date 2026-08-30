@@ -1,11 +1,12 @@
 ---
 change_id: external-signing-key
 title: Supply the signing key from the host, then fail fast without it
-status: implementing
+status: implemented
 created: 2026-08-30
 updated: 2026-08-30
 roadmap_id: S-01
-prd_refs: [FR-001, FR-002, FR-003, US-01, US-02]
+prd_refs: [FR-001, FR-002, US-01]
+prd_refs_moved: "FR-003 and US-02 verification moved to roadmap S-07 (signing-key-release) 2026-08-30"
 ---
 
 ## Notes
@@ -33,9 +34,14 @@ prefix* than this branch, so the two-step rollout has a variable-naming constrai
 - **Phases 2–4 (repository)**: DONE on branch `refactor`, unpushed — `47bab4d` (rotate committed
   literals), `bad035c` (fail-fast guard + 4 tests), `59325b6` (mark superseded deploy files),
   `5ce929d` / `b9b5043` (tracking). `./mvnw verify` green at 42 unit / 249 integration.
-- **Phase 5 (release + production deploy)**: DEFERRED to the owner's cadence. Not started. `master`
-  is ~130 commits behind `refactor`; tag/branch strategy and deploy timing are owner decisions.
-  `change.md` stays `implementing` and the plan epilogue is not run until Phase 5 lands.
+- **Phase 5 (release + production deploy)**: EXTRACTED 2026-08-30 to its own roadmap slice
+  **S-07 (`signing-key-release`)** at the owner's request, to run on a separate cadence. It is no
+  longer part of this change. `plan.md` Phase 5 is annotated and its Progress rows marked `[~]`
+  (moved), so this change's delivered scope is Phases 1–4, all done and verified. `status` is now
+  `implemented`; run `/10x-archive external-signing-key` when ready.
+- **S-07 carries**: the merge/tag/deploy mechanics, FR-003's end-to-end client-1.2.5 session, and
+  US-02's no-second-re-login proof. Open decision for S-07: branch/tag strategy (`master` is ~130
+  commits behind `refactor`).
 
 ### Out-of-repository step — DONE (see Phase 1 above)
 

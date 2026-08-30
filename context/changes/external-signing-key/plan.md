@@ -568,6 +568,11 @@ records agree rather than diverging.
 
 ## Phase 5: Release and verify against production
 
+> **EXTRACTED — 2026-08-30.** At the owner's request, this phase was split out of this change into
+> its own roadmap slice **S-07 (`signing-key-release`)**, to run on a separate cadence. It is kept
+> here for context only; its Progress rows below are tracked in S-07, not this plan. Phases 1–4 are
+> the delivered scope of `external-signing-key`, and the live exposure is already closed by Phase 1.
+
 ### Overview
 
 Merge, tag, deploy the new image, and exercise the FR-003 client-1.2.5 session. The key does not
@@ -761,15 +766,14 @@ no re-login at all.
 
 ### Phase 5: Release and verify against production
 
-#### Automated
+> **EXTRACTED to roadmap S-07 (`signing-key-release`) on 2026-08-30.** These rows are not tracked
+> by this plan. They are reproduced here only so the split is visible; the live checklist lives in
+> S-07's own plan once it is opened.
 
-- [ ] 5.1 Tag pipeline green across `test`, `build`, `app`, `proxy`
-- [ ] 5.2 Deployed container reports the new image tag and is running
-- [ ] 5.3 A token minted immediately before the deploy returns 200 from `/api/account` after it
-
-#### Manual
-
-- [ ] 5.4 Client-1.2.5 session lists vehicles, opens one, records an event
-- [ ] 5.5 No login prompt during that session
-- [ ] 5.6 No stored vehicle image became unreachable
-- [ ] 5.7 The `carcare.yml` image-tag change is committed in `services`
+- [~] 5.1 Tag pipeline green across `test`, `build`, `app`, `proxy` — moved to S-07
+- [~] 5.2 Deployed container reports the new image tag and is running — moved to S-07
+- [~] 5.3 A token minted immediately before the deploy returns 200 from `/api/account` after it — moved to S-07
+- [~] 5.4 Client-1.2.5 session lists vehicles, opens one, records an event — moved to S-07
+- [~] 5.5 No login prompt during that session — moved to S-07
+- [~] 5.6 No stored vehicle image became unreachable — moved to S-07
+- [~] 5.7 The `carcare.yml` image-tag change is committed in `services` — moved to S-07
