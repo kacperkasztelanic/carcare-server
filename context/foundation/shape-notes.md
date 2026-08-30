@@ -402,8 +402,12 @@ Captured for downstream skills; not part of the PRD schema.
 > **Both discharged on 2026-08-30**, after this shaping session closed. Recorded here so the
 > forward block is not read as still-pending; the shaping text above is left as written.
 >
-> - The rollout-ordering constraint became the `F-01 → S-01` dependency in
->   `context/foundation/roadmap.md`.
+> - The rollout-ordering constraint became the mandatory two-step rollout inside S-01 in
+>   `context/foundation/roadmap.md`. It was briefly a separate foundation slice with an
+>   `F-01 → S-01` dependency; the two were merged by owner decision once the delivery step
+>   proved to be one variable and one line. The ordering survived the merge — deliver the key
+>   while the committed default still works, verify on the host, only then remove the default
+>   and add the fail-fast check.
 > - Both open questions were measured, not decided: see
 >   `context/changes/security-baseline/oq-resolution.md`. The client renders an oversized-body
 >   rejection as a silent **false success** (no crash, no wedge, retry works), and the
