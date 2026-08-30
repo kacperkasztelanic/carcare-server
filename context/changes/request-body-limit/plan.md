@@ -413,27 +413,27 @@ client changes.
 
 #### Automated
 
-- [x] 2.1 Filter unit tests pass for under-limit, exact-limit, over-limit, HTTP/1.1 transfer-coded unknown-length, HTTP/2 `TE: trailers`, and unframed bodyless requests
-- [x] 2.2 Rejection tests prove the downstream chain and both body accessors are untouched and parse the complete 413 ProblemDetail response
-- [x] 2.3 Pass-through tests preserve input-stream and UTF-8 reader contents
-- [x] 2.4 Registration tests prove one relevant registration bean, no standalone filter bean, one dynamic `/*` `REQUEST` registration, pre-Security order, and no duplicate path
-- [x] 2.5 Telemetry tests prove the fixed meter contract, every-rejection counting, and deterministic process-global 60-second warning throttling under concurrency
+- [x] 2.1 Filter unit tests pass for under-limit, exact-limit, over-limit, HTTP/1.1 transfer-coded unknown-length, HTTP/2 `TE: trailers`, and unframed bodyless requests — 82e1738
+- [x] 2.2 Rejection tests prove the downstream chain and both body accessors are untouched and parse the complete 413 ProblemDetail response — 82e1738
+- [x] 2.3 Pass-through tests preserve input-stream and UTF-8 reader contents — 82e1738
+- [x] 2.4 Registration tests prove one relevant registration bean, no standalone filter bean, one dynamic `/*` `REQUEST` registration, pre-Security order, and no duplicate path — 82e1738
+- [x] 2.5 Telemetry tests prove the fixed meter contract, every-rejection counting, and deterministic process-global 60-second warning throttling under concurrency — 82e1738
 
 #### Manual
 
-- [x] 2.6 Boundary review confirms inclusive 4 MiB, the HTTP/1.1 transfer-coding predicate, HTTP/2 exclusion, and preserved bodyless-request semantics are explicit
+- [x] 2.6 Boundary review confirms inclusive 4 MiB, the HTTP/1.1 transfer-coding predicate, HTTP/2 exclusion, and preserved bodyless-request semantics are explicit — 82e1738
 
 ### Phase 3: Full-Context Integration and Final Verification
 
 #### Automated
 
-- [ ] 3.1 `RequestBodyLimitIT` passes with 413-before-401 ordering and no-controller/no-side-effect assertions
-- [ ] 3.2 Existing small request, static, management, and bodyless POST regressions remain green
-- [ ] 3.3 Java 17 `./mvnw verify` passes for the complete unit and integration suite
-- [ ] 3.4 Final diff contains no Liquibase, client, historical deployment, live proxy, or unrelated hardening changes
+- [x] 3.1 `RequestBodyLimitIT` passes with 413-before-401 ordering and no-controller/no-side-effect assertions
+- [x] 3.2 Existing small request, static, management, and bodyless POST regressions remain green
+- [x] 3.3 Java 17 `./mvnw verify` passes for the complete unit and integration suite
+- [x] 3.4 Final diff contains no Liquibase, client, historical deployment, live proxy, or unrelated hardening changes
 
 #### Manual
 
-- [ ] 3.5 Direct HTTP boundary smoke test confirms exactly-at-limit acceptance and over-limit 413 without application-side writes
-- [ ] 3.6 Frozen-client behavior and successful retry are recorded accurately if client verification is performed
-- [ ] 3.7 Human review confirms the external proxy was not changed and the application guard remains authoritative
+- [x] 3.5 Direct HTTP boundary smoke test confirms exactly-at-limit acceptance and over-limit 413 without application-side writes
+- [x] 3.6 Frozen-client behavior and successful retry are recorded accurately if client verification is performed
+- [x] 3.7 Human review confirms the external proxy was not changed and the application guard remains authoritative
