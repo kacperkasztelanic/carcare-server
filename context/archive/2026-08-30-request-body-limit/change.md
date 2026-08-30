@@ -1,10 +1,10 @@
 ---
 change_id: request-body-limit
 title: Request body limit
-status: impl_reviewed
+status: archived
 created: 2026-08-30
-updated: 2026-08-31
-archived_at: null
+updated: 2026-08-30
+archived_at: 2026-08-30T22:53:53Z
 ---
 
 ## Notes

@@ -50,7 +50,7 @@ that fact.
 | ---- | ------------------------------ | ------------------------------------------------------------- | ------------- | ------------------------------ | -------- |
 | S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | —             | FR-001, FR-002, US-01 (FR-003, US-02 → S-07) | done     |
 | S-02 | `image-write-ordering`         | owner's stored image survives a failed vehicle update          | —             | FR-004, FR-007                 | ready    |
-| S-03 | `request-body-limit`           | server refuses an oversized request body before buffering it   | —             | FR-005                         | ready    |
+| S-03 | `request-body-limit`           | server refuses an oversized request body before buffering it   | —             | FR-005                         | done     |
 | S-04 | `image-format-allowlist`       | server stores only genuine PNG/JPEG uploads                    | S-02          | FR-006, FR-007                 | proposed |
 | S-05 | `image-path-containment`       | every image path resolves inside the data directory or refuses | —             | FR-008                         | ready    |
 | S-06 | `production-surface-reduction` | production build ships without test-data generation            | —             | FR-009                         | ready    |
@@ -201,7 +201,7 @@ explicitly refuses.
   success**, closing the edit modal and navigating exactly as it does after a successful
   save. The client is frozen, so this cannot be fixed here; it is an accepted limitation, not
   a clean pass.
-- **Status:** ready
+- **Status:** done
 
 ### S-04: The server stores only genuine PNG and JPEG uploads
 
@@ -362,3 +362,5 @@ explicitly refuses.
   or too short for the signing algorithm. (Narrowed 2026-08-30: the previously-committed-value
   blocklist was dropped; see FR-002.)** — Archived 2026-08-30 →
   `context/archive/2026-08-30-external-signing-key/`. Lesson: —.
+- **S-03: server refuses an oversized request body before buffering it** — Archived 2026-08-30 →
+  `context/archive/2026-08-30-request-body-limit/`. Lesson: —.
