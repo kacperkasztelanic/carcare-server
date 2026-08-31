@@ -644,15 +644,15 @@ extension behaviour without affecting Phases 2 or 3.
 
 #### Automated
 
-- [ ] 1.1 Unit tests pass
-- [ ] 1.2 Full suite passes
-- [ ] 1.3 New tests are additive; counts rise from 38 / 249, no integration test skipped
-- [ ] 1.4 No file appears in the repo's `data/` directory after a full run (`find data -type f | wc -l` == 0 before and after)
+- [x] 1.1 Unit tests pass
+- [x] 1.2 Full suite passes
+- [x] 1.3 New tests are additive; counts rise from 38 / 249, no integration test skipped
+- [x] 1.4 No file appears in the repo's `data/` directory after a full run (`find data -type f | wc -l` == 0 before and after)
 
 #### Manual
 
-- [ ] 1.5 The shared scratch root is removed after the run (shutdown hook fired)
-- [ ] 1.6 All `AbstractImageIT` subclasses share one Spring context (startup banner appears once)
+- [x] 1.5 The shared scratch root is removed after the run (shutdown hook fired)
+- [x] 1.6 All `AbstractImageIT` subclasses share one Spring context (startup banner appears once)
 
 ### Phase 2: S-02 — delete a replaced image only after commit
 

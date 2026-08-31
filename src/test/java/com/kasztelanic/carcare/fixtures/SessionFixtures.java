@@ -23,6 +23,9 @@ import com.kasztelanic.carcare.repository.RoutineServiceRepository;
 import com.kasztelanic.carcare.repository.UserRepository;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.ImageStorageService;
+import com.kasztelanic.carcare.service.dto.FuelTypeDto;
+import com.kasztelanic.carcare.service.dto.VehicleDetailsDto;
+import com.kasztelanic.carcare.service.dto.VehicleDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -34,6 +37,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.imageio.ImageIO;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -42,6 +51,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -160,6 +170,47 @@ public class SessionFixtures implements ApplicationRunner {
         String fileName = imageStorageService.save(bytes, "image/png");
         vehicle.getVehicleDetails().setImage(fileName);
         return vehicleRepository.save(vehicle);
+    }
+
+    /** Real PNG bytes — a tiny image encoded by {@link ImageIO}, so byte-sniffing recognises it. */
+    public static byte[] pngBytes() {
+        return encodeImage("png");
+    }
+
+    /** Real JPEG bytes — a tiny image encoded by {@link ImageIO}, so byte-sniffing recognises it. */
+    public static byte[] jpegBytes() {
+        return encodeImage("jpg");
+    }
+
+    private static byte[] encodeImage(String format) {
+        BufferedImage image = new BufferedImage(8, 8, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            if (!ImageIO.write(image, format, out)) {
+                throw new IllegalStateException("No ImageIO writer registered for format: " + format);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return out.toByteArray();
+    }
+
+    /**
+     * Builds a {@link VehicleDto} carrying an image, for posting through {@code /api/vehicle}. The
+     * license plate is randomised so repeated posts within one non-transactional test do not
+     * collide.
+     */
+    public static VehicleDto vehicleDtoWithImage(String make, byte[] image, String imageContentType) {
+        return VehicleDto.builder()
+            .make(make)
+            .model("Fixture model")
+            .licensePlate("IMG" + ThreadLocalRandom.current().nextInt(100_000))
+            .fuelType(FuelTypeDto.of(DEFAULT_FUEL_TYPE, "Fixture fuel"))
+            .vehicleDetails(VehicleDetailsDto.defaultBuilder()
+                .image(image)
+                .imageContentType(imageContentType)
+                .build())
+            .build();
     }
 
     /**

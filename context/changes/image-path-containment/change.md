@@ -1,7 +1,7 @@
 ---
 change_id: image-path-containment
 title: Image path containment
-status: plan_reviewed
+status: implementing
 created: 2026-08-31
 updated: 2026-08-31
 ---
