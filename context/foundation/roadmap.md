@@ -303,13 +303,13 @@ explicitly refuses.
 
 | Roadmap ID | Change ID                      | Suggested issue title                                        | Ready for `/10x-plan` | Notes                                    |
 | ---------- | ------------------------------ | ------------------------------------------------------------ | --------------------- | ---------------------------------------- |
-| S-01       | `external-signing-key`         | Supply the signing key from the host, then fail fast without it | yes                 | Start here — the north star; two-step rollout inside |
+| S-01       | `external-signing-key`         | Supply the signing key from the host, then fail fast without it | done                | Implementation archived; production release tracked by S-07 |
 | S-02       | `image-write-ordering`         | Delete a replaced vehicle image only after commit             | done                  | Shipped in `image-path-containment` (2026-08-31) |
-| S-03       | `request-body-limit`           | Reject oversized request bodies before buffering              | yes                   | Needs new filter code; see Risk          |
+| S-03       | `request-body-limit`           | Reject oversized request bodies before buffering              | done                  | Implementation archived                  |
 | S-04       | `image-format-allowlist`       | Accept only byte-verified PNG and JPEG uploads                | done                  | Shipped in `image-path-containment` (2026-08-31); write path only |
 | S-05       | `image-path-containment`       | Contain every image path under the data directory             | done                  | Shipped in `image-path-containment` (2026-08-31) |
 | S-06       | `production-surface-reduction` | Exclude test-data endpoints from the production profile       | yes                   | Parallel-safe                            |
-| S-07       | `signing-key-release`         | Merge, tag and deploy the external-signing-key hardening       | no                    | Needs S-01; branch/tag strategy is an open owner decision |
+| S-07       | `signing-key-release`         | Merge, tag and deploy the external-signing-key hardening       | no                    | Release gate; branch/tag strategy is an open owner decision |
 
 ## Open Roadmap Questions
 
