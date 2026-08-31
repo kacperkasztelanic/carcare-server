@@ -644,27 +644,27 @@ extension behaviour without affecting Phases 2 or 3.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass
-- [x] 1.2 Full suite passes
-- [x] 1.3 New tests are additive; counts rise from 38 / 249, no integration test skipped
-- [x] 1.4 No file appears in the repo's `data/` directory after a full run (`find data -type f | wc -l` == 0 before and after)
+- [x] 1.1 Unit tests pass — 62ff5e9
+- [x] 1.2 Full suite passes — 62ff5e9
+- [x] 1.3 New tests are additive; counts rise from 38 / 249, no integration test skipped — 62ff5e9
+- [x] 1.4 No file appears in the repo's `data/` directory after a full run (`find data -type f | wc -l` == 0 before and after) — 62ff5e9
 
 #### Manual
 
-- [x] 1.5 The shared scratch root is removed after the run (shutdown hook fired)
-- [x] 1.6 All `AbstractImageIT` subclasses share one Spring context (startup banner appears once)
+- [x] 1.5 The shared scratch root is removed after the run (shutdown hook fired) — 62ff5e9
+- [x] 1.6 All `AbstractImageIT` subclasses share one Spring context (startup banner appears once) — 62ff5e9
 
 ### Phase 2: S-02 — delete a replaced image only after commit
 
 #### Automated
 
-- [ ] 2.1 Rollback IT fails before the change and passes after
-- [ ] 2.2 Full suite passes
-- [ ] 2.3 ArchTest still passes
+- [x] 2.1 Rollback IT fails before the change and passes after
+- [x] 2.2 Full suite passes
+- [x] 2.3 ArchTest still passes
 
 #### Manual
 
-- [ ] 2.4 Successful replacement through `dev` leaves exactly one file, old one gone
+- [x] 2.4 Successful replacement through `dev` leaves exactly one file, old one gone
 
 ### Phase 3: S-05 — contain every image path under the data directory
 
