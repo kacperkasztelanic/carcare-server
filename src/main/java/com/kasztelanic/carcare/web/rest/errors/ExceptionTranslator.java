@@ -3,6 +3,7 @@ package com.kasztelanic.carcare.web.rest.errors;
 import com.kasztelanic.carcare.service.exception.ArchivedResourceException;
 import com.kasztelanic.carcare.service.exception.InvalidLookupTypeException;
 import com.kasztelanic.carcare.service.exception.ProtectedLoginException;
+import com.kasztelanic.carcare.service.exception.UnsupportedImageFormatException;
 import com.kasztelanic.carcare.service.exception.UsernameAlreadyUsedException;
 import com.kasztelanic.carcare.service.exception.VehicleNotArchivedException;
 import lombok.extern.slf4j.Slf4j;
@@ -123,6 +124,16 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidLookupTypeException.class)
     public ResponseEntity<Object> handleInvalidLookupTypeException(InvalidLookupTypeException ex, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle(ex.getMessage());
+        return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(UnsupportedImageFormatException.class)
+    public ResponseEntity<Object> handleUnsupportedImageFormatException(UnsupportedImageFormatException ex,
+                                                                        WebRequest request) {
+        // A rejected image upload (bytes outside the PNG/JPEG allowlist, or a contradicted specific
+        // claim) is a rejected client request, not a fault — no stack trace.
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle(ex.getMessage());
         return handleExceptionInternal(ex, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);

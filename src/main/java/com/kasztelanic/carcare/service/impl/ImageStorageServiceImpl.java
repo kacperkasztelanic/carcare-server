@@ -3,18 +3,20 @@ package com.kasztelanic.carcare.service.impl;
 import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.service.exception.ImagePathNotContainedException;
+import com.kasztelanic.carcare.service.exception.UnsupportedImageFormatException;
 import com.kasztelanic.carcare.util.UuidProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.tika.mime.MimeTypeException;
-import org.apache.tika.mime.MimeTypes;
+import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.Map;
 
 //TODO refactor
 @Slf4j
@@ -24,7 +26,13 @@ public class ImageStorageServiceImpl implements ImageStorageService {
 
     private static final String DEFAULT = "default.png";
 
+    /** The only types written to the volume, mapped to the extension the stored file gets. */
+    private static final Map<String, String> ALLOWED_TYPES = Map.of(
+        "image/png", ".png",
+        "image/jpeg", ".jpg");
+
     private final ApplicationProperties applicationProperties;
+    private final Tika tika = new Tika();
 
     @Override
     public String save(byte[] image, String fileType) {
@@ -32,13 +40,11 @@ public class ImageStorageServiceImpl implements ImageStorageService {
             return "";
         }
         try {
-            String extension = MimeTypes.getDefaultMimeTypes().forName(fileType).getExtension();
+            String extension = allowedExtension(image, fileType);
             String fileName = UuidProvider.newUuid() + extension;
             Path path = prepareImagePath(fileName);
             FileUtils.writeByteArrayToFile(path.toFile(), image);
             return fileName;
-        } catch (MimeTypeException e) {
-            log.error("Illegal content type: {}", fileType);
         } catch (ImagePathNotContainedException e) {
             log.error("Refused to save image outside the data directory: {}", e.getName());
         } catch (IOException e) {
@@ -78,6 +84,37 @@ public class ImageStorageServiceImpl implements ImageStorageService {
             log.error("Refused to delete image outside the data directory: {}", e.getName());
             return false;
         }
+    }
+
+    /**
+     * Determines the stored file's extension from the actual bytes, never the client-declared type.
+     * Accepts only byte-verified PNG and JPEG. A client that declares a specific {@code image/*}
+     * type contradicted by the bytes is rejected; {@code null}, blank, {@code application/octet-stream}
+     * and any non-{@code image/*} declaration are treated as "no claim" and accepted — that is the
+     * behaviour that produced the legacy {@code *.bin} files and the one write-path client behaviour
+     * with production evidence.
+     */
+    private String allowedExtension(byte[] image, String declaredType) {
+        String detected = tika.detect(image);
+        String extension = ALLOWED_TYPES.get(detected);
+        if (extension == null) {
+            throw new UnsupportedImageFormatException(detected);
+        }
+        String declared = bareType(declaredType);
+        if (declared != null && declared.startsWith("image/") && !declared.equals(detected)) {
+            throw new UnsupportedImageFormatException(declared, detected);
+        }
+        return extension;
+    }
+
+    private static String bareType(String contentType) {
+        if (contentType == null) {
+            return null;
+        }
+        int semicolon = contentType.indexOf(';');
+        String bare = (semicolon >= 0 ? contentType.substring(0, semicolon) : contentType)
+            .trim().toLowerCase(Locale.ROOT);
+        return bare.isEmpty() ? null : bare;
     }
 
     private byte[] defaultImage() {

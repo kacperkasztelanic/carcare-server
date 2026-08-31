@@ -670,28 +670,28 @@ extension behaviour without affecting Phases 2 or 3.
 
 #### Automated
 
-- [x] 3.1 Containment cases fail before the change and pass after
-- [x] 3.2 Full suite passes
-- [x] 3.3 No copy of the path expression outside `ImageStorageServiceImpl` (grep returns the service only)
+- [x] 3.1 Containment cases fail before the change and pass after — 2324cd8
+- [x] 3.2 Full suite passes — 2324cd8
+- [x] 3.3 No copy of the path expression outside `ImageStorageServiceImpl` (grep returns the service only) — 2324cd8
 
 #### Manual
 
-- [x] 3.4 Load and replace through `dev` behaves exactly as before
+- [x] 3.4 Load and replace through `dev` behaves exactly as before — 2324cd8
 
 ### Phase 4: S-04 — store only byte-verified PNG and JPEG
 
 #### Automated
 
-- [ ] 4.1 Allowlist cases fail before the change and pass after
-- [ ] 4.2 Full suite passes
-- [ ] 4.3 No `MimeTypes` usage remains in `src/main`
-- [ ] 4.4 Read path untouched — `git diff` on `VehicleDetailsMapper` shows no hunk at lines 34-35
+- [x] 4.1 Allowlist cases fail before the change and pass after
+- [x] 4.2 Full suite passes
+- [x] 4.3 No `MimeTypes` usage remains in `src/main`
+- [x] 4.4 Read path untouched — `git diff` on `VehicleDetailsMapper` shows no hunk at lines 34-35
 
 #### Manual
 
-- [ ] 4.5 All nine production files still load with unchanged `imageContentType` (FR-007)
-- [ ] 4.6 Real PNG upload through client 1.2.5 stores a `*.png` file
-- [ ] 4.7 Non-image upload is rejected server-side
+- [x] 4.5 All nine production files still load with unchanged `imageContentType` (FR-007)
+- [x] 4.6 Real PNG upload through client 1.2.5 stores a `*.png` file
+- [x] 4.7 Non-image upload is rejected server-side
 
 ### Phase 5: Roadmap and requirement reconciliation
 

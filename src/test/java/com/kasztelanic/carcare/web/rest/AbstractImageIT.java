@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 /**
  * Base class for the filesystem-touching integration tests. Points
@@ -48,5 +49,14 @@ public abstract class AbstractImageIT extends AbstractSessionIT {
      */
     protected Path imagePath(String fileName) {
         return SCRATCH_ROOT.resolve(fileName);
+    }
+
+    /** Regular-file count anywhere under the scratch root — for before/after "nothing was written" checks. */
+    protected long scratchFileCount() {
+        try (Stream<Path> entries = Files.walk(SCRATCH_ROOT)) {
+            return entries.filter(Files::isRegularFile).count();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

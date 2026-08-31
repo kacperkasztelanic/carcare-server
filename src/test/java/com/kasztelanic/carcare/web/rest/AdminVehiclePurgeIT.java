@@ -1,6 +1,7 @@
 package com.kasztelanic.carcare.web.rest;
 
 import com.kasztelanic.carcare.domain.PersistentAuditEvent;
+import com.kasztelanic.carcare.fixtures.SessionFixtures;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.InspectionRepository;
 import com.kasztelanic.carcare.repository.InsuranceRepository;
@@ -66,7 +67,7 @@ class AdminVehiclePurgeIT extends AbstractImageIT {
         try {
             Vehicle vehicle = sessionFixtures.vehicleWithEventsFor("user");
             id = vehicle.getId();
-            vehicle = sessionFixtures.imageFor(vehicle, "fake-png-bytes".getBytes());
+            vehicle = sessionFixtures.imageFor(vehicle, SessionFixtures.pngBytes());
             image = vehicle.getVehicleDetails().getImage();
             vehicle = sessionFixtures.archive(vehicle, Instant.parse("2024-06-01T00:00:00Z"));
             final Long vehicleId = id;

@@ -3,13 +3,20 @@ package com.kasztelanic.carcare.service.impl;
 import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.fixtures.SessionFixtures;
 import com.kasztelanic.carcare.service.exception.ImagePathNotContainedException;
+import com.kasztelanic.carcare.service.exception.UnsupportedImageFormatException;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.imageio.ImageIO;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -65,8 +72,26 @@ class ImageStorageServiceImplTest {
     }
 
     @Test
-    void saveWithUnparseableContentTypeReturnsEmptyStringAndWritesNothing() {
-        assertThat(service.save(SessionFixtures.pngBytes(), "not a mime type")).isEmpty();
+    void saveIgnoresANonImageDeclaredTypeAndUsesTheSniffedType() {
+        // "not a mime type" / octet-stream / any non-image/* declaration is "no claim": the bytes decide.
+        assertThat(service.save(SessionFixtures.pngBytes(), "not a mime type")).endsWith(".png");
+        assertThat(service.save(SessionFixtures.pngBytes(), "application/octet-stream")).endsWith(".png");
+        assertThat(service.save(SessionFixtures.jpegBytes(), null)).endsWith(".jpg");
+    }
+
+    @Test
+    void saveRejectsADeclaredImageTypeContradictedByTheBytes() {
+        assertThatThrownBy(() -> service.save(SessionFixtures.pngBytes(), "image/jpeg"))
+            .isInstanceOf(UnsupportedImageFormatException.class);
+        assertThat(filesInDataDir()).isEmpty();
+    }
+
+    @Test
+    void saveRejectsBytesOutsideThePngJpegAllowlistAndWritesNothing() {
+        assertThatThrownBy(() -> service.save("just plain text".getBytes(StandardCharsets.UTF_8), null))
+            .isInstanceOf(UnsupportedImageFormatException.class);
+        assertThatThrownBy(() -> service.save(gifBytes(), "image/gif"))
+            .isInstanceOf(UnsupportedImageFormatException.class);
         assertThat(filesInDataDir()).isEmpty();
     }
 
@@ -146,5 +171,16 @@ class ImageStorageServiceImplTest {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private static byte[] gifBytes() {
+        BufferedImage image = new BufferedImage(4, 4, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "gif", out);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return out.toByteArray();
     }
 }

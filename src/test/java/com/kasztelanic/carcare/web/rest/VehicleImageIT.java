@@ -7,14 +7,17 @@ import com.kasztelanic.carcare.repository.VehicleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -30,6 +33,9 @@ class VehicleImageIT extends AbstractImageIT {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void createsVehicleWithImageAndRoundTripsBytes() throws Exception {
@@ -72,5 +78,22 @@ class VehicleImageIT extends AbstractImageIT {
         JsonNode body = objectMapper.readTree(updated.getResponse().getContentAsByteArray());
         assertThat(body.path("vehicleDetails").path("image").binaryValue()).isEqualTo(jpeg);
         assertThat(body.path("vehicleDetails").path("imageContentType").asText()).isEqualTo("image/jpeg");
+    }
+
+    @Test
+    void rejectsANonImageUploadWith400AndCreatesNothing() throws Exception {
+        int vehiclesBefore = jdbcTemplate.queryForObject("select count(*) from vehicles", Integer.class);
+        long filesBefore = scratchFileCount();
+
+        mockMvc.perform(post("/api/vehicle")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(SessionFixtures.vehicleDtoWithImage("Not an image",
+                    "definitely not an image".getBytes(StandardCharsets.UTF_8), "image/png"))))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON));
+
+        assertThat(jdbcTemplate.queryForObject("select count(*) from vehicles", Integer.class))
+            .isEqualTo(vehiclesBefore);
+        assertThat(scratchFileCount()).isEqualTo(filesBefore);
     }
 }
