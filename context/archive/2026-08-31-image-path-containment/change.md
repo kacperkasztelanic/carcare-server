@@ -1,9 +1,10 @@
 ---
 change_id: image-path-containment
 title: Image path containment
-status: impl_reviewed
+status: archived
 created: 2026-08-31
 updated: 2026-08-31
+archived_at: 2026-08-31T20:46:48Z
 ---
 
 ## Notes

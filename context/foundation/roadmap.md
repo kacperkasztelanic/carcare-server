@@ -3,7 +3,7 @@ project: "CarCare Server"
 version: 1
 status: draft
 created: 2026-08-30
-updated: 2026-08-30
+updated: 2026-08-31
 prd_version: 1
 main_goal: quality
 top_blocker: none
@@ -248,11 +248,7 @@ explicitly refuses.
   on the basis that it guards an invariant nothing else enforces across read, write, and
   delete alike. Small and self-contained; if anything in this change gets dropped for time,
   this is the candidate.
-- **Status:** done — shipped in `image-path-containment` (2026-08-31). Research verified the
-  "no client influence" premise: it holds for `load`/`delete`, but `imageContentType` is
-  client-controlled and did select the stored extension, and containment held only on a
-  property of tika-core's data file until this change — so the slice guards an invariant
-  nothing else enforced, which is the framing the PRD now records.
+- **Status:** done
 
 ### S-06: The production build ships without test-data generation
 
@@ -376,3 +372,5 @@ explicitly refuses.
   `context/archive/2026-08-30-external-signing-key/`. Lesson: —.
 - **S-03: server refuses an oversized request body before buffering it** — Archived 2026-08-30 →
   `context/archive/2026-08-30-request-body-limit/`. Lesson: —.
+- **S-05: every image path resolves inside the data directory or refuses** — Archived 2026-08-31 →
+  `context/archive/2026-08-31-image-path-containment/`. Lesson: —.
