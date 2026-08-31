@@ -658,25 +658,25 @@ extension behaviour without affecting Phases 2 or 3.
 
 #### Automated
 
-- [x] 2.1 Rollback IT fails before the change and passes after
-- [x] 2.2 Full suite passes
-- [x] 2.3 ArchTest still passes
+- [x] 2.1 Rollback IT fails before the change and passes after — 6785a38
+- [x] 2.2 Full suite passes — 6785a38
+- [x] 2.3 ArchTest still passes — 6785a38
 
 #### Manual
 
-- [x] 2.4 Successful replacement through `dev` leaves exactly one file, old one gone
+- [x] 2.4 Successful replacement through `dev` leaves exactly one file, old one gone — 6785a38
 
 ### Phase 3: S-05 — contain every image path under the data directory
 
 #### Automated
 
-- [ ] 3.1 Containment cases fail before the change and pass after
-- [ ] 3.2 Full suite passes
-- [ ] 3.3 No copy of the path expression outside `ImageStorageServiceImpl` (grep returns the service only)
+- [x] 3.1 Containment cases fail before the change and pass after
+- [x] 3.2 Full suite passes
+- [x] 3.3 No copy of the path expression outside `ImageStorageServiceImpl` (grep returns the service only)
 
 #### Manual
 
-- [ ] 3.4 Load and replace through `dev` behaves exactly as before
+- [x] 3.4 Load and replace through `dev` behaves exactly as before
 
 ### Phase 4: S-04 — store only byte-verified PNG and JPEG
 

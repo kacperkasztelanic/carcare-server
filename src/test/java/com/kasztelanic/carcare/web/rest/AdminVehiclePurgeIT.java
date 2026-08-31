@@ -1,6 +1,5 @@
 package com.kasztelanic.carcare.web.rest;
 
-import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.domain.PersistentAuditEvent;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.repository.InspectionRepository;
@@ -22,7 +21,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 
@@ -39,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * a rolled-back transaction never runs {@code afterCompletion} with {@code STATUS_COMMITTED}.
  */
 @WithMockUser(username = "admin", authorities = AuthoritiesConstants.ADMIN)
-class AdminVehiclePurgeIT extends AbstractSessionIT {
+class AdminVehiclePurgeIT extends AbstractImageIT {
 
     @Autowired
     private VehicleRepository vehicleRepository;
@@ -55,8 +53,6 @@ class AdminVehiclePurgeIT extends AbstractSessionIT {
     private InsuranceRepository insuranceRepository;
     @Autowired
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
-    @Autowired
-    private ApplicationProperties applicationProperties;
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
@@ -140,11 +136,6 @@ class AdminVehiclePurgeIT extends AbstractSessionIT {
     void purgingAsNonAdminReturns403() throws Exception {
         mockMvc.perform(delete("/api/admin/vehicles/{id}/purge", 1L).with(user("user")))
             .andExpect(status().isForbidden());
-    }
-
-    private Path imagePath(String fileName) {
-        return Paths.get(applicationProperties.getDataDirectory().getLocation()).normalize()
-            .resolve(fileName).normalize().toAbsolutePath();
     }
 
     private void deletePurgeAuditEvents() {
