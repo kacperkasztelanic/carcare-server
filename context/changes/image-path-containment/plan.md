@@ -697,8 +697,8 @@ extension behaviour without affecting Phases 2 or 3.
 
 #### Automated
 
-- [x] 5.1 No S-02 / S-04 / S-05 slice still reads `ready` or `proposed`
+- [x] 5.1 No S-02 / S-04 / S-05 slice still reads `ready` or `proposed` — 1a3cfb7
 
 #### Manual
 
-- [x] 5.2 Remaining open work is S-06 and S-07 only, with S-07's blocking Unknown intact
+- [x] 5.2 Remaining open work is S-06 and S-07 only, with S-07's blocking Unknown intact — 1a3cfb7
