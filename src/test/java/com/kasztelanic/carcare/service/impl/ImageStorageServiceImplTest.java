@@ -3,6 +3,7 @@ package com.kasztelanic.carcare.service.impl;
 import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.fixtures.SessionFixtures;
 import com.kasztelanic.carcare.service.exception.ImagePathNotContainedException;
+import com.kasztelanic.carcare.service.exception.ImageStorageException;
 import com.kasztelanic.carcare.service.exception.UnsupportedImageFormatException;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,6 +70,21 @@ class ImageStorageServiceImplTest {
     void saveWithNullImageReturnsEmptyString() {
         assertThat(service.save(null, "image/png")).isEmpty();
         assertThat(filesInDataDir()).isEmpty();
+    }
+
+    @Test
+    void saveFailureThrowsAndDoesNotPersistAnEmptySentinel() throws IOException {
+        Path fileAsDataDirectory = dataDir.resolve("not-a-directory");
+        Files.write(fileAsDataDirectory, new byte[]{1});
+
+        ApplicationProperties properties = new ApplicationProperties();
+        properties.getDataDirectory().setLocation(fileAsDataDirectory.toString());
+        ImageStorageServiceImpl failingService = new ImageStorageServiceImpl(properties);
+
+        assertThatThrownBy(() -> failingService.save(SessionFixtures.pngBytes(), "image/png"))
+            .isInstanceOf(ImageStorageException.class)
+            .hasMessage("Could not save image.");
+        assertThat(Files.readAllBytes(fileAsDataDirectory)).containsExactly((byte) 1);
     }
 
     @Test
@@ -154,6 +170,28 @@ class ImageStorageServiceImplTest {
 
         // "sub/../ok.png" normalises to <root>/ok.png — contained, must be served, not refused.
         assertThat(service.load("sub/../ok.png")).isEqualTo(png);
+    }
+
+    @Test
+    void refusesSymlinkedPathComponents() throws IOException {
+        Path outside = Files.createTempDirectory("carcare-image-outside-");
+        Path outsideFile = outside.resolve("escape.png");
+        Files.write(outsideFile, SessionFixtures.pngBytes());
+        Path link = dataDir.resolve("link");
+        Files.createSymbolicLink(link, outside);
+        byte[] defaultPng = IOUtils.resourceToByteArray("default.png", getClass().getClassLoader());
+
+        try {
+            assertThatThrownBy(() -> ReflectionTestUtils.invokeMethod(service, "prepareImagePath", "link/escape.png"))
+                .isInstanceOf(ImagePathNotContainedException.class);
+            assertThat(service.load("link/escape.png")).isEqualTo(defaultPng);
+            assertThat(service.delete("link/escape.png")).isFalse();
+            assertThat(Files.exists(outsideFile)).isTrue();
+        } finally {
+            Files.deleteIfExists(link);
+            Files.deleteIfExists(outsideFile);
+            Files.deleteIfExists(outside);
+        }
     }
 
     @Test

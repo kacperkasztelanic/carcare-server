@@ -247,7 +247,7 @@ replacing the image → the response carries the new bytes.
 #### Manual Verification:
 
 - The shared scratch root is removed after the run — no leftover directory under the JVM temp root
-- All classes extending `AbstractImageIT` share one Spring context: the startup banner appears once for them, not once per class
+- All non-`@SpyBean` classes extending `AbstractImageIT` share one Spring context; the rollback IT adds one expected `@SpyBean` fork
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause
 here for manual confirmation from the human that the manual testing was successful before
@@ -276,11 +276,12 @@ never silently swallowing a failed delete.
 
 **Contract**: `updateVehicle` captures both filenames as effectively-final locals before mutating
 the entity, and registers a single `TransactionSynchronization` whose `afterCompletion(int status)`
-deletes the old filename under `STATUS_COMMITTED` and the new filename otherwise. Each branch
-guards against null/empty, checks `delete()`'s boolean return, logs a warning naming the file when
-it returns false, and catches `RuntimeException` so the callback cannot throw. The method keeps its
-signature and still returns the mutated `vehicle`. `VehicleServiceImpl` gains `@Slf4j`. Registration
-requires an active synchronization — guaranteed here by the enclosing `@Transactional` on
+deletes the old filename under `STATUS_COMMITTED` and the new filename under `STATUS_ROLLED_BACK`.
+Any other status is logged and leaves both files in place. The cleanup branches guard against
+null/empty, check `delete()`'s boolean return, log a warning naming the file when it returns false,
+and catch `RuntimeException` so the callback cannot throw. The method keeps its signature and still
+returns the mutated `vehicle`. `VehicleServiceImpl` gains `@Slf4j`. Registration requires an active
+synchronization — guaranteed here by the enclosing `@Transactional` on
 `editVehicle`, but guard with `TransactionSynchronizationManager.isSynchronizationActive()` so a
 future non-transactional caller degrades to a no-op rather than throwing.
 
@@ -344,7 +345,8 @@ unnormalised path.
 
 **Contract**: The helper resolves the root as `Paths.get(location).toAbsolutePath().normalize()`
 and the candidate as `root.resolve(fileName).toAbsolutePath().normalize()`, then throws an
-unchecked exception unless `candidate.startsWith(root) && !candidate.equals(root)`. The
+unchecked exception unless `candidate.startsWith(root) && !candidate.equals(root)`. It also refuses
+any symlinked child component; the configured root itself may be a deployment symlink. The
 `!equals(root)` clause refuses a name that resolves to the directory itself — today only reachable
 via `""`, which `load`/`delete` already short-circuit at `:50`/`:62`, so behaviour is unchanged;
 making it explicit puts the rule in one place (research OQ3). Ordering is load-bearing:
@@ -365,8 +367,10 @@ behaviour moves and a refusal can never become a 500.
 
 **Contract**: `save` returns `""` (joining the existing `MimeTypeException` / `IOException`
 branches), `load` returns the `default.png` bytes, `delete` returns `false` — each logging at
-`error` with the offending name. Note `load` calls `prepareImagePath` twice (`:50`, `:53`); collapse
-to one call while adding the guard.
+`error` with the offending name. A genuine write `IOException` is different: the attempted path is
+cleaned up best-effort and an unchecked `ImageStorageException` is thrown so a vehicle create/edit
+transaction cannot commit an empty image sentinel. Note `load` calls `prepareImagePath` twice
+(`:50`, `:53`); collapse to one call while adding the guard.
 
 #### 3. Remove the duplicated helper in the purge IT
 
@@ -391,8 +395,9 @@ REST — a REST-only test would leave FR-008 with no coverage at all.
 **Contract**: A parameterised case per row of the measured table — `../../../../etc/passwd`,
 `/etc/passwd` (absolute), `..`, and `sub/../ok.png` (contained, must still be accepted) — asserting
 refusal or acceptance, and asserting that each public method returns its documented sentinel rather
-than propagating. Plus a regression case that the returned path for a contained name is absolute
-and normalised.
+than propagating. A symlinked child component is refused by the helper and absorbed by the public
+methods without touching the outside target. Plus a regression case that the returned path for a
+contained name is absolute and normalised.
 
 ### Success Criteria:
 
@@ -401,6 +406,7 @@ and normalised.
 - The containment cases fail against the pre-change helper and pass after
 - Full suite passes: `JAVA_HOME=~/.sdkman/candidates/java/17.0.20-tem ./mvnw verify`
 - No remaining copy of the path expression outside `ImageStorageServiceImpl`: `grep -rn "getDataDirectory().getLocation()" src/` returns **only** `ImageStorageServiceImpl` — `AbstractImageIT`'s helper resolves against its `@TempDir`, not against the property, so it must not appear either
+- A symlinked child path is rejected without reading or deleting the outside target
 
 #### Manual Verification:
 
@@ -436,9 +442,10 @@ present in tika-core 2.7.0 — and maps the result through a fixed allowlist of 
 `image/png` → `.png` and `image/jpeg` → `.jpg`, chosen to match what the four legacy octet-stream
 uploads and the five correctly-typed ones actually are. A detected type outside the allowlist
 throws (see next item). `MimeTypes.getDefaultMimeTypes().forName(...)` and the `MimeTypeException`
-catch are removed. The `IOException` catch and the `""` return stay for genuine write failures; the
-`image == null` guard stays; and **the containment catch added in Phase 3 stays exactly as that
-phase left it** — this phase changes only the type-detection branch.
+catch are removed. The `image == null` guard stays; and **the containment catch added in Phase 3
+stays exactly as that phase left it** — this phase changes only the type-detection branch. A
+genuine write `IOException` is cleaned up best-effort and rethrown as `ImageStorageException`; it
+must not return `""` after an attempted write.
 
 #### 2. Mismatch rule for the declared content type
 
@@ -466,7 +473,9 @@ claim — into a 400 that rolls the transaction back, rather than the silent `""
 a failed image indistinguishable from no image.
 
 **Contract**: An unchecked exception in `service/exception`, following `InvalidLookupTypeException`
-exactly (a single constructor building the message). A handler in `ExceptionTranslator` alongside
+in its unchecked shape. It has two constructors: one for bytes outside the allowlist, and one for
+a specific declared `image/*` type that contradicts the detected bytes; each builds the
+corresponding client-facing message. A handler in `ExceptionTranslator` alongside
 `handleInvalidLookupTypeException` at `:124-129`: `ProblemDetail.forStatus(BAD_REQUEST)`, `title`
 from `getMessage()`, returned through `handleExceptionInternal`, with a comment noting this is a
 rejected client request rather than a fault so it gets no stack trace. Because `save` is called
@@ -504,6 +513,22 @@ and writes nothing; sniffed extension wins regardless of the declared one. REST 
 non-image body returns 400 with a `ProblemDetail`, no vehicle row is created, and the data
 directory is empty afterwards.
 
+#### 6. Legacy filename compatibility fixture
+
+**File**: `src/test/java/com/kasztelanic/carcare/web/rest/VehicleImageCompatibilityIT.java` (new)
+
+**Intent**: Make the production-volume compatibility claim repeatable without committing ordinary
+user photos to the repository. The test protects the read-path contract that the four legacy
+`*.bin` names and the five correctly-extended names remain loadable.
+
+**Contract**: Use the nine UUID filenames recorded in
+`context/changes/security-baseline/oq-resolution.md` — four `*.bin`, one `*.png`, and four
+`*.jpg`. Write anonymized, format-valid fixture bytes under those names, persist each name on a
+vehicle, and GET each vehicle through the real filter chain. Assert byte-for-byte round-trip and
+the unchanged filename-derived `imageContentType` (`application/octet-stream` for `*.bin`,
+`image/png` for `*.png`, `image/jpeg` for `*.jpg`). Delete the fixture files in `finally`; do not
+copy production photos into the repository.
+
 ### Success Criteria:
 
 #### Automated Verification:
@@ -512,10 +537,16 @@ directory is empty afterwards.
 - Full suite passes: `JAVA_HOME=~/.sdkman/candidates/java/17.0.20-tem ./mvnw verify`
 - No `MimeTypes` usage remains in `src/main`: `grep -rn "org.apache.tika.mime" src/main/java` returns nothing
 - The read path is untouched: `git diff -- src/main/java/com/kasztelanic/carcare/service/mapper/VehicleDetailsMapper.java` shows no hunk touching the `load(...)` / `tika.detect(...)` lines (34-35). `--stat` is file-level and cannot express a line range, so read the diff itself
+- The nine production-volume filenames remain loadable through the REST read path:
+  `VehicleImageCompatibilityIT` passes with byte-for-byte round-trips and unchanged
+  filename-derived content types
+- A filesystem write failure throws `ImageStorageException` instead of returning an empty image sentinel
 
 #### Manual Verification:
 
-- Against a `dev` instance seeded with a copy of the production volume's nine files, every one — including the four `*.bin` — still loads in the client and reports the same `imageContentType` as before (FR-007)
+- The production inventory and client 1.2.5 baseline are recorded in
+  `context/changes/security-baseline/oq-resolution.md`; the compatibility IT above provides the
+  repeatable server-side evidence for all nine names, including the four `*.bin` (FR-007)
 - Uploading a real PNG through client 1.2.5 succeeds and the stored file is named `*.png`, not `*.bin`
 - Uploading a non-image through the client is rejected (noting the client renders the 400 as a silent false success — expected, and an accepted limitation carried from S-03)
 
@@ -652,7 +683,7 @@ extension behaviour without affecting Phases 2 or 3.
 #### Manual
 
 - [x] 1.5 The shared scratch root is removed after the run (shutdown hook fired) — 62ff5e9
-- [x] 1.6 All `AbstractImageIT` subclasses share one Spring context (startup banner appears once) — 62ff5e9
+- [x] 1.6 All non-`@SpyBean` `AbstractImageIT` subclasses share one Spring context; the rollback IT adds one expected `@SpyBean` fork — 62ff5e9
 
 ### Phase 2: S-02 — delete a replaced image only after commit
 
@@ -673,10 +704,11 @@ extension behaviour without affecting Phases 2 or 3.
 - [x] 3.1 Containment cases fail before the change and pass after — 2324cd8
 - [x] 3.2 Full suite passes — 2324cd8
 - [x] 3.3 No copy of the path expression outside `ImageStorageServiceImpl` (grep returns the service only) — 2324cd8
+- [x] 3.4 Symlinked child paths are refused without touching the outside target — working tree (impl-review F2)
 
 #### Manual
 
-- [x] 3.4 Load and replace through `dev` behaves exactly as before — 2324cd8
+- [x] 3.5 Load and replace through `dev` behaves exactly as before — 2324cd8
 
 ### Phase 4: S-04 — store only byte-verified PNG and JPEG
 
@@ -686,12 +718,17 @@ extension behaviour without affecting Phases 2 or 3.
 - [x] 4.2 Full suite passes — 8ceb8e4
 - [x] 4.3 No `MimeTypes` usage remains in `src/main` — 8ceb8e4
 - [x] 4.4 Read path untouched — `git diff` on `VehicleDetailsMapper` shows no hunk at lines 34-35 — 8ceb8e4
+- [x] 4.5 Nine production-volume filenames load through the REST read path with byte-for-byte
+  round-trips and unchanged filename-derived content types — working tree (impl-review F4)
+- [x] 4.6 Filesystem write failures throw `ImageStorageException` rather than returning an empty
+  image sentinel — working tree (impl-review F1)
 
 #### Manual
 
-- [x] 4.5 All nine production files still load with unchanged `imageContentType` (FR-007) — 8ceb8e4
-- [x] 4.6 Real PNG upload through client 1.2.5 stores a `*.png` file — 8ceb8e4
-- [x] 4.7 Non-image upload is rejected server-side — 8ceb8e4
+- [x] 4.7 Production inventory and client 1.2.5 baseline are recorded in
+  `context/changes/security-baseline/oq-resolution.md` — 8ceb8e4
+- [x] 4.8 Real PNG upload through client 1.2.5 stores a `*.png` file — 8ceb8e4
+- [x] 4.9 Non-image upload is rejected server-side — 8ceb8e4
 
 ### Phase 5: Roadmap and requirement reconciliation
 

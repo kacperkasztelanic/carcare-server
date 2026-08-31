@@ -3,18 +3,22 @@ package com.kasztelanic.carcare.service.impl;
 import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.service.ImageStorageService;
 import com.kasztelanic.carcare.service.exception.ImagePathNotContainedException;
+import com.kasztelanic.carcare.service.exception.ImageStorageException;
 import com.kasztelanic.carcare.service.exception.UnsupportedImageFormatException;
 import com.kasztelanic.carcare.util.UuidProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Locale;
 import java.util.Map;
 
@@ -39,16 +43,18 @@ public class ImageStorageServiceImpl implements ImageStorageService {
         if (image == null) {
             return "";
         }
+        Path path = null;
         try {
             String extension = allowedExtension(image, fileType);
             String fileName = UuidProvider.newUuid() + extension;
-            Path path = prepareImagePath(fileName);
-            FileUtils.writeByteArrayToFile(path.toFile(), image);
+            path = prepareImagePath(fileName);
+            Files.write(path, image, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
             return fileName;
         } catch (ImagePathNotContainedException e) {
             log.error("Refused to save image outside the data directory: {}", e.getName());
         } catch (IOException e) {
-            log.error("Could not save file.");
+            deletePartialFile(path, e);
+            throw new ImageStorageException("Could not save image.", e);
         }
         return "";
     }
@@ -60,10 +66,12 @@ public class ImageStorageServiceImpl implements ImageStorageService {
         }
         try {
             Path path = prepareImagePath(name);
-            if (!path.toFile().isFile()) {
+            if (!Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
                 return defaultImage();
             }
-            return FileUtils.readFileToByteArray(path.toFile());
+            try (InputStream input = Files.newInputStream(path, LinkOption.NOFOLLOW_LINKS)) {
+                return input.readAllBytes();
+            }
         } catch (ImagePathNotContainedException e) {
             log.error("Refused to load image outside the data directory: {}", e.getName());
             return defaultImage();
@@ -79,10 +87,25 @@ public class ImageStorageServiceImpl implements ImageStorageService {
             return false;
         }
         try {
-            return FileUtils.deleteQuietly(prepareImagePath(name).toFile());
+            return Files.deleteIfExists(prepareImagePath(name));
         } catch (ImagePathNotContainedException e) {
             log.error("Refused to delete image outside the data directory: {}", e.getName());
             return false;
+        } catch (IOException e) {
+            log.warn("Could not delete image file.", e);
+            return false;
+        }
+    }
+
+    private void deletePartialFile(Path path, IOException writeFailure) {
+        if (path == null) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException cleanupFailure) {
+            writeFailure.addSuppressed(cleanupFailure);
+            log.warn("Could not clean up failed image write: {}", path, cleanupFailure);
         }
     }
 
@@ -140,6 +163,13 @@ public class ImageStorageServiceImpl implements ImageStorageService {
         Path candidate = root.resolve(fileName).toAbsolutePath().normalize();
         if (!candidate.startsWith(root) || candidate.equals(root)) {
             throw new ImagePathNotContainedException(fileName);
+        }
+        Path current = root;
+        for (Path component : root.relativize(candidate)) {
+            current = current.resolve(component);
+            if (Files.isSymbolicLink(current)) {
+                throw new ImagePathNotContainedException(fileName);
+            }
         }
         return candidate;
     }

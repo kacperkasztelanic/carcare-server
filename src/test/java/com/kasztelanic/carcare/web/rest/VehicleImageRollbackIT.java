@@ -1,10 +1,12 @@
 package com.kasztelanic.carcare.web.rest;
 
+import com.kasztelanic.carcare.config.ApplicationProperties;
 import com.kasztelanic.carcare.domain.Vehicle;
 import com.kasztelanic.carcare.fixtures.SessionFixtures;
 import com.kasztelanic.carcare.repository.VehicleRepository;
 import com.kasztelanic.carcare.service.VehicleService;
 import com.kasztelanic.carcare.service.dto.VehicleDto;
+import com.kasztelanic.carcare.service.exception.ImageStorageException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ class VehicleImageRollbackIT extends AbstractImageIT {
 
     @Autowired
     private VehicleService vehicleService;
+
+    @Autowired
+    private ApplicationProperties applicationProperties;
 
     @SpyBean
     private VehicleRepository vehicleRepository;
@@ -119,6 +124,45 @@ class VehicleImageRollbackIT extends AbstractImageIT {
             if (newImage != null) {
                 Files.deleteIfExists(imagePath(newImage));
             }
+        }
+    }
+
+    @Test
+    void failedImageWriteRollsBackAndKeepsTheOldFile() throws Exception {
+        Long id = null;
+        String oldImage = null;
+        Path invalidRoot = Files.createTempFile("carcare-image-not-a-directory-", ".tmp");
+        String originalLocation = applicationProperties.getDataDirectory().getLocation();
+        try {
+            Vehicle vehicle = sessionFixtures.imageFor(sessionFixtures.vehicleFor("user"),
+                SessionFixtures.pngBytes());
+            id = vehicle.getId();
+            oldImage = vehicle.getVehicleDetails().getImage();
+            Path oldPath = imagePath(oldImage);
+            byte[] oldBytes = Files.readAllBytes(oldPath);
+
+            applicationProperties.getDataDirectory().setLocation(invalidRoot.toString());
+            VehicleDto edit = SessionFixtures.vehicleDtoWithImage("Write failure",
+                SessionFixtures.jpegBytes(), "image/jpeg");
+            final Long vehicleId = id;
+
+            assertThatThrownBy(() -> vehicleService.editVehicle(vehicleId, edit))
+                .isInstanceOf(ImageStorageException.class);
+
+            applicationProperties.getDataDirectory().setLocation(originalLocation);
+            assertThat(Files.exists(oldPath)).isTrue();
+            assertThat(Files.readAllBytes(oldPath)).isEqualTo(oldBytes);
+            assertThat(vehicleRepository.findById(id).orElseThrow().getVehicleDetails().getImage())
+                .isEqualTo(oldImage);
+        } finally {
+            applicationProperties.getDataDirectory().setLocation(originalLocation);
+            if (id != null) {
+                sessionFixtures.purgeRowsFor(List.of(id));
+            }
+            if (oldImage != null) {
+                Files.deleteIfExists(imagePath(oldImage));
+            }
+            Files.deleteIfExists(invalidRoot);
         }
     }
 }

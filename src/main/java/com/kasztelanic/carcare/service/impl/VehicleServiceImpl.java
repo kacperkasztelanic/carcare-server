@@ -105,7 +105,15 @@ public class VehicleServiceImpl implements VehicleService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCompletion(int status) {
-                String orphan = status == STATUS_COMMITTED ? replacedImage : replacementImage;
+                String orphan;
+                if (status == STATUS_COMMITTED) {
+                    orphan = replacedImage;
+                } else if (status == STATUS_ROLLED_BACK) {
+                    orphan = replacementImage;
+                } else {
+                    log.warn("Image cleanup skipped because transaction completion status is unknown: {}", status);
+                    return;
+                }
                 if (orphan == null || orphan.isEmpty()) {
                     return;
                 }

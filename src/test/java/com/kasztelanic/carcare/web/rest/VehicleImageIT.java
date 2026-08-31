@@ -16,6 +16,7 @@ import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,6 +57,13 @@ class VehicleImageIT extends AbstractImageIT {
         JsonNode body = objectMapper.readTree(created.getResponse().getContentAsByteArray());
         assertThat(body.path("vehicleDetails").path("image").binaryValue()).isEqualTo(png);
         assertThat(body.path("vehicleDetails").path("imageContentType").asText()).isEqualTo("image/png");
+
+        MvcResult fetched = mockMvc.perform(get("/api/vehicle/{id}", id))
+            .andExpect(status().isOk())
+            .andReturn();
+        JsonNode fetchedBody = objectMapper.readTree(fetched.getResponse().getContentAsByteArray());
+        assertThat(fetchedBody.path("vehicleDetails").path("image").binaryValue()).isEqualTo(png);
+        assertThat(fetchedBody.path("vehicleDetails").path("imageContentType").asText()).isEqualTo("image/png");
     }
 
     @Test
