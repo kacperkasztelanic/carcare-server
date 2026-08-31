@@ -295,6 +295,18 @@ scrutiny.
   > guarding an invariant nothing else enforces across read, write, and delete alike.
   > Recorded as knowingly speculative hardening, not as a defect anyone is currently
   > exposed to.
+  >
+  > **Verified against the code 2026-08-31 (shipped in `image-path-containment`).** The
+  > premise holds for `load`/`delete`: all three such call sites read the persisted
+  > `VehicleDetails.image` column, written only from `save()`'s server-generated
+  > `UUID + extension`. But it is narrower than "no client influence": `imageContentType`
+  > *is* client-controlled and *did* select the stored extension, and containment held only
+  > because tika-core 2.7.0's MIME registry rejects traversal-shaped media-type names and
+  > none of its globs contain `/` or `..` — a property of a dependency's data file, not an
+  > invariant this application enforced. So FR-008 is better characterised as guarding an
+  > invariant nothing else enforced than as guarding a path no code can reach. The write
+  > path no longer passes any client string to the MIME lookup (S-04), and the path helper
+  > now refuses anything resolving outside the data directory (S-05).
 
 ### Production surface
 

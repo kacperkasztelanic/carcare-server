@@ -682,23 +682,23 @@ extension behaviour without affecting Phases 2 or 3.
 
 #### Automated
 
-- [x] 4.1 Allowlist cases fail before the change and pass after
-- [x] 4.2 Full suite passes
-- [x] 4.3 No `MimeTypes` usage remains in `src/main`
-- [x] 4.4 Read path untouched — `git diff` on `VehicleDetailsMapper` shows no hunk at lines 34-35
+- [x] 4.1 Allowlist cases fail before the change and pass after — 8ceb8e4
+- [x] 4.2 Full suite passes — 8ceb8e4
+- [x] 4.3 No `MimeTypes` usage remains in `src/main` — 8ceb8e4
+- [x] 4.4 Read path untouched — `git diff` on `VehicleDetailsMapper` shows no hunk at lines 34-35 — 8ceb8e4
 
 #### Manual
 
-- [x] 4.5 All nine production files still load with unchanged `imageContentType` (FR-007)
-- [x] 4.6 Real PNG upload through client 1.2.5 stores a `*.png` file
-- [x] 4.7 Non-image upload is rejected server-side
+- [x] 4.5 All nine production files still load with unchanged `imageContentType` (FR-007) — 8ceb8e4
+- [x] 4.6 Real PNG upload through client 1.2.5 stores a `*.png` file — 8ceb8e4
+- [x] 4.7 Non-image upload is rejected server-side — 8ceb8e4
 
 ### Phase 5: Roadmap and requirement reconciliation
 
 #### Automated
 
-- [ ] 5.1 No S-02 / S-04 / S-05 slice still reads `ready` or `proposed`
+- [x] 5.1 No S-02 / S-04 / S-05 slice still reads `ready` or `proposed`
 
 #### Manual
 
-- [ ] 5.2 Remaining open work is S-06 and S-07 only, with S-07's blocking Unknown intact
+- [x] 5.2 Remaining open work is S-06 and S-07 only, with S-07's blocking Unknown intact

@@ -49,10 +49,10 @@ that fact.
 | ID   | Change ID                      | Outcome (user can …)                                          | Prerequisites | PRD refs                       | Status   |
 | ---- | ------------------------------ | ------------------------------------------------------------- | ------------- | ------------------------------ | -------- |
 | S-01 | `external-signing-key`         | operator deploys with no usable key in version control         | —             | FR-001, FR-002, US-01 (FR-003, US-02 → S-07) | done     |
-| S-02 | `image-write-ordering`         | owner's stored image survives a failed vehicle update          | —             | FR-004, FR-007                 | ready    |
+| S-02 | `image-write-ordering`         | owner's stored image survives a failed vehicle update          | —             | FR-004, FR-007                 | done     |
 | S-03 | `request-body-limit`           | server refuses an oversized request body before buffering it   | —             | FR-005                         | done     |
-| S-04 | `image-format-allowlist`       | server stores only genuine PNG/JPEG uploads                    | S-02          | FR-006, FR-007                 | proposed |
-| S-05 | `image-path-containment`       | every image path resolves inside the data directory or refuses | —             | FR-008                         | ready    |
+| S-04 | `image-format-allowlist`       | server stores only genuine PNG/JPEG uploads                    | S-02          | FR-006, FR-007                 | done     |
+| S-05 | `image-path-containment`       | every image path resolves inside the data directory or refuses | —             | FR-008                         | done     |
 | S-06 | `production-surface-reduction` | production build ships without test-data generation            | —             | FR-009                         | ready    |
 | S-07 | `signing-key-release`         | operator runs the fail-fast key server in production, verified end to end | S-01          | FR-003, US-02                   | ready    |
 
@@ -64,7 +64,7 @@ dependency graph below; this table is the proposed reading order across parallel
 | Stream | Theme                    | Chain             | Note                                                                                  |
 | ------ | ------------------------ | ----------------- | ------------------------------------------------------------------------------------- |
 | A      | Signing key              | `S-01` → `S-07`   | The north star. S-01 is the repo + host work (its two-step rollout is internal — see its Risk); S-07 merges and deploys it and carries S-01's FR-003 verification. |
-| B      | Image write path         | `S-02` → `S-04`   | Sequential because both rewrite the same write path; parallelising them would conflict. |
+| B      | Image write path         | `S-02` → `S-04`   | Done — S-02, S-04 and S-05 shipped together in `image-path-containment` (2026-08-31). The three touched disjoint methods across two files; the S-02 → S-04 order was honoured by phase order within the one change, not by a textual conflict. |
 | C      | Request boundary         | `S-03`            | Standalone — a new filter ahead of the controllers, touching no image code.            |
 | D      | Hardening & surface      | `S-05` / `S-06`   | Two small independent slices, parallel with each other and with every other stream.    |
 
@@ -171,12 +171,17 @@ explicitly refuses.
 - **Unknowns:**
   - Are any `vehicle_details.image` values the empty-string sentinel that `save()` returns on
     failure? The volume has no zero-byte or extensionless files, but the column was not read
-    (the measurement session had no database access). — Owner: user. Block: no.
-- **Risk:** Sequenced before S-04 because both rewrite the same write path and doing them in
-  parallel would conflict. The failure mode being fixed destroys a file that cannot be
-  restored, and no backup story for the data volume has been verified — so this slice must be
-  built and tested against a scratch directory, never the production volume.
-- **Status:** ready
+    (the measurement session had no database access). Still unmeasured. Now harmless going
+    forward: S-04's Phase 4 makes new `""` occurrences impossible (a failed upload is a 400,
+    not a silent sentinel), and any pre-existing rows keep serving `default.png` exactly as
+    today. — Owner: user. Block: no.
+- **Risk:** Sequenced before S-04, but the code did not bear out the "same write path" rationale:
+  S-02 changed `VehicleServiceImpl.updateVehicle`, S-04 `ImageStorageServiceImpl.save`, S-05
+  `ImageStorageServiceImpl.prepareImagePath` — three disjoint methods. The order was honoured by
+  phase order inside the one change instead. The failure mode being fixed destroys a file that
+  cannot be restored, and no backup story for the data volume has been verified — so this slice
+  was built and tested against a per-run scratch directory, never the production volume.
+- **Status:** done — shipped in `image-path-containment` (2026-08-31)
 
 ### S-03: The server refuses an oversized request body before buffering it
 
@@ -210,7 +215,10 @@ explicitly refuses.
   already on the volume stays loadable.
 - **Change ID:** `image-format-allowlist`
 - **PRD refs:** FR-006, FR-007
-- **Prerequisites:** S-02
+- **Prerequisites:** S-02 — honoured by phase order within the merged `image-path-containment`
+  change, not by a textual conflict: research found S-02, S-04 and S-05 land in three disjoint
+  methods across two files, so the roadmap's original "both rewrite the same write path"
+  rationale did not hold.
 - **Parallel with:** S-01, S-03, S-05, S-06
 - **Blockers:** —
 - **Unknowns:** —
@@ -222,7 +230,7 @@ explicitly refuses.
   type — the exact defect this slice fixes). Enforcement therefore belongs on the **write
   path only**. Adding allowlist checks to the read path would make those four files
   unloadable and break FR-007.
-- **Status:** proposed
+- **Status:** done — shipped in `image-path-containment` (2026-08-31); write path only, read path untouched
 
 ### S-05: Image paths cannot escape the data directory
 
@@ -240,7 +248,11 @@ explicitly refuses.
   on the basis that it guards an invariant nothing else enforces across read, write, and
   delete alike. Small and self-contained; if anything in this change gets dropped for time,
   this is the candidate.
-- **Status:** ready
+- **Status:** done — shipped in `image-path-containment` (2026-08-31). Research verified the
+  "no client influence" premise: it holds for `load`/`delete`, but `imageContentType` is
+  client-controlled and did select the stored extension, and containment held only on a
+  property of tika-core's data file until this change — so the slice guards an invariant
+  nothing else enforced, which is the framing the PRD now records.
 
 ### S-06: The production build ships without test-data generation
 
@@ -296,10 +308,10 @@ explicitly refuses.
 | Roadmap ID | Change ID                      | Suggested issue title                                        | Ready for `/10x-plan` | Notes                                    |
 | ---------- | ------------------------------ | ------------------------------------------------------------ | --------------------- | ---------------------------------------- |
 | S-01       | `external-signing-key`         | Supply the signing key from the host, then fail fast without it | yes                 | Start here — the north star; two-step rollout inside |
-| S-02       | `image-write-ordering`         | Delete a replaced vehicle image only after commit             | yes                   | Parallel-safe                            |
+| S-02       | `image-write-ordering`         | Delete a replaced vehicle image only after commit             | done                  | Shipped in `image-path-containment` (2026-08-31) |
 | S-03       | `request-body-limit`           | Reject oversized request bodies before buffering              | yes                   | Needs new filter code; see Risk          |
-| S-04       | `image-format-allowlist`       | Accept only byte-verified PNG and JPEG uploads                | no                    | Needs S-02; write path only              |
-| S-05       | `image-path-containment`       | Contain every image path under the data directory             | yes                   | Speculative hardening, by owner decision |
+| S-04       | `image-format-allowlist`       | Accept only byte-verified PNG and JPEG uploads                | done                  | Shipped in `image-path-containment` (2026-08-31); write path only |
+| S-05       | `image-path-containment`       | Contain every image path under the data directory             | done                  | Shipped in `image-path-containment` (2026-08-31) |
 | S-06       | `production-surface-reduction` | Exclude test-data endpoints from the production profile       | yes                   | Parallel-safe                            |
 | S-07       | `signing-key-release`         | Merge, tag and deploy the external-signing-key hardening       | no                    | Needs S-01; branch/tag strategy is an open owner decision |
 

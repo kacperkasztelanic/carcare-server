@@ -1,7 +1,7 @@
 ---
 change_id: image-path-containment
 title: Image path containment
-status: implementing
+status: done
 created: 2026-08-31
 updated: 2026-08-31
 ---
@@ -36,3 +36,15 @@ property value per subclass and would have forked a Spring context for each; and
 that the Phase 2 callback cleans up after a rejected upload was wrong — nothing is written on that
 path, and `addVehicle` registers no callback at all, so create-path rollback orphans are now a
 stated out-of-scope gap. Report: `reviews/plan-review.md`.
+
+### Closed — 2026-08-31
+
+Shipped in five phases. One change closed three roadmap slices — **S-02** (`image-write-ordering`,
+FR-004), **S-05** (`image-path-containment`, FR-008) and **S-04** (`image-format-allowlist`,
+FR-006) — under the FR-007 guardrail, exactly as the scope decision above intended. Commits:
+`62ff5e9` (test harness), `6785a38` (S-02), `2324cd8` (S-05), `8ceb8e4` (S-04), plus this
+reconciliation phase.
+
+Two documented gaps carried forward, both stated in `plan.md` § "What We're NOT Doing":
+create-path rollback orphans (`addVehicle` registers no post-commit callback) and the
+still-unmeasured `vehicle_details.image` empty-string sentinel (Phase 4 prevents new ones).
